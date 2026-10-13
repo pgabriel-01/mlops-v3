@@ -14,7 +14,7 @@
     "pandas": "3.0.6",
     "scikit-learn": "1.9.1",
     "mlflow": "3.17.1",
-    "azureml-mlflow": "1.60.0.post1",
+    "azureml-mlflow": "1.60.0",
     "azure-ai-ml": "1.35.2",
     "azure-identity": "1.26.0",
     "pyarrow": "25.0.1",
@@ -67,6 +67,6 @@
   "holds": {
     "provider:azurerm": "AVM Terraform modules require azurerm < 5.0; stays on the latest 4.x",
     "pypi:pyarrow": "mlflow 3.17.x requires pyarrow<26; stays on the latest 25.0.x until mlflow lifts the cap",
-    "pypi:azureml-mlflow": "azureml-mlflow 1.62 requires mlflow-skinny<=3.15.0, which conflicts with mlflow 3.17; stays on 1.60.x"
+    "pypi:azureml-mlflow": "azureml-mlflow 1.60.0.post1 and later cap mlflow-skinny (<3, <=3.5.0, <=3.9.0, <=3.15.0), conflicting with mlflow 3.17; 1.60.0 is the last uncapped release"
   }
 }

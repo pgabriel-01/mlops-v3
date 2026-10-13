@@ -385,9 +385,9 @@ function Get-LatestVersion {
             return ($all | Where-Object { $_ -match "^$Major\.\d+\.\d+$" } | Sort-Object { [version]$_ } | Select-Object -Last 1)
         }
         if ($Major -and $Kind -eq 'pypi') {
-            # A held PyPI package tracks only its pinned major.minor series (patch and post releases).
+            # A held PyPI package tracks only its pinned major.minor series (patch releases, no post releases).
             $rel = (Invoke-RestMethod -Uri "https://pypi.org/pypi/$Name/json" -TimeoutSec 20).releases.PSObject.Properties
-            $rx = '^' + [regex]::Escape($Major) + '(\.\d+)?(\.post\d+)?$'
+            $rx = '^' + [regex]::Escape($Major) + '(\.\d+)?$'
             $ok = $rel | Where-Object { $_.Name -match $rx -and ($_.Value | Where-Object { -not $_.yanked }) } | ForEach-Object Name
             return ($ok | Sort-Object { [version](($_ -replace '\.post\d+$', '') + $(if (($_ -replace '\.post\d+$','').Split('.').Count -lt 3) { '.0' } else { '' })) }, { $_ } | Select-Object -Last 1)
         }
