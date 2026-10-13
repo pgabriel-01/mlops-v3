@@ -1,0 +1,22 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Test
+        shell: pwsh
+        run: |
+          Install-PSResource Pester, powershell-yaml -TrustRepository
+          Invoke-Pester ./tests -CI
+      - name: Package
+        run: |
+          zip -r "mlops-v3-${GITHUB_REF_NAME}.zip" src templates schema docs versions.lock.json inputs.example.yaml README.md LICENSE* 2>/dev/null || zip -r "mlops-v3-${GITHUB_REF_NAME}.zip" src templates schema docs versions.lock.json inputs.example.yaml README.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: mlops-v3-*.zip
