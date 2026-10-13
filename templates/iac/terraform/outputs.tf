@@ -1,7 +1,7 @@
 output "resource_group_name" {
-  value = azurerm_resource_group.this.name
+  value = module.rg.name
 }
 
 output "workspace_name" {
-  value = azurerm_machine_learning_workspace.this.name
+  value = module.naming.machine_learning_workspace.name
 }

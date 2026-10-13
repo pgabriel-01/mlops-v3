@@ -3,11 +3,11 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> [[versions.providers.azurerm]]"
+      version = "[[versions.providers.azurerm]]"
     }
     azuredevops = {
       source  = "microsoft/azuredevops"
-      version = "~> [[versions.providers.azuredevops]]"
+      version = "[[versions.providers.azuredevops]]"
     }
   }
 }
@@ -30,40 +30,50 @@ data "azuredevops_project" "this" {
   name = var.azdo_project
 }
 
-resource "azurerm_resource_group" "state" {
-  name     = "rg-${local.base_name}"
-  location = var.location
-  tags     = var.tags
+module "rg" {
+  source           = "Azure/avm-res-resources-resourcegroup/azurerm"
+  version          = "[[versions.avm_tf.res-resources-resourcegroup]]"
+  name             = "rg-${local.base_name}"
+  location         = var.location
+  tags             = var.tags
+  enable_telemetry = var.enable_telemetry
 }
 
-resource "azurerm_storage_account" "state" {
+# State is accessed with Entra ID only: shared keys are disabled.
+module "state_storage" {
+  source                          = "Azure/avm-res-storage-storageaccount/azurerm"
+  version                         = "[[versions.avm_tf.res-storage-storageaccount]]"
   name                            = "stt${var.project_name}${var.suffix}"
-  resource_group_name             = azurerm_resource_group.state.name
-  location                        = azurerm_resource_group.state.location
+  location                        = module.rg.location
+  parent_id                       = module.rg.resource_id
   account_tier                    = "Standard"
   account_replication_type        = "ZRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
   shared_access_key_enabled       = false
   tags                            = var.tags
+  enable_telemetry                = var.enable_telemetry
 
-  blob_properties {
+  blob_properties = {
     versioning_enabled = true
+  }
+
+  containers = {
+    tfstate = {
+      name = "tfstate"
+    }
   }
 }
 
-resource "azurerm_storage_container" "state" {
-  name                  = "tfstate"
-  storage_account_id    = azurerm_storage_account.state.id
-  container_access_type = "private"
-}
-
-resource "azurerm_user_assigned_identity" "deploy" {
+module "deploy_identity" {
   for_each            = local.environments
+  source              = "Azure/avm-res-managedidentity-userassignedidentity/azurerm"
+  version             = "[[versions.avm_tf.res-managedidentity-userassignedidentity]]"
   name                = "id-${var.project_name}-${each.key}-${var.location_short}"
-  resource_group_name = azurerm_resource_group.state.name
-  location            = azurerm_resource_group.state.location
+  location            = module.rg.location
+  resource_group_name = module.rg.name
   tags                = var.tags
+  enable_telemetry    = var.enable_telemetry
 }
 
 resource "azuredevops_serviceendpoint_azurerm" "env" {
@@ -76,14 +86,14 @@ resource "azuredevops_serviceendpoint_azurerm" "env" {
   azurerm_subscription_name              = "${var.project_name}-${each.key}"
 
   credentials {
-    serviceprincipalid = azurerm_user_assigned_identity.deploy[each.key].client_id
+    serviceprincipalid = module.deploy_identity[each.key].client_id
   }
 }
 
 resource "azurerm_federated_identity_credential" "env" {
   for_each                  = local.environments
   name                      = "azdo-${each.key}"
-  user_assigned_identity_id = azurerm_user_assigned_identity.deploy[each.key].id
+  user_assigned_identity_id = module.deploy_identity[each.key].resource_id
   audience                  = ["api://AzureADTokenExchange"]
   issuer                    = azuredevops_serviceendpoint_azurerm.env[each.key].workload_identity_federation_issuer
   subject                   = azuredevops_serviceendpoint_azurerm.env[each.key].workload_identity_federation_subject
@@ -95,21 +105,21 @@ resource "azurerm_role_assignment" "contributor" {
   for_each             = local.environments
   scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.deploy[each.key].principal_id
+  principal_id         = module.deploy_identity[each.key].principal_id
 }
 
 resource "azurerm_role_assignment" "access_admin" {
   for_each             = local.environments
   scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = "Role Based Access Control Administrator"
-  principal_id         = azurerm_user_assigned_identity.deploy[each.key].principal_id
+  principal_id         = module.deploy_identity[each.key].principal_id
 }
 
 resource "azurerm_role_assignment" "state" {
   for_each             = local.environments
-  scope                = azurerm_storage_account.state.id
+  scope                = module.state_storage.resource_id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_user_assigned_identity.deploy[each.key].principal_id
+  principal_id         = module.deploy_identity[each.key].principal_id
 }
 
 resource "azuredevops_git_repository" "this" {
@@ -134,14 +144,14 @@ resource "azuredevops_variable_group" "env" {
 
   variable {
     name  = "TFSTATE_RESOURCE_GROUP"
-    value = azurerm_resource_group.state.name
+    value = module.rg.name
   }
   variable {
     name  = "TFSTATE_STORAGE_ACCOUNT"
-    value = azurerm_storage_account.state.name
+    value = module.state_storage.name
   }
   variable {
     name  = "TFSTATE_CONTAINER"
-    value = azurerm_storage_container.state.name
+    value = "tfstate"
   }
 }

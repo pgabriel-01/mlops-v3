@@ -12,3 +12,8 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "enable_telemetry" {
+  type    = bool
+  default = true
+}

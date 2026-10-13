@@ -4,7 +4,7 @@
   "python": "3.14",
   "terraform": "1.16.5",
   "providers": {
-    "azurerm": "5.9.0",
+    "azurerm": "4.81.0",
     "azapi": "2.13.0",
     "github": "6.13.0",
     "azuredevops": "1.16.0"
@@ -31,5 +31,32 @@
     "upload_artifact": "v7"
   },
   "ml_cli_extension": "2.45.1",
-  "notes": "Python 3.14 is the newest interpreter on which this stack resolves and runs end to end. Python 3.15 is still a release candidate and pyarrow has no wheel for it."
+  "notes": "Python 3.14 is the newest interpreter on which this stack resolves and runs end to end. Python 3.15 is still a release candidate and pyarrow has no wheel for it.",
+  "avm_tf": {
+    "res-resources-resourcegroup": "0.4.0",
+    "res-operationalinsights-workspace": "0.5.1",
+    "res-insights-component": "0.4.0",
+    "res-storage-storageaccount": "0.10.0",
+    "res-keyvault-vault": "0.12.0",
+    "res-containerregistry-registry": "0.8.0",
+    "res-machinelearningservices-workspace": "0.9.0",
+    "res-managedidentity-userassignedidentity": "0.5.3",
+    "utl-regions": "0.12.0"
+  },
+  "tf_modules": {
+    "naming": "0.4.4"
+  },
+  "avm_bicep": {
+    "res/resources/resource-group": "0.4.4",
+    "res/operational-insights/workspace": "0.16.1",
+    "res/insights/component": "0.8.0",
+    "res/storage/storage-account": "0.33.1",
+    "res/key-vault/vault": "0.14.2",
+    "res/container-registry/registry": "0.13.1",
+    "res/machine-learning-services/workspace": "0.14.1",
+    "res/managed-identity/user-assigned-identity": "0.6.0"
+  },
+  "holds": {
+    "provider:azurerm": "AVM Terraform modules require azurerm < 5.0; stays on the latest 4.x"
+  }
 }

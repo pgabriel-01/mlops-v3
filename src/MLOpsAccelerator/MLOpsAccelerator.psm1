@@ -120,7 +120,7 @@ function Expand-MLOpsTemplate {
                     needs      = $(if ($prev) { "deploy-$prev" } else { 'validate' })
                     needs_azdo = $(if ($prev) { "deploy_$prev" } else { 'validate' })
                 }
-                [regex]::Replace($body, '\[\[\s*([A-Za-z0-9_.\-]+)\s*\]\]', {
+                [regex]::Replace($body, '\[\[\s*([A-Za-z0-9_.\-/]+)\s*\]\]', {
                         param($t)
                         $k = $t.Groups[1].Value
                         if ($local.ContainsKey($k)) { $local[$k] } elseif ($Map.ContainsKey($k)) { $Map[$k] } else { $t.Value }
@@ -129,7 +129,7 @@ function Expand-MLOpsTemplate {
             -join $out
         })
 
-    [regex]::Replace($Text, '\[\[\s*([A-Za-z0-9_.\-]+)\s*\]\]', {
+    [regex]::Replace($Text, '\[\[\s*([A-Za-z0-9_.\-/]+)\s*\]\]', {
             param($t)
             $k = $t.Groups[1].Value
             if ($Map.ContainsKey($k)) { $Map[$k] } else { throw "Unknown template token '$k' in $Source" }
@@ -283,9 +283,18 @@ function Invoke-MLOpsBootstrap {
 }
 
 function Get-LatestVersion {
-    param([string] $Kind, [string] $Name)
+    param([string] $Kind, [string] $Name, [string] $Major)
     try {
+        if ($Major -and $Kind -eq 'provider') {
+            $all = (Invoke-RestMethod -Uri "https://registry.terraform.io/v1/providers/$Name/versions" -TimeoutSec 20).versions.version
+            return ($all | Where-Object { $_ -match "^$Major\.\d+\.\d+$" } | Sort-Object { [version]$_ } | Select-Object -Last 1)
+        }
         switch ($Kind) {
+            'tfmodule' { (Invoke-RestMethod -Uri "https://registry.terraform.io/v1/modules/$Name" -TimeoutSec 20).version }
+            'bicepmodule' {
+                $tags = (Invoke-RestMethod -Uri "https://mcr.microsoft.com/v2/bicep/avm/$Name/tags/list" -TimeoutSec 20).tags
+                $tags | Where-Object { $_ -match '^\d+\.\d+\.\d+$' } | Sort-Object { [version]$_ } | Select-Object -Last 1
+            }
             'pypi' { (Invoke-RestMethod -Uri "https://pypi.org/pypi/$Name/json" -TimeoutSec 20).info.version }
             'provider' { (Invoke-RestMethod -Uri "https://registry.terraform.io/v1/providers/$Name" -TimeoutSec 20).version }
             'terraform' { (Invoke-RestMethod -Uri 'https://checkpoint-api.hashicorp.com/v1/check/terraform' -TimeoutSec 20).current_version }
@@ -314,6 +323,18 @@ function Get-MLOpsComponent {
     foreach ($p in $Lock.actions.PSObject.Properties) {
         $items.Add([pscustomobject]@{ Component = "action:$($p.Name)"; Kind = 'action'; Name = $script:ActionRepo[$p.Name]; Pinned = ($p.Value -replace '^v', ''); Section = 'actions'; Key = $p.Name })
     }
+    foreach ($section in 'avm_tf', 'tf_modules') {
+        if ($Lock.PSObject.Properties.Name -notcontains $section) { continue }
+        foreach ($p in $Lock.$section.PSObject.Properties) {
+            $path = if ($section -eq 'avm_tf') { "Azure/avm-$($p.Name)/azurerm" } else { "Azure/$($p.Name)/azurerm" }
+            $items.Add([pscustomobject]@{ Component = "tfmodule:$($p.Name)"; Kind = 'tfmodule'; Name = $path; Pinned = $p.Value; Section = $section; Key = $p.Name })
+        }
+    }
+    if ($Lock.PSObject.Properties.Name -contains 'avm_bicep') {
+        foreach ($p in $Lock.avm_bicep.PSObject.Properties) {
+            $items.Add([pscustomobject]@{ Component = "bicepmodule:$($p.Name)"; Kind = 'bicepmodule'; Name = $p.Name; Pinned = $p.Value; Section = 'avm_bicep'; Key = $p.Name })
+        }
+    }
     $items
 }
 
@@ -336,7 +357,8 @@ function Test-MLOpsAcceleratorVersion {
     $lock = Get-MLOpsLock -Path $lockPath
 
     $results = foreach ($c in (Get-MLOpsComponent -Lock $lock)) {
-        $latest = Get-LatestVersion -Kind $c.Kind -Name $c.Name
+        $held = $lock.PSObject.Properties.Name -contains 'holds' -and $lock.holds.PSObject.Properties.Name -contains $c.Component
+        $latest = if ($held) { Get-LatestVersion -Kind $c.Kind -Name $c.Name -Major ($c.Pinned.Split('.')[0]) } else { Get-LatestVersion -Kind $c.Kind -Name $c.Name }
         $status = if (-not $latest) { 'Unknown' } elseif ($latest -eq $c.Pinned) { 'Current' } else { 'Outdated' }
         [pscustomobject]@{ Component = $c.Component; Pinned = $c.Pinned; Latest = $latest; Status = $status }
     }
