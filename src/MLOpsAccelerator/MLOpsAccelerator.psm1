@@ -384,6 +384,13 @@ function Get-LatestVersion {
             $all = (Invoke-RestMethod -Uri "https://registry.terraform.io/v1/providers/$Name/versions" -TimeoutSec 20).versions.version
             return ($all | Where-Object { $_ -match "^$Major\.\d+\.\d+$" } | Sort-Object { [version]$_ } | Select-Object -Last 1)
         }
+        if ($Major -and $Kind -eq 'pypi') {
+            # A held PyPI package tracks only its pinned major.minor series (patch and post releases).
+            $rel = (Invoke-RestMethod -Uri "https://pypi.org/pypi/$Name/json" -TimeoutSec 20).releases.PSObject.Properties
+            $rx = '^' + [regex]::Escape($Major) + '(\.\d+)?(\.post\d+)?$'
+            $ok = $rel | Where-Object { $_.Name -match $rx -and ($_.Value | Where-Object { -not $_.yanked }) } | ForEach-Object Name
+            return ($ok | Sort-Object { [version](($_ -replace '\.post\d+$', '') + $(if (($_ -replace '\.post\d+$','').Split('.').Count -lt 3) { '.0' } else { '' })) }, { $_ } | Select-Object -Last 1)
+        }
         switch ($Kind) {
             'tfmodule' { (Invoke-RestMethod -Uri "https://registry.terraform.io/v1/modules/$Name" -TimeoutSec 20).version }
             'bicepmodule' {
@@ -453,7 +460,7 @@ function Test-MLOpsAcceleratorVersion {
 
     $results = foreach ($c in (Get-MLOpsComponent -Lock $lock)) {
         $held = $lock.PSObject.Properties.Name -contains 'holds' -and $lock.holds.PSObject.Properties.Name -contains $c.Component
-        $latest = if ($held) { Get-LatestVersion -Kind $c.Kind -Name $c.Name -Major ($c.Pinned.Split('.')[0]) } else { Get-LatestVersion -Kind $c.Kind -Name $c.Name }
+        $latest = if ($held) { Get-LatestVersion -Kind $c.Kind -Name $c.Name -Major $(if ($c.Kind -eq 'pypi') { ($c.Pinned.Split('.')[0..1] -join '.') } else { $c.Pinned.Split('.')[0] }) } else { Get-LatestVersion -Kind $c.Kind -Name $c.Name }
         $status = if (-not $latest) { 'Unknown' } elseif ($latest -eq $c.Pinned) { 'Current' } else { 'Outdated' }
         [pscustomobject]@{ Component = $c.Component; Pinned = $c.Pinned; Latest = $latest; Status = $status }
     }
