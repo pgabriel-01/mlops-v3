@@ -6,19 +6,30 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 |---|---|
 | IaC | Terraform, Bicep |
 | CI/CD | GitHub Actions, Azure DevOps |
-| Scenario | `tabular` (taxi CSV; Parquet/feature store planned) |
+| Scenario | 11 AML scenarios (see below) |
+| Data | bundled taxi CSV, or your own CSV in ADLS Gen2 (`data_source: adls`) |
+
+## How it works (phases)
+
+| Phase | What you do | Details |
+|---|---|---|
+| 0. Prerequisites | Install PowerShell 7.4+, `powershell-yaml`, `az` (logged in), Terraform; set `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN` | [parameter-checklist.md](docs/parameter-checklist.md) |
+| 1. Plan | Pick a scenario, IaC, CI/CD and data source | [scenarios.md](docs/scenarios.md), [data-sources.md](docs/data-sources.md) |
+| 2. Configure | Generate an inputs file and edit it | `New-MLOpsInputFile` |
+| 3. Generate / bootstrap | Render the repo; with `-Deploy`, create state, identities and repo wiring | `Deploy-MLOpsAccelerator` |
+| 4. Run | Push the generated repo and run the CI/CD pipelines (infra, train, deploy) | [getting-started.md](docs/getting-started.md) |
+| 5. Maintain | Check and bump pins | `Test-MLOpsAcceleratorVersion`, `Update-MLOpsAcceleratorVersion` |
 
 ## Quick start
 ```powershell
 Install-PSResource powershell-yaml
 Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1
-Copy-Item inputs.example.yaml my-inputs.yaml   # edit
+Get-MLOpsScenario
+New-MLOpsInputFile -Scenario basic-public -Path my-inputs.yaml   # edit
 Deploy-MLOpsAccelerator -InputFile my-inputs.yaml -OutputPath ./my-mlops          # generate
 Deploy-MLOpsAccelerator -InputFile my-inputs.yaml -OutputPath ./my-mlops -Deploy  # generate + bootstrap
-Test-MLOpsAcceleratorVersion          # warn about outdated pins
-Update-MLOpsAcceleratorVersion        # bump pins only if Python packages still resolve together
 ```
-Requires PowerShell 7.4+, and for `-Deploy`: `az` (logged in), `terraform`, plus `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN`.
+For `-Deploy` you need `az` (logged in), `terraform`, plus `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN`.
 
 ## Versions
 `versions.lock.json` is the single source of truth. Python is pinned to **3.14**, not 3.15: 3.15 is still a release candidate and `pyarrow` has no wheels for it. The whole stack was checked with `pip check` on 3.14 and the training pipeline run end to end. Bump `python` in the lock once 3.15 wheels exist. `azureml-featurestore` supports only Python <= 3.12 (relevant to the planned Phase 2, which runs on Spark).
