@@ -42,8 +42,13 @@ function Read-MLOpsInput {
 
     if (-not $data.ContainsKey('data_source')) { $data['data_source'] = 'taxi-csv' }
     if (-not $data.ContainsKey('environments')) { $data['environments'] = @('dev', 'prod') }
-    if (-not $data.ContainsKey('private_networking')) { $data['private_networking'] = $false }
-    if (-not $data.ContainsKey('feature_store')) { $data['feature_store'] = $false }
+    if (-not $data.ContainsKey('workload')) { $data['workload'] = 'tabular' }
+    if (-not $data.ContainsKey('vnet_address_space')) { $data['vnet_address_space'] = '10.20.0.0/16' }
+    if (-not $data.ContainsKey('allowed_outbound_fqdns')) { $data['allowed_outbound_fqdns'] = @('pypi.org', 'files.pythonhosted.org', '*.anaconda.com', 'conda.anaconda.org') }
+    if (-not $data.ContainsKey('budget_amount')) { $data['budget_amount'] = 500 }
+    if (-not $data.ContainsKey('alert_emails')) { $data['alert_emails'] = @() }
+    $data['allowed_outbound_fqdns'] = @($data['allowed_outbound_fqdns'])
+    $data['alert_emails'] = @($data['alert_emails'])
     if (-not $data.ContainsKey('tags') -or $null -eq $data['tags']) { $data['tags'] = @{} }
     $data['environments'] = @($data['environments'])
 
@@ -54,6 +59,62 @@ function Read-MLOpsInput {
         throw "Invalid inputs in '$Path': $detail"
     }
     $data
+}
+
+function Get-MLOpsScenario {
+    <#
+    .SYNOPSIS
+    Lists the AML platform scenarios (or returns one by id or number).
+    #>
+    [CmdletBinding()]
+    param([string] $Scenario)
+    $all = Get-Content -Raw -Path (Join-Path $script:TemplateRoot 'scenarios.json') | ConvertFrom-Json
+    if (-not $Scenario) { return $all }
+    $hit = $all | Where-Object { $_.id -eq $Scenario -or [string]$_.number -eq $Scenario }
+    if (-not $hit) { throw "Unknown scenario '$Scenario'. Valid: $(($all.id) -join ', ')" }
+    $hit
+}
+
+function New-MLOpsInputFile {
+    <#
+    .SYNOPSIS
+    Writes a starter inputs file for a scenario, with the parameters that scenario needs.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string] $Scenario,
+        [Parameter(Mandatory)][string] $Path,
+        [ValidateSet('terraform', 'bicep')][string] $Iac = 'terraform',
+        [ValidateSet('github', 'azdo')][string] $Cicd = 'github',
+        [switch] $Force
+    )
+    $sc = Get-MLOpsScenario -Scenario $Scenario
+    if ((Test-Path $Path) -and -not $Force) { throw "'$Path' exists. Use -Force to overwrite." }
+    $y = @"
+# Scenario $($sc.number): $($sc.name)
+# $($sc.summary)
+project_name: myml
+location: eastus2
+subscription_id: 00000000-0000-0000-0000-000000000000
+tenant_id: 00000000-0000-0000-0000-000000000000
+iac: $Iac
+cicd: $Cicd
+scenario: $($sc.id)
+workload: tabular
+data_source: taxi-csv
+environments: [dev, prod]
+tags:
+  owner: ml-platform
+
+"@
+    $y += if ($Cicd -eq 'github') { "github_org: my-org`ngithub_repo: myml-mlops`n" } else { "azdo_org_url: https://dev.azure.com/my-org`nazdo_project: my-project`n" }
+    if ($sc.network_mode -eq 'byo_vnet' -and -not $sc.existing_platform) { $y += "vnet_address_space: 10.20.0.0/16`n" }
+    if ($sc.network_mode -eq 'managed_approved') { $y += "allowed_outbound_fqdns: [pypi.org, files.pythonhosted.org, '*.anaconda.com', conda.anaconda.org]`n" }
+    if ($sc.governance) { $y += "budget_amount: 500`nalert_emails: [mlops@example.com]`n" }
+    if ($sc.existing_platform) {
+        $y += "existing_platform:`n  subnet_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform/providers/Microsoft.Network/virtualNetworks/vnet-platform/subnets/snet-ml`n  log_analytics_workspace_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform/providers/Microsoft.OperationalInsights/workspaces/law-platform`n  private_dns_zone_ids:`n    blob: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net`n    file: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.file.core.windows.net`n    vault: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net`n    acr: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.azurecr.io`n    aml_api: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.api.azureml.ms`n    aml_notebooks: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.notebooks.azure.net`n" }
+    Set-Content -Path $Path -Value $y -NoNewline
+    $Path
 }
 
 function Get-MLOpsLock {
@@ -74,6 +135,12 @@ function New-MLOpsTokenMap {
     $tagKeys = @($tags.Keys | Sort-Object)
     $tagWidth = 2 + ($tagKeys | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
 
+    $sc = Get-MLOpsScenario -Scenario $Inputs['scenario']
+    $ep = $Inputs['existing_platform']
+    $dnsKeys = 'blob', 'file', 'vault', 'acr', 'aml_api', 'aml_notebooks'
+    $dns = @{}; if ($ep -and $ep.ContainsKey('private_dns_zone_ids')) { $dns = $ep['private_dns_zone_ids'] }
+    $fqdn = @($Inputs['allowed_outbound_fqdns']); $mails = @($Inputs['alert_emails'])
+    $lc = { param($b) ([bool]$b).ToString().ToLower() }
     $map = @{
         project_name           = $Inputs['project_name']
         location               = $loc
@@ -84,10 +151,31 @@ function New-MLOpsTokenMap {
         iac                    = $Inputs['iac']
         cicd                   = $Inputs['cicd']
         scenario               = $Inputs['scenario']
+        scenario_number        = [string]$sc.number
+        scenario_name          = $sc.name
+        workload               = $Inputs['workload']
+        network_mode           = $sc.network_mode
+        endpoint_type          = $sc.endpoint_type
+        endpoint_online        = (& $lc ($sc.endpoint_type -eq 'online'))
+        endpoint_batch         = (& $lc ($sc.endpoint_type -eq 'batch'))
+        registry               = (& $lc $sc.registry)
+        governance             = (& $lc $sc.governance)
+        genai                  = (& $lc $sc.genai)
+        existing_platform      = (& $lc $sc.existing_platform)
+        vnet_address_space     = $Inputs['vnet_address_space']
+        budget_amount          = [string]$Inputs['budget_amount']
+        allowed_fqdns_hcl      = '[' + (($fqdn | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
+        allowed_fqdns_bicep    = '[' + (($fqdn | ForEach-Object { "'" + $_ + "'" }) -join ', ') + ']'
+        alert_emails_hcl       = '[' + (($mails | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
+        alert_emails_bicep     = '[' + (($mails | ForEach-Object { "'" + $_ + "'" }) -join ', ') + ']'
+        existing_subnet_id     = $(if ($ep) { [string]$ep['subnet_id'] } else { '' })
+        existing_law_id        = $(if ($ep) { [string]$ep['log_analytics_workspace_id'] } else { '' })
+        existing_dns_hcl       = '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { ' {0} = "{1}"' -f $_, $dns[$_] }) -join ',') + ' }'
+        existing_dns_bicep     = '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { "`n  {0}: '{1}'" -f $_, $dns[$_] }) -join '') + "`n}"
         data_source            = $Inputs['data_source']
-        private_networking     = ([bool]$Inputs['private_networking']).ToString().ToLower()
-        feature_store          = ([bool]$Inputs['feature_store']).ToString().ToLower()
-        endpoint_public_access = $(if ($Inputs['private_networking']) { 'disabled' } else { 'enabled' })
+        private_networking     = (& $lc ($sc.network_mode -ne 'public'))
+        feature_store          = (& $lc $sc.feature_store)
+        endpoint_public_access = $(if ($sc.network_mode -ne 'public') { 'disabled' } else { 'enabled' })
         environments_csv       = ($envs -join ', ')
         environments_yaml_list = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         environments_hcl_list  = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
@@ -137,10 +225,10 @@ function Expand-MLOpsTemplate {
 }
 
 function Test-ManifestCondition {
-    param($When, $Inputs)
+    param($When, $Map)
     if ($null -eq $When) { return $true }
     foreach ($p in $When.PSObject.Properties) {
-        if ([string]$Inputs[$p.Name] -ne [string]$p.Value) { return $false }
+        if ([string]$Map[$p.Name] -ne [string]$p.Value) { return $false }
     }
     $true
 }
@@ -225,7 +313,7 @@ function Deploy-MLOpsAccelerator {
     $OutputPath = (Resolve-Path $OutputPath).Path
 
     foreach ($entry in $manifest) {
-        if (-not (Test-ManifestCondition -When $(if ($entry.PSObject.Properties.Name -contains 'when') { $entry.when }) -Inputs $inputs)) { continue }
+        if (-not (Test-ManifestCondition -When $(if ($entry.PSObject.Properties.Name -contains 'when') { $entry.when }) -Map $map)) { continue }
         $render = -not ($entry.PSObject.Properties.Name -contains 'render' -and $entry.render -eq $false)
         $srcRoot = Join-Path $script:TemplateRoot $entry.src
         foreach ($file in Get-ChildItem -Recurse -File -Path $srcRoot) {
@@ -408,4 +496,4 @@ function Update-MLOpsAcceleratorVersion {
     }
 }
 
-Export-ModuleMember -Function Deploy-MLOpsAccelerator, Test-MLOpsAcceleratorInput, Test-MLOpsAcceleratorVersion, Update-MLOpsAcceleratorVersion
+Export-ModuleMember -Function Get-MLOpsScenario, New-MLOpsInputFile, Deploy-MLOpsAccelerator, Test-MLOpsAcceleratorInput, Test-MLOpsAcceleratorVersion, Update-MLOpsAcceleratorVersion

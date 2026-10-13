@@ -4,8 +4,19 @@ environment        = "[[env]]"
 location           = "[[location]]"
 location_short     = "[[location_short]]"
 suffix             = "[[suffix]]"
-private_networking = [[private_networking]]
+network_mode       = "[[network_mode]]"
 feature_store      = [[feature_store]]
+registry           = [[registry]]
+governance         = [[governance]]
+genai              = [[genai]]
+existing_platform  = [[existing_platform]]
+vnet_address_space = "[[vnet_address_space]]"
+allowed_fqdns      = [[allowed_fqdns_hcl]]
+budget_amount      = [[budget_amount]]
+alert_emails       = [[alert_emails_hcl]]
+existing_subnet_id = "[[existing_subnet_id]]"
+existing_law_id    = "[[existing_law_id]]"
+existing_dns_zones = [[existing_dns_hcl]]
 tags = {
 [[tags_hcl]]
 }
