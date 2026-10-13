@@ -2,3 +2,4 @@ out/
 .terraform/
 *.tfstate*
 scratch/
+_site/

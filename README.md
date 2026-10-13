@@ -69,5 +69,8 @@ Infra and bootstrap use AVM resource modules (Terraform registry `Azure/avm-res-
 - Not verified against a live Azure subscription: bootstrap apply, AML runtime with Python 3.14 conda image, endpoint deployment.
 - Phase 2 (Parquet transactions data + managed feature store) is not implemented beyond an optional feature store resource.
 
+## Docs site
+`docs/` is the source; `site/mkdocs.yml` builds it with MkDocs Material (`pip install -r site/requirements.txt; mkdocs serve -f site/mkdocs.yml`). `.github/workflows/pages.yml` publishes to GitHub Pages on push to `main` once Pages is enabled.
+
 ## Develop
 `Invoke-Pester ./tests`. Rendered output is additionally validated with `terraform validate`, `az bicep build` and the generated pytest (see `.github/workflows/ci.yml`).
