@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "generatedOn": "2026-10-13",
+  "python": "3.14",
+  "terraform": "1.16.5",
+  "providers": {
+    "azurerm": "5.9.0",
+    "azapi": "2.13.0",
+    "github": "6.13.0",
+    "azuredevops": "1.16.0"
+  },
+  "pkg": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "mlflow": "3.16.1",
+    "azureml-mlflow": "1.60.0",
+    "azure-ai-ml": "1.35.2",
+    "azure-identity": "1.26.0",
+    "pyarrow": "25.0.1",
+    "joblib": "1.6.0",
+    "matplotlib": "3.11.2",
+    "protobuf": "6.33.6",
+    "pytest": "9.1.1"
+  },
+  "actions": {
+    "checkout": "v7",
+    "login": "v3",
+    "setup_terraform": "v4",
+    "checkov": "v12",
+    "upload_artifact": "v7"
+  },
+  "ml_cli_extension": "2.45.1",
+  "notes": "Python 3.14 is the newest interpreter on which this stack resolves and runs end to end. Python 3.15 is still a release candidate and pyarrow has no wheel for it."
+}

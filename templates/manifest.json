@@ -1,0 +1,19 @@
+[
+  { "src": "workload/data",    "dest": "data",          "render": false },
+  { "src": "workload/src",     "dest": "src" },
+  { "src": "workload/azureml", "dest": "mlops/azureml" },
+  { "src": "root",             "dest": "." },
+
+  { "src": "iac/terraform",    "dest": "infra", "when": { "iac": "terraform" } },
+  { "src": "iac/bicep",        "dest": "infra", "when": { "iac": "bicep" } },
+
+  { "src": "cicd/github/common",    "dest": ".github/workflows", "when": { "cicd": "github" } },
+  { "src": "cicd/github/terraform", "dest": ".github/workflows", "when": { "cicd": "github", "iac": "terraform" } },
+  { "src": "cicd/github/bicep",     "dest": ".github/workflows", "when": { "cicd": "github", "iac": "bicep" } },
+  { "src": "cicd/azdo/common",      "dest": "pipelines", "when": { "cicd": "azdo" } },
+  { "src": "cicd/azdo/terraform",   "dest": "pipelines", "when": { "cicd": "azdo", "iac": "terraform" } },
+  { "src": "cicd/azdo/bicep",       "dest": "pipelines", "when": { "cicd": "azdo", "iac": "bicep" } },
+
+  { "src": "bootstrap/github", "dest": "bootstrap", "when": { "cicd": "github" } },
+  { "src": "bootstrap/azdo",   "dest": "bootstrap", "when": { "cicd": "azdo" } }
+]

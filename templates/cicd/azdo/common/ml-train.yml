@@ -1,0 +1,46 @@
+trigger: none
+
+parameters:
+  - name: environment
+    displayName: Target environment
+    type: string
+    default: dev
+    values: [[environments_yaml_list]]
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: unit
+    jobs:
+      - job: unit
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "[[versions.python]]"
+          - script: |
+              python -m pip install -r requirements-dev.txt
+              python -m pytest tests
+            displayName: Unit tests
+  - stage: train
+    dependsOn: unit
+    jobs:
+      - deployment: train
+        environment: ${{ parameters.environment }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: [[project_name]]-${{ parameters.environment }}
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      RG=rg-[[project_name]]-${{ parameters.environment }}-[[location_short]]
+                      WS=mlw-[[project_name]]-${{ parameters.environment }}-[[location_short]]
+                      az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+                      az ml data create -f mlops/azureml/data.yml -g $RG -w $WS
+                      az ml environment create -f mlops/azureml/env.yml -g $RG -w $WS
+                      az ml job create -f mlops/azureml/pipeline.yml -g $RG -w $WS --stream

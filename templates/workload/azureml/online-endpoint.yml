@@ -1,0 +1,5 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineEndpoint.schema.json
+name: [[project_name]]-online-[[suffix]]
+description: Taxi fare online endpoint
+auth_mode: aml_token
+public_network_access: [[endpoint_public_access]]

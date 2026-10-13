@@ -1,0 +1,53 @@
+name: ml-train
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: dev
+        type: choice
+        options: [[environments_yaml_list]]
+  pull_request:
+    paths: ["src/**", "mlops/azureml/**", "data/**"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@[[versions.actions.checkout]]
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "[[versions.python]]"
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest tests
+
+  train:
+    needs: unit
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      RG: rg-[[project_name]]-${{ inputs.environment }}-[[location_short]]
+      WS: mlw-[[project_name]]-${{ inputs.environment }}-[[location_short]]
+    steps:
+      - uses: actions/checkout@[[versions.actions.checkout]]
+      - uses: azure/login@[[versions.actions.login]]
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+      - name: Register data and environment
+        run: |
+          az ml data create -f mlops/azureml/data.yml -g $RG -w $WS
+          az ml environment create -f mlops/azureml/env.yml -g $RG -w $WS
+      - name: Run training pipeline
+        run: >-
+          az ml job create -f mlops/azureml/pipeline.yml -g $RG -w $WS
+          --stream --set display_name=train-${{ github.run_number }}
