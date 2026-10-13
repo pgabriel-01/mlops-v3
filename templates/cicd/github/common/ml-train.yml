@@ -1,4 +1,4 @@
-name: ml-train
+name: "3 - ml-train"
 
 on:
   workflow_dispatch:

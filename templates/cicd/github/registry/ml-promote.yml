@@ -1,4 +1,4 @@
-name: ml-promote
+name: "4 - ml-promote"
 
 on:
   workflow_dispatch:
