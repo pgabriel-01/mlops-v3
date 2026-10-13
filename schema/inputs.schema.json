@@ -65,10 +65,11 @@
     "data_source": {
       "type": "string",
       "enum": [
-        "taxi-csv"
+        "taxi-csv",
+        "adls"
       ],
       "default": "taxi-csv",
-      "description": "transactions-parquet (MS Learn feature store sample) is planned for the next phase."
+      "description": "taxi-csv uses the bundled sample. adls reads a CSV from an ADLS Gen2 container through an identity-based AML datastore. Parquet and other sources are planned (see docs/data-sources.md)."
     },
     "environments": {
       "type": "array",
@@ -192,6 +193,31 @@
         }
       },
       "description": "existing-platform: resource IDs from the platform landing zone."
+    },
+    "adls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "account_name",
+        "container",
+        "path"
+      ],
+      "properties": {
+        "account_name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]{3,24}$"
+        },
+        "container": {
+          "type": "string",
+          "minLength": 3
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^[^/].*\\.csv$",
+          "description": "Path to a CSV inside the container, with the same columns as the taxi sample."
+        }
+      },
+      "description": "Required when data_source is adls."
     }
   },
   "allOf": [
@@ -236,6 +262,23 @@
       "then": {
         "required": [
           "existing_platform"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "data_source": {
+            "const": "adls"
+          }
+        },
+        "required": [
+          "data_source"
+        ]
+      },
+      "then": {
+        "required": [
+          "adls"
         ]
       }
     }

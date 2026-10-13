@@ -9,7 +9,11 @@ iac: terraform          # terraform | bicep
 cicd: github            # github | azdo
 scenario: basic-public  # see Get-MLOpsScenario (11 AML scenarios)
 workload: tabular
-data_source: taxi-csv
+data_source: taxi-csv        # or: adls
+# adls:                      # required when data_source: adls
+#   account_name: mystorageacct
+#   container: raw
+#   path: taxi/taxi-data.csv  # a CSV with the taxi columns
 environments: [dev, prod]
 
 tags:
