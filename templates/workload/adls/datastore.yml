@@ -1,0 +1,6 @@
+$schema: https://azuremlschemas.azureedge.net/latest/azureDataLakeGen2Datastore.schema.json
+type: azure_data_lake_gen2
+name: adls_raw
+description: Raw training data in ADLS Gen2 (identity-based access)
+account_name: [[adls_account]]
+filesystem: [[adls_container]]

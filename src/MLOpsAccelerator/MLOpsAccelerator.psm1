@@ -179,6 +179,9 @@ function New-MLOpsTokenMap {
         existing_dns_hcl       = $(if ($dns.Count -eq 0) { '{}' } else { '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { ' {0} = "{1}"' -f $_, $dns[$_] }) -join ',') + ' }' })
         existing_dns_bicep     = '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { "`n  {0}: '{1}'" -f $_, $dns[$_] }) -join '') + "`n}"
         data_source            = $Inputs['data_source']
+        data_path              = $(if ($Inputs['data_source'] -eq 'adls') { 'azureml://datastores/adls_raw/paths/' + $Inputs['adls']['path'] } else { '../../data/taxi-data.csv' })
+        adls_account           = $(if ($Inputs['data_source'] -eq 'adls') { [string]$Inputs['adls']['account_name'] } else { '' })
+        adls_container         = $(if ($Inputs['data_source'] -eq 'adls') { [string]$Inputs['adls']['container'] } else { '' })
         private_networking     = (& $lc ($sc.network_mode -ne 'public'))
         feature_store          = (& $lc $sc.feature_store)
         endpoint_public_access = $(if ($sc.network_mode -ne 'public') { 'disabled' } else { 'enabled' })

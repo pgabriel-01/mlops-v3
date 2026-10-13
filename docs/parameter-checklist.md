@@ -22,3 +22,8 @@ Work through this before running `Deploy-MLOpsAccelerator`.
 - [ ] `az login` with rights to create resource groups, identities and role assignments at subscription scope
 - [ ] `GITHUB_TOKEN` (or `gh auth login`) for GitHub, `AZDO_PERSONAL_ACCESS_TOKEN` for Azure DevOps
 - [ ] Quota for the compute SKU in the chosen region
+
+## Data source
+- [ ] `data_source: taxi-csv` (default, bundled sample) or `adls` (your own CSV in ADLS Gen2)
+- [ ] For `adls`: grant the AML workspace identity **Storage Blob Data Reader** on the account (not created by the IaC)
+- [ ] Snowflake / Azure SQL: land the data in ADLS first (ADF or Fabric), then use `adls`. See [data-sources.md](data-sources.md)

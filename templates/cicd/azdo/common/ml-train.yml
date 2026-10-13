@@ -41,6 +41,7 @@ stages:
                       RG=rg-[[project_name]]-${{ parameters.environment }}-[[location_short]]
                       WS=mlw-[[project_name]]-${{ parameters.environment }}-[[location_short]]
                       az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+                      [ -f mlops/azureml/datastore.yml ] && az ml datastore create -f mlops/azureml/datastore.yml -g $RG -w $WS
                       az ml data create -f mlops/azureml/data.yml -g $RG -w $WS
                       az ml environment create -f mlops/azureml/env.yml -g $RG -w $WS
                       az ml job create -f mlops/azureml/pipeline.yml -g $RG -w $WS --stream

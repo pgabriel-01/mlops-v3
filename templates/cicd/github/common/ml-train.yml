@@ -45,6 +45,7 @@ jobs:
       - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
       - name: Register data and environment
         run: |
+          [ -f mlops/azureml/datastore.yml ] && az ml datastore create -f mlops/azureml/datastore.yml -g $RG -w $WS
           az ml data create -f mlops/azureml/data.yml -g $RG -w $WS
           az ml environment create -f mlops/azureml/env.yml -g $RG -w $WS
       - name: Run training pipeline

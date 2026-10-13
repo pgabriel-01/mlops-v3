@@ -65,6 +65,21 @@ Describe 'Generator' {
             Test-Path (Join-Path $out '.github/workflows/ml-deploy.yml') | Should -Be ($endpoint -ne 'none')
             Test-Path (Join-Path $out '.github/workflows/ml-promote.yml') | Should -Be $registry
         }
+        It 'renders an identity-based ADLS datastore when data_source is adls' {
+            $f = Join-Path $TestDrive 'adls.yaml'
+            New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null
+            Set-Content $f ((Get-Content -Raw $f) -replace 'data_source: taxi-csv', "data_source: adls`nadls:`n  account_name: stdatalake01`n  container: raw`n  path: taxi/taxi-data.csv")
+            $o = Join-Path $TestDrive 'adls-out'
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
+            Get-Content -Raw (Join-Path $o 'mlops/azureml/datastore.yml') | Should -Match 'account_name: stdatalake01'
+            Get-Content -Raw (Join-Path $o 'mlops/azureml/data.yml') | Should -Match 'azureml://datastores/adls_raw/paths/taxi/taxi-data.csv'
+        }
+        It 'requires the adls object when data_source is adls' {
+            $f = Join-Path $TestDrive 'adls-bad.yaml'
+            New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null
+            Set-Content $f ((Get-Content -Raw $f) -replace 'data_source: taxi-csv', 'data_source: adls')
+            { Test-MLOpsAcceleratorInput -InputFile $f } | Should -Throw
+        }
         It 'requires existing_platform for the existing-platform scenario' {
             $f = Join-Path $TestDrive 'ep.yaml'
             New-MLOpsInputFile -Scenario existing-platform -Path $f | Out-Null

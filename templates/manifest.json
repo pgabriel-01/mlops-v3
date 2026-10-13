@@ -13,6 +13,13 @@
     "dest": "mlops/azureml"
   },
   {
+    "src": "workload/adls",
+    "dest": "mlops/azureml",
+    "when": {
+      "data_source": "adls"
+    }
+  },
+  {
     "src": "workload/online",
     "dest": "mlops/azureml",
     "when": {
