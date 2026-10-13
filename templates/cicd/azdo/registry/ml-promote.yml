@@ -1,0 +1,29 @@
+trigger: none
+
+parameters:
+  - name: source_environment
+    displayName: Environment whose workspace holds the trained model
+    type: string
+    default: [[first_env]]
+    values: [[environments_yaml_list]]
+  - name: model_version
+    displayName: Model version to share (blank = latest)
+    type: string
+    default: ""
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: [[project_name]]-${{ parameters.source_environment }}
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        RG=rg-[[project_name]]-${{ parameters.source_environment }}-[[location_short]]
+        WS=mlw-[[project_name]]-${{ parameters.source_environment }}-[[location_short]]
+        az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+        V="${{ parameters.model_version }}"
+        if [ -z "$V" ]; then V=$(az ml model list -n [[project_name]]-model -g $RG -w $WS --query "max_by([], &to_number(version)).version" -o tsv); fi
+        az ml model share -n [[project_name]]-model -v "$V" --share-with-name [[project_name]]-model --share-with-version "$V" --registry-name [[registry_name]] -g $RG -w $WS

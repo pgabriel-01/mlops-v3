@@ -1,0 +1,45 @@
+name: ml-deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: dev
+        type: choice
+        options: [[environments_yaml_list]]
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-and-score:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'dev' }}
+    env:
+      ENV_NAME: ${{ inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@[[versions.actions.checkout]]
+      - uses: azure/login@[[versions.actions.login]]
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+      - name: Batch endpoint and deployment
+        run: |
+          RG=rg-[[project_name]]-$ENV_NAME-[[location_short]]
+          WS=mlw-[[project_name]]-$ENV_NAME-[[location_short]]
+          az ml batch-endpoint create -f mlops/azureml/batch-endpoint.yml -g $RG -w $WS
+          az ml batch-deployment create -f mlops/azureml/batch-deployment.yml --set-default -g $RG -w $WS
+      - name: Score the batch input
+        run: |
+          RG=rg-[[project_name]]-$ENV_NAME-[[location_short]]
+          WS=mlw-[[project_name]]-$ENV_NAME-[[location_short]]
+          az ml data create -f mlops/azureml/batch-data.yml -g $RG -w $WS
+          az ml batch-endpoint invoke --name [[project_name]]-batch-[[suffix]] \
+            --input azureml:[[project_name]]-batch-data@latest -g $RG -w $WS

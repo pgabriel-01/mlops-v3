@@ -1,0 +1,42 @@
+trigger: none
+
+schedules:
+  - cron: "0 3 * * *"
+    displayName: Nightly batch scoring
+    branches:
+      include: [main]
+    always: true
+
+parameters:
+  - name: environment
+    displayName: Target environment
+    type: string
+    default: dev
+    values: [[environments_yaml_list]]
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: deploy
+    jobs:
+      - deployment: deploy
+        environment: ${{ parameters.environment }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: [[project_name]]-${{ parameters.environment }}
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      RG=rg-[[project_name]]-${{ parameters.environment }}-[[location_short]]
+                      WS=mlw-[[project_name]]-${{ parameters.environment }}-[[location_short]]
+                      az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+                      az ml batch-endpoint create -f mlops/azureml/batch-endpoint.yml -g $RG -w $WS
+                      az ml batch-deployment create -f mlops/azureml/batch-deployment.yml --set-default -g $RG -w $WS
+                      az ml data create -f mlops/azureml/batch-data.yml -g $RG -w $WS
+                      az ml batch-endpoint invoke --name [[project_name]]-batch-[[suffix]] --input azureml:[[project_name]]-batch-data@latest -g $RG -w $WS

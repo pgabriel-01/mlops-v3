@@ -1,0 +1,40 @@
+trigger: none
+
+parameters:
+  - name: environment
+    displayName: Target environment
+    type: string
+    default: dev
+    values: [[environments_yaml_list]]
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: deploy
+    jobs:
+      - deployment: deploy
+        environment: ${{ parameters.environment }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: [[project_name]]-${{ parameters.environment }}
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      RG=rg-[[project_name]]-${{ parameters.environment }}-[[location_short]]
+                      WS=mlw-[[project_name]]-${{ parameters.environment }}-[[location_short]]
+                      EP=[[project_name]]-online-[[suffix]]
+                      az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+                      az ml online-endpoint create -f mlops/azureml/online-endpoint.yml -g $RG -w $WS
+                      LIVE=$(az ml online-endpoint show -n $EP -g $RG -w $WS --query "keys(traffic)[0]" -o tsv || true)
+                      if [ "$LIVE" = "blue" ]; then NEW=green; else NEW=blue; fi
+                      az ml online-deployment create -f mlops/azureml/online-deployment.yml --name $NEW -g $RG -w $WS
+                      az ml online-endpoint invoke -n $EP --deployment-name $NEW --request-file data/taxi-request.json -g $RG -w $WS
+                      if [ -n "$LIVE" ]; then az ml online-endpoint update -n $EP --traffic "$LIVE=90 $NEW=10" -g $RG -w $WS; fi
+                      az ml online-endpoint update -n $EP --traffic "$NEW=100" -g $RG -w $WS
+                      if [ -n "$LIVE" ]; then az ml online-deployment delete -n $LIVE --endpoint-name $EP -g $RG -w $WS --yes; fi

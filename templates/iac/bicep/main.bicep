@@ -10,8 +10,22 @@ param locationShort string
 @minLength(4)
 @maxLength(4)
 param suffix string
-param privateNetworking bool = false
+@allowed(['public', 'managed_internet', 'managed_approved', 'byo_vnet'])
+param networkMode string = 'public'
 param featureStore bool = false
+@description('Create the shared AML registry in this environment.')
+param registry bool = false
+param governance bool = false
+param genai bool = false
+@description('Reuse an existing platform landing zone (subnet, private DNS zones, Log Analytics) instead of creating them.')
+param existingPlatform bool = false
+param vnetAddressSpace string = '10.20.0.0/16'
+param allowedFqdns array = []
+param budgetAmount int = 0
+param alertEmails array = []
+param existingSubnetId string = ''
+param existingLawId string = ''
+param existingDnsZones object = {}
 param tags object = {}
 @description('AVM module telemetry (anonymous deployment counters).')
 param enableTelemetry bool = true
@@ -33,6 +47,21 @@ module rg 'br/public:avm/res/resources/resource-group:[[versions.avm_bicep.res/r
   }
 }
 
+module budget 'br/public:avm/res/consumption/budget:[[versions.avm_bicep.res/consumption/budget]]' = if (governance && budgetAmount > 0 && !empty(alertEmails)) {
+  name: 'budget-${baseName}'
+  dependsOn: [rg]
+  params: {
+    name: 'budget-${baseName}'
+    amount: budgetAmount
+    category: 'Cost'
+    resetPeriod: 'Monthly'
+    contactEmails: alertEmails
+    resourceGroupFilter: ['rg-${baseName}']
+    thresholds: [80, 100]
+    enableTelemetry: enableTelemetry
+  }
+}
+
 module workload 'workload.bicep' = {
   scope: resourceGroup('rg-${baseName}')
   dependsOn: [rg]
@@ -43,8 +72,18 @@ module workload 'workload.bicep' = {
     location: location
     baseName: baseName
     suffix: suffix
-    privateNetworking: privateNetworking
+    locationShort: locationShort
+    networkMode: networkMode
     featureStore: featureStore
+    registry: registry
+    governance: governance
+    genai: genai
+    existingPlatform: existingPlatform
+    vnetAddressSpace: vnetAddressSpace
+    allowedFqdns: allowedFqdns
+    existingSubnetId: existingSubnetId
+    existingLawId: existingLawId
+    existingDnsZones: existingDnsZones
     tags: allTags
     enableTelemetry: enableTelemetry
   }
@@ -52,3 +91,4 @@ module workload 'workload.bicep' = {
 
 output resourceGroupName string = rg.outputs.name
 output workspaceName string = workload.outputs.workspaceName
+output registryName string = workload.outputs.registryName

@@ -23,14 +23,78 @@ variable "suffix" {
   description = "Deterministic 4 character suffix for globally unique names."
 }
 
-variable "private_networking" {
-  type    = bool
-  default = false
+variable "network_mode" {
+  type        = string
+  default     = "public"
+  description = "public | managed_internet | managed_approved | byo_vnet"
+
+  validation {
+    condition     = contains(["public", "managed_internet", "managed_approved", "byo_vnet"], var.network_mode)
+    error_message = "network_mode must be public, managed_internet, managed_approved or byo_vnet."
+  }
 }
 
 variable "feature_store" {
   type    = bool
   default = false
+}
+
+variable "registry" {
+  type        = bool
+  default     = false
+  description = "Create the shared AML registry (first environment only)."
+}
+
+variable "governance" {
+  type    = bool
+  default = false
+}
+
+variable "genai" {
+  type    = bool
+  default = false
+}
+
+variable "existing_platform" {
+  type        = bool
+  default     = false
+  description = "Reuse the supplied subnet, private DNS zones and Log Analytics workspace instead of creating them."
+}
+
+variable "vnet_address_space" {
+  type    = string
+  default = "10.20.0.0/16"
+}
+
+variable "allowed_fqdns" {
+  type    = list(string)
+  default = []
+}
+
+variable "budget_amount" {
+  type    = number
+  default = 0
+}
+
+variable "alert_emails" {
+  type    = list(string)
+  default = []
+}
+
+variable "existing_subnet_id" {
+  type    = string
+  default = ""
+}
+
+variable "existing_law_id" {
+  type    = string
+  default = ""
+}
+
+variable "existing_dns_zones" {
+  type        = map(string)
+  default     = {}
+  description = "Optional keys: blob, file, vault, acr, aml_api, aml_notebooks (plus cognitiveservices, openai, aiservices for genai)."
 }
 
 variable "tags" {

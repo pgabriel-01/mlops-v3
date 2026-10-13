@@ -1,0 +1,54 @@
+name: ml-deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: dev
+        type: choice
+        options: [[environments_yaml_list]]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      RG: rg-[[project_name]]-${{ inputs.environment }}-[[location_short]]
+      WS: mlw-[[project_name]]-${{ inputs.environment }}-[[location_short]]
+      EP: [[project_name]]-online-[[suffix]]
+    steps:
+      - uses: actions/checkout@[[versions.actions.checkout]]
+      - uses: azure/login@[[versions.actions.login]]
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
+      - name: Endpoint
+        run: az ml online-endpoint create -f mlops/azureml/online-endpoint.yml -g $RG -w $WS
+      - name: Pick colours
+        run: |
+          LIVE=$(az ml online-endpoint show -n $EP -g $RG -w $WS --query "keys(traffic)[0]" -o tsv || true)
+          if [ "$LIVE" = "blue" ]; then NEW=green; else NEW=blue; fi
+          echo "LIVE=$LIVE" >> $GITHUB_ENV
+          echo "NEW=$NEW" >> $GITHUB_ENV
+      - name: Create new deployment with no traffic
+        run: az ml online-deployment create -f mlops/azureml/online-deployment.yml --name $NEW -g $RG -w $WS
+      - name: Smoke test the new deployment
+        run: az ml online-endpoint invoke -n $EP --deployment-name $NEW --request-file data/taxi-request.json -g $RG -w $WS
+      - name: Shift traffic 10% then 100%
+        run: |
+          if [ -n "$LIVE" ]; then
+            az ml online-endpoint update -n $EP --traffic "$LIVE=90 $NEW=10" -g $RG -w $WS
+            az ml online-endpoint invoke -n $EP --deployment-name $NEW --request-file data/taxi-request.json -g $RG -w $WS
+          fi
+          az ml online-endpoint update -n $EP --traffic "$NEW=100" -g $RG -w $WS
+      - name: Retire the previous deployment
+        if: env.LIVE != ''
+        run: az ml online-deployment delete -n $LIVE --endpoint-name $EP -g $RG -w $WS --yes

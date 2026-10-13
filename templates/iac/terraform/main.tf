@@ -31,6 +31,22 @@ locals {
   storage_name  = substr("st${var.project_name}${var.environment}${var.suffix}", 0, 24)
   keyvault_name = substr("kv-${var.project_name}-${var.environment}-${var.suffix}", 0, 24)
   acr_name      = "cr${var.project_name}${var.environment}${var.suffix}"
+
+  managed_vnet = contains(["managed_internet", "managed_approved"], var.network_mode)
+  byo_vnet     = var.network_mode == "byo_vnet"
+  private      = var.network_mode != "public"
+
+  create_vnet = local.byo_vnet && !var.existing_platform
+  create_law  = !(var.existing_platform && var.existing_law_id != "")
+  law_id      = local.create_law ? module.log_analytics[0].resource_id : var.existing_law_id
+
+  pe_subnet_id      = local.byo_vnet ? (var.existing_platform ? var.existing_subnet_id : module.vnet[0].subnets["pe"].resource_id) : null
+  compute_subnet_id = local.byo_vnet ? (var.existing_platform ? var.existing_subnet_id : module.vnet[0].subnets["compute"].resource_id) : null
+
+  isolation_mode = {
+    managed_internet = "AllowInternetOutbound"
+    managed_approved = "AllowOnlyApprovedOutbound"
+  }
 }
 
 module "rg" {
@@ -43,6 +59,7 @@ module "rg" {
 }
 
 module "log_analytics" {
+  count                                     = local.create_law ? 1 : 0
   source                                    = "Azure/avm-res-operationalinsights-workspace/azurerm"
   version                                   = "[[versions.avm_tf.res-operationalinsights-workspace]]"
   name                                      = module.naming.log_analytics_workspace.name
@@ -60,7 +77,7 @@ module "app_insights" {
   name                = module.naming.application_insights.name
   location            = module.rg.location
   resource_group_name = module.rg.name
-  workspace_id        = module.log_analytics.resource_id
+  workspace_id        = local.law_id
   application_type    = "web"
   tags                = local.tags
   enable_telemetry    = var.enable_telemetry
@@ -78,9 +95,25 @@ module "storage" {
   allow_nested_items_to_be_public = false
   # Azure ML's default datastore uses account keys unless identity-based access is configured.
   shared_access_key_enabled     = true
-  public_network_access_enabled = !var.private_networking
+  public_network_access_enabled = !local.private
+  network_rules                 = local.private ? {} : null
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
+
+  private_endpoints = local.byo_vnet ? {
+    blob = {
+      subnet_resource_id            = local.pe_subnet_id
+      subresource_name              = "blob"
+      private_dns_zone_resource_ids = local.zone_sets.blob
+    }
+    file = {
+      subnet_resource_id            = local.pe_subnet_id
+      subresource_name              = "file"
+      private_dns_zone_resource_ids = local.zone_sets.file
+    }
+  } : {}
+
+  diagnostic_settings_storage_account = local.diag_settings
 }
 
 module "key_vault" {
@@ -93,9 +126,19 @@ module "key_vault" {
   sku_name                      = "standard"
   purge_protection_enabled      = true
   soft_delete_retention_days    = 7
-  public_network_access_enabled = !var.private_networking
+  public_network_access_enabled = !local.private
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
+
+  private_endpoints = local.byo_vnet ? {
+    vault = {
+      subnet_resource_id            = local.pe_subnet_id
+      subresource_name              = "vault"
+      private_dns_zone_resource_ids = local.zone_sets.vault
+    }
+  } : {}
+
+  diagnostic_settings = local.diag_settings
 }
 
 module "acr" {
@@ -104,11 +147,20 @@ module "acr" {
   name                          = local.acr_name
   location                      = module.rg.location
   resource_group_name           = module.rg.name
-  sku                           = var.private_networking ? "Premium" : "Standard"
+  sku                           = local.private ? "Premium" : "Standard"
   admin_enabled                 = false
-  public_network_access_enabled = !var.private_networking
+  public_network_access_enabled = !local.private
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
+
+  private_endpoints = local.byo_vnet ? {
+    registry = {
+      subnet_resource_id            = local.pe_subnet_id
+      private_dns_zone_resource_ids = local.zone_sets.acr
+    }
+  } : {}
+
+  diagnostic_settings = local.diag_settings
 }
 
 module "workspace" {
@@ -122,9 +174,35 @@ module "workspace" {
   container_registry            = { resource_id = module.acr.resource_id }
   application_insights          = { resource_id = module.app_insights.resource_id }
   managed_identities            = { system_assigned = true }
-  public_network_access_enabled = !var.private_networking
+  public_network_access_enabled = !local.private
+  provision_network_now_enabled = local.managed_vnet
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
+
+  workspace_managed_network = local.managed_vnet ? {
+    isolation_mode = local.isolation_mode[var.network_mode]
+    outbound_rules = {
+      fqdn = var.network_mode == "managed_approved" ? {
+        for i, f in var.allowed_fqdns : "fqdn-${i}" => { destination = f }
+      } : {}
+      private_endpoint = {
+        storage-blob = { resource_id = module.storage.resource_id, sub_resource_target = "blob" }
+        storage-file = { resource_id = module.storage.resource_id, sub_resource_target = "file" }
+        keyvault     = { resource_id = module.key_vault.resource_id, sub_resource_target = "vault" }
+        acr          = { resource_id = module.acr.resource_id, sub_resource_target = "registry" }
+      }
+    }
+  } : { isolation_mode = "Disabled" }
+
+  private_endpoints = local.byo_vnet ? {
+    amlworkspace = {
+      subnet_resource_id            = local.pe_subnet_id
+      private_dns_zone_resource_ids = setunion(local.zone_sets.aml_api, local.zone_sets.aml_notebooks)
+    }
+  } : {}
+
+  lock                = var.governance ? { kind = "CanNotDelete", name = "lock-workspace" } : null
+  diagnostic_settings = local.diag_settings
 }
 
 resource "azurerm_machine_learning_compute_cluster" "cpu" {
@@ -133,6 +211,8 @@ resource "azurerm_machine_learning_compute_cluster" "cpu" {
   machine_learning_workspace_id = module.workspace.resource_id
   vm_priority                   = "Dedicated"
   vm_size                       = "Standard_DS3_v2"
+  node_public_ip_enabled        = !local.private
+  subnet_resource_id            = local.compute_subnet_id
 
   scale_settings {
     min_node_count                       = 0
@@ -165,7 +245,7 @@ resource "azapi_resource" "feature_store" {
     }
     properties = {
       description         = "Managed feature store for ${var.project_name} (${var.environment})"
-      publicNetworkAccess = var.private_networking ? "Disabled" : "Enabled"
+      publicNetworkAccess = local.private ? "Disabled" : "Enabled"
     }
   }
 }

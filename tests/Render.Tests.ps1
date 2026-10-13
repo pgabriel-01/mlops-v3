@@ -1,3 +1,8 @@
+BeforeDiscovery {
+    $script:Cases = foreach ($sc in (Get-Content -Raw (Join-Path (Split-Path -Parent $PSScriptRoot) 'templates/scenarios.json') | ConvertFrom-Json)) {
+        foreach ($iac in 'terraform', 'bicep') { @{ id = $sc.id; iac = $iac; endpoint = $sc.endpoint_type; registry = [bool]$sc.registry } }
+    }
+}
 BeforeAll {
     $script:Root = Split-Path -Parent $PSScriptRoot
     Import-Module (Join-Path $Root 'src/MLOpsAccelerator/MLOpsAccelerator.psd1') -Force
@@ -41,5 +46,31 @@ Describe 'Generator' {
         Deploy-MLOpsAccelerator -InputFile (New-Inputs bicep github) -OutputPath $out -SkipVersionCheck
         $txt = Get-Content -Raw (Join-Path $out 'infra/main.bicep'), (Join-Path $out 'infra/workload.bicep')
         $txt | Should -Match "br/public:avm/res/"
+    }
+    Context 'Scenarios' {
+        It 'has 11 scenarios with unique ids' {
+            $all = Get-MLOpsScenario
+            $all.Count | Should -Be 11
+            ($all.id | Select-Object -Unique).Count | Should -Be 11
+        }
+        It 'renders scenario <id> for <iac> with the expected files' -ForEach $Cases {
+            $f = Join-Path $TestDrive "$id-$iac.yaml"
+            $out = Join-Path $TestDrive "o-$id-$iac"
+            New-MLOpsInputFile -Scenario $id -Path $f -Iac $iac | Out-Null
+            Test-MLOpsAcceleratorInput -InputFile $f | Should -BeTrue
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $out -SkipVersionCheck
+            (Get-ChildItem -Recurse -File $out | Where-Object { $_.Extension -in '.yml', '.tf', '.bicep', '.bicepparam', '.tfvars', '.md' } | Select-String '[[' -SimpleMatch) | Should -BeNullOrEmpty
+            Test-Path (Join-Path $out 'mlops/azureml/online-endpoint.yml') | Should -Be ($endpoint -eq 'online')
+            Test-Path (Join-Path $out 'mlops/azureml/batch-endpoint.yml') | Should -Be ($endpoint -eq 'batch')
+            Test-Path (Join-Path $out '.github/workflows/ml-deploy.yml') | Should -Be ($endpoint -ne 'none')
+            Test-Path (Join-Path $out '.github/workflows/ml-promote.yml') | Should -Be $registry
+        }
+        It 'requires existing_platform for the existing-platform scenario' {
+            $f = Join-Path $TestDrive 'ep.yaml'
+            New-MLOpsInputFile -Scenario existing-platform -Path $f | Out-Null
+            $y = (Get-Content -Raw $f) -replace '(?s)existing_platform:.*$', ''
+            Set-Content $f $y
+            { Test-MLOpsAcceleratorInput -InputFile $f } | Should -Throw
+        }
     }
 }
