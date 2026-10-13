@@ -1,0 +1,27 @@
+name: ci
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - shell: pwsh
+        run: |
+          Install-PSResource Pester, powershell-yaml -TrustRepository
+          Invoke-Pester ./tests -CI
+      - shell: pwsh
+        run: |
+          Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1
+          foreach ($iac in 'terraform','bicep') { foreach ($cicd in 'github','azdo') {
+            $y = (Get-Content -Raw inputs.example.yaml) -replace '(?m)^iac:.*',"iac: $iac" -replace '(?m)^cicd:.*',"cicd: $cicd"
+            if ($cicd -eq 'azdo') { $y = ($y -replace '(?m)^github_(org|repo).*\n','') + "`nazdo_org_url: https://dev.azure.com/o`nazdo_project: p`n" }
+            Set-Content in.yaml $y
+            Deploy-MLOpsAccelerator -InputFile in.yaml -OutputPath "out/$iac-$cicd" -SkipVersionCheck
+          } }
+          foreach ($d in 'out/terraform-github/infra','out/terraform-github/bootstrap','out/terraform-azdo/bootstrap') {
+            terraform -chdir=$d init -backend=false; terraform -chdir=$d validate; if ($LASTEXITCODE) { exit 1 }
+          }
+          az bicep build --file out/bicep-github/infra/main.bicep

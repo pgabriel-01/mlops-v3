@@ -1,0 +1,18 @@
+name: [[project_name]]-train
+channels:
+  - conda-forge
+dependencies:
+  - python=[[versions.python]]
+  - pip
+  - pip:
+      - numpy==[[versions.pkg.numpy]]
+      - pandas==[[versions.pkg.pandas]]
+      - scikit-learn==[[versions.pkg.scikit-learn]]
+      - mlflow==[[versions.pkg.mlflow]]
+      - azureml-mlflow==[[versions.pkg.azureml-mlflow]]
+      - azure-ai-ml==[[versions.pkg.azure-ai-ml]]
+      - azure-identity==[[versions.pkg.azure-identity]]
+      - pyarrow==[[versions.pkg.pyarrow]]
+      - joblib==[[versions.pkg.joblib]]
+      - matplotlib==[[versions.pkg.matplotlib]]
+      - protobuf==[[versions.pkg.protobuf]]

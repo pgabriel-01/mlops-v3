@@ -1,0 +1,25 @@
+# Example inputs for the MLOps v3 accelerator.
+project_name: taxi
+location: eastus2
+subscription_id: 00000000-0000-0000-0000-000000000000
+tenant_id: 00000000-0000-0000-0000-000000000000
+
+iac: terraform          # terraform | bicep
+cicd: github            # github | azdo
+scenario: tabular
+data_source: taxi-csv
+environments: [dev, prod]
+
+private_networking: false
+feature_store: false
+
+tags:
+  owner: ml-platform
+
+# cicd: github
+github_org: my-org
+github_repo: taxi-mlops
+
+# cicd: azdo
+# azdo_org_url: https://dev.azure.com/my-org
+# azdo_project: my-project
