@@ -72,6 +72,7 @@ function New-MLOpsTokenMap {
     $envs = @($Inputs['environments'])
     $tags = $Inputs['tags']
     $tagKeys = @($tags.Keys | Sort-Object)
+    $tagWidth = 2 + ($tagKeys | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
 
     $map = @{
         project_name           = $Inputs['project_name']
@@ -90,7 +91,7 @@ function New-MLOpsTokenMap {
         environments_csv       = ($envs -join ', ')
         environments_yaml_list = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         environments_hcl_list  = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
-        tags_hcl               = (($tagKeys | ForEach-Object { '  "{0}" = "{1}"' -f $_, $tags[$_] }) -join "`n")
+        tags_hcl               = (($tagKeys | ForEach-Object { '  {0} = "{1}"' -f ('"' + $_ + '"').PadRight($tagWidth), $tags[$_] }) -join "`n")
         tags_bicep             = (($tagKeys | ForEach-Object { "  '{0}': '{1}'" -f $_, $tags[$_] }) -join "`n")
         cicd_label             = $(if ($Inputs['cicd'] -eq 'github') { 'GitHub' } else { 'Azure DevOps' })
         iac_label              = $(if ($Inputs['iac'] -eq 'terraform') { 'Terraform' } else { 'Bicep' })
