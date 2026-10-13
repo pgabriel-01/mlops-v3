@@ -1,0 +1,4 @@
+$schema: https://azuremlschemas.azureedge.net/latest/batchEndpoint.schema.json
+name: [[project_name]]-batch-[[suffix]]
+description: Taxi fare batch scoring endpoint
+auth_mode: aad_token

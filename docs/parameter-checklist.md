@@ -1,0 +1,24 @@
+# Parameter checklist
+
+Work through this before running `Deploy-MLOpsAccelerator`.
+
+## Always
+- [ ] `project_name` (3-10 lowercase alphanumerics)
+- [ ] `location`, `subscription_id`, `tenant_id`
+- [ ] `scenario` (see `docs/scenarios.md`)
+- [ ] `iac`: `terraform` or `bicep`
+- [ ] `cicd`: `github` (`github_org`, `github_repo`) or `azdo` (`azdo_org_url`, `azdo_project`)
+- [ ] `environments`: subset of `dev`, `test`, `prod`
+- [ ] `tags`
+
+## By scenario
+- [ ] 3: `allowed_outbound_fqdns`
+- [ ] 4: `vnet_address_space`
+- [ ] 9, 11: `budget_amount`, `alert_emails`
+- [ ] 11: `existing_platform.subnet_id`, `.log_analytics_workspace_id`, `.private_dns_zone_ids` (blob, file, vault, acr, aml_api, aml_notebooks)
+
+## Prerequisites on your machine
+- [ ] PowerShell 7.4+, `powershell-yaml`, Terraform (bootstrap always uses it), Azure CLI (+ Bicep for `iac: bicep`)
+- [ ] `az login` with rights to create resource groups, identities and role assignments at subscription scope
+- [ ] `GITHUB_TOKEN` (or `gh auth login`) for GitHub, `AZDO_PERSONAL_ACCESS_TOKEN` for Azure DevOps
+- [ ] Quota for the compute SKU in the chosen region

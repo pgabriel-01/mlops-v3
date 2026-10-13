@@ -1,19 +1,171 @@
 [
-  { "src": "workload/data",    "dest": "data",          "render": false },
-  { "src": "workload/src",     "dest": "src" },
-  { "src": "workload/azureml", "dest": "mlops/azureml" },
-  { "src": "root",             "dest": "." },
-
-  { "src": "iac/terraform",    "dest": "infra", "when": { "iac": "terraform" } },
-  { "src": "iac/bicep",        "dest": "infra", "when": { "iac": "bicep" } },
-
-  { "src": "cicd/github/common",    "dest": ".github/workflows", "when": { "cicd": "github" } },
-  { "src": "cicd/github/terraform", "dest": ".github/workflows", "when": { "cicd": "github", "iac": "terraform" } },
-  { "src": "cicd/github/bicep",     "dest": ".github/workflows", "when": { "cicd": "github", "iac": "bicep" } },
-  { "src": "cicd/azdo/common",      "dest": "pipelines", "when": { "cicd": "azdo" } },
-  { "src": "cicd/azdo/terraform",   "dest": "pipelines", "when": { "cicd": "azdo", "iac": "terraform" } },
-  { "src": "cicd/azdo/bicep",       "dest": "pipelines", "when": { "cicd": "azdo", "iac": "bicep" } },
-
-  { "src": "bootstrap/github", "dest": "bootstrap", "when": { "cicd": "github" } },
-  { "src": "bootstrap/azdo",   "dest": "bootstrap", "when": { "cicd": "azdo" } }
+  {
+    "src": "workload/data",
+    "dest": "data",
+    "render": false
+  },
+  {
+    "src": "workload/src",
+    "dest": "src"
+  },
+  {
+    "src": "workload/azureml",
+    "dest": "mlops/azureml"
+  },
+  {
+    "src": "workload/online",
+    "dest": "mlops/azureml",
+    "when": {
+      "endpoint_online": "true"
+    }
+  },
+  {
+    "src": "workload/batch",
+    "dest": "mlops/azureml",
+    "when": {
+      "endpoint_batch": "true"
+    }
+  },
+  {
+    "src": "root",
+    "dest": "."
+  },
+  {
+    "src": "iac/terraform",
+    "dest": "infra",
+    "when": {
+      "iac": "terraform"
+    }
+  },
+  {
+    "src": "iac/bicep",
+    "dest": "infra",
+    "when": {
+      "iac": "bicep"
+    }
+  },
+  {
+    "src": "cicd/github/common",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github"
+    }
+  },
+  {
+    "src": "cicd/github/terraform",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github",
+      "iac": "terraform"
+    }
+  },
+  {
+    "src": "cicd/github/bicep",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github",
+      "iac": "bicep"
+    }
+  },
+  {
+    "src": "cicd/github/deploy-online",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github",
+      "deploy_mode": "online"
+    }
+  },
+  {
+    "src": "cicd/github/deploy-bluegreen",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github",
+      "deploy_mode": "bluegreen"
+    }
+  },
+  {
+    "src": "cicd/github/deploy-batch",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github",
+      "deploy_mode": "batch"
+    }
+  },
+  {
+    "src": "cicd/github/registry",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github",
+      "registry": "true"
+    }
+  },
+  {
+    "src": "cicd/azdo/common",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo"
+    }
+  },
+  {
+    "src": "cicd/azdo/terraform",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo",
+      "iac": "terraform"
+    }
+  },
+  {
+    "src": "cicd/azdo/bicep",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo",
+      "iac": "bicep"
+    }
+  },
+  {
+    "src": "cicd/azdo/deploy-online",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo",
+      "deploy_mode": "online"
+    }
+  },
+  {
+    "src": "cicd/azdo/deploy-bluegreen",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo",
+      "deploy_mode": "bluegreen"
+    }
+  },
+  {
+    "src": "cicd/azdo/deploy-batch",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo",
+      "deploy_mode": "batch"
+    }
+  },
+  {
+    "src": "cicd/azdo/registry",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo",
+      "registry": "true"
+    }
+  },
+  {
+    "src": "bootstrap/github",
+    "dest": "bootstrap",
+    "when": {
+      "cicd": "github"
+    }
+  },
+  {
+    "src": "bootstrap/azdo",
+    "dest": "bootstrap",
+    "when": {
+      "cicd": "azdo"
+    }
+  }
 ]

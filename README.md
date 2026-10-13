@@ -28,6 +28,16 @@ Requires PowerShell 7.4+, and for `-Deploy`: `az` (logged in), `terraform`, plus
 - Operations: Log Analytics + App Insights; dev -> prod promotion, one state file per environment.
 - MLOps: pipeline (prep, train, evaluate, register), model registry, managed online endpoint with safe rollout.
 
+## Scenarios
+
+Eleven AML scenarios (public, managed VNet, BYO VNet, batch, blue/green, feature store, registry, governance, GenAI, existing platform) are described in [docs/scenarios.md](docs/scenarios.md); the input checklist is in [docs/parameter-checklist.md](docs/parameter-checklist.md).
+
+```powershell
+Get-MLOpsScenario
+New-MLOpsInputFile -Scenario managed-vnet-approved -Path inputs.yaml -Iac bicep -Cicd github
+Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./out
+```
+
 ## Azure Verified Modules
 
 Infra and bootstrap use AVM resource modules (Terraform registry `Azure/avm-res-*`, Bicep `br/public:avm/res/*`) and utility modules (`avm-utl-regions`, `Azure/naming`). No AVM pattern module fits a plain Azure ML workspace (existing ones target Foundry/landing zones/azd), so none is used. Terraform is held on azurerm 4.x because AVM modules require `< 5.0`; the version checker honours this via `holds` in `versions.lock.json`. AVM telemetry is on by default; set `enable_telemetry = false` to disable.
@@ -35,7 +45,6 @@ Infra and bootstrap use AVM resource modules (Terraform registry `Azure/avm-res-
 ## Known limitations
 - Bootstrap is always Terraform (like ALZ), even when IaC is Bicep.
 - Deploy identity gets Contributor + RBAC Administrator at subscription scope; scope it down for production.
-- `private_networking: true` only disables public access; no VNet/private endpoints are created yet.
 - Not verified against a live Azure subscription: bootstrap apply, AML runtime with Python 3.14 conda image, endpoint deployment.
 - Phase 2 (Parquet transactions data + managed feature store) is not implemented beyond an optional feature store resource.
 

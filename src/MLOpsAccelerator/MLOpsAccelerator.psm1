@@ -159,6 +159,12 @@ function New-MLOpsTokenMap {
         endpoint_online        = (& $lc ($sc.endpoint_type -eq 'online'))
         endpoint_batch         = (& $lc ($sc.endpoint_type -eq 'batch'))
         registry               = (& $lc $sc.registry)
+        model_ref              = $(if ($sc.registry) { "azureml://registries/reg-$($Inputs['project_name'])-$short/models/$($Inputs['project_name'])-model/labels/latest" } else { "azureml:$($Inputs['project_name'])-model@latest" })
+        scenario_summary       = $sc.summary
+        scenario_docs_md       = (($sc.docs | ForEach-Object { "- <$_>" }) -join "`n")
+        first_env              = @($Inputs['environments'])[0]
+        registry_name          = "reg-$($Inputs['project_name'])-$short"
+        deploy_mode            = $(if ($sc.endpoint_type -eq 'online' -and $sc.id -eq 'online-bluegreen') { 'bluegreen' } else { $sc.endpoint_type })
         governance             = (& $lc $sc.governance)
         genai                  = (& $lc $sc.genai)
         existing_platform      = (& $lc $sc.existing_platform)
@@ -170,7 +176,7 @@ function New-MLOpsTokenMap {
         alert_emails_bicep     = '[' + (($mails | ForEach-Object { "'" + $_ + "'" }) -join ', ') + ']'
         existing_subnet_id     = $(if ($ep) { [string]$ep['subnet_id'] } else { '' })
         existing_law_id        = $(if ($ep) { [string]$ep['log_analytics_workspace_id'] } else { '' })
-        existing_dns_hcl       = '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { ' {0} = "{1}"' -f $_, $dns[$_] }) -join ',') + ' }'
+        existing_dns_hcl       = $(if ($dns.Count -eq 0) { '{}' } else { '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { ' {0} = "{1}"' -f $_, $dns[$_] }) -join ',') + ' }' })
         existing_dns_bicep     = '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { "`n  {0}: '{1}'" -f $_, $dns[$_] }) -join '') + "`n}"
         data_source            = $Inputs['data_source']
         private_networking     = (& $lc ($sc.network_mode -ne 'public'))
@@ -180,7 +186,7 @@ function New-MLOpsTokenMap {
         environments_yaml_list = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         environments_hcl_list  = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         tags_hcl               = (($tagKeys | ForEach-Object { '  {0} = "{1}"' -f ('"' + $_ + '"').PadRight($tagWidth), $tags[$_] }) -join "`n")
-        tags_bicep             = (($tagKeys | ForEach-Object { "  '{0}': '{1}'" -f $_, $tags[$_] }) -join "`n")
+        tags_bicep             = (($tagKeys | ForEach-Object { $k = if ($_ -match '^[A-Za-z_][A-Za-z0-9_]*$') { $_ } else { "'$_'" }; "  {0}: '{1}'" -f $k, $tags[$_] }) -join "`n")
         cicd_label             = $(if ($Inputs['cicd'] -eq 'github') { 'GitHub' } else { 'Azure DevOps' })
         iac_label              = $(if ($Inputs['iac'] -eq 'terraform') { 'Terraform' } else { 'Bicep' })
         pipelines_dir          = $(if ($Inputs['cicd'] -eq 'github') { '.github/workflows' } else { 'pipelines' })
@@ -321,6 +327,7 @@ function Deploy-MLOpsAccelerator {
             if ($relative -like '*__env__*') {
                 foreach ($e in $envs) {
                     $local = $map.Clone(); $local['env'] = $e
+                    $local['registry'] = (([bool]($map['registry'] -eq 'true')) -and $e -eq $envs[0]).ToString().ToLower()
                     $dest = Join-Path (Join-Path $OutputPath $entry.dest) ($relative -replace '__env__', $e)
                     Write-MLOpsFile -SourceFile $file.FullName -Destination $dest -Render $render -Map $local -Environments $envs
                 }
