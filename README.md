@@ -28,6 +28,10 @@ Requires PowerShell 7.4+, and for `-Deploy`: `az` (logged in), `terraform`, plus
 - Operations: Log Analytics + App Insights; dev -> prod promotion, one state file per environment.
 - MLOps: pipeline (prep, train, evaluate, register), model registry, managed online endpoint with safe rollout.
 
+## Azure Verified Modules
+
+Infra and bootstrap use AVM resource modules (Terraform registry `Azure/avm-res-*`, Bicep `br/public:avm/res/*`) and utility modules (`avm-utl-regions`, `Azure/naming`). No AVM pattern module fits a plain Azure ML workspace (existing ones target Foundry/landing zones/azd), so none is used. Terraform is held on azurerm 4.x because AVM modules require `< 5.0`; the version checker honours this via `holds` in `versions.lock.json`. AVM telemetry is on by default; set `enable_telemetry = false` to disable.
+
 ## Known limitations
 - Bootstrap is always Terraform (like ALZ), even when IaC is Bicep.
 - Deploy identity gets Contributor + RBAC Administrator at subscription scope; scope it down for production.
