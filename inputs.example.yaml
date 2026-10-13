@@ -1,4 +1,5 @@
 # Example inputs for the MLOps v3 accelerator.
+# Generate a scenario-specific file with:  New-MLOpsInputFile -Scenario managed-vnet-approved -Path inputs.yaml
 project_name: taxi
 location: eastus2
 subscription_id: 00000000-0000-0000-0000-000000000000
@@ -6,12 +7,10 @@ tenant_id: 00000000-0000-0000-0000-000000000000
 
 iac: terraform          # terraform | bicep
 cicd: github            # github | azdo
-scenario: tabular
+scenario: basic-public  # see Get-MLOpsScenario (11 AML scenarios)
+workload: tabular
 data_source: taxi-csv
 environments: [dev, prod]
-
-private_networking: false
-feature_store: false
 
 tags:
   owner: ml-platform
@@ -23,3 +22,14 @@ github_repo: taxi-mlops
 # cicd: azdo
 # azdo_org_url: https://dev.azure.com/my-org
 # azdo_project: my-project
+
+# Scenario-specific (optional unless stated):
+# vnet_address_space: 10.20.0.0/16        # byo-vnet
+# allowed_outbound_fqdns: [pypi.org]      # managed-vnet-approved
+# budget_amount: 500                      # governance
+# alert_emails: [mlops@example.com]       # governance
+# existing_platform:                      # required for existing-platform
+#   subnet_id: /subscriptions/.../subnets/snet-ml
+#   log_analytics_workspace_id: /subscriptions/.../workspaces/law-platform
+#   private_dns_zone_ids:
+#     blob: /subscriptions/.../privateDnsZones/privatelink.blob.core.windows.net
