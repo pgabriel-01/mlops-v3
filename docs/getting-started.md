@@ -18,7 +18,7 @@ Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./out -Deploy    # ge
 
 ## 3. Run
 
-Push `./out` to the repository, merge to `main` to deploy `infra/`, then run `ml-train` and `ml-deploy`
+Push `./out` to the repository, merge to `main` to deploy `infra/`, then run `ml-train` (phase 3) and `ml-deploy` (phase 4)
 (`ml-promote` for the registry scenario).
 
 ## Keeping current
@@ -29,3 +29,6 @@ Update-MLOpsAcceleratorVersion
 ```
 
 Terraform stays on azurerm 4.x because Azure Verified Modules require `< 5.0`; see `versions.lock.json`.
+
+## Phases of the generated project
+0. Platform prerequisites (outside the repo; private scenarios only) · 1. Bootstrap (`terraform apply` in `bootstrap/`) · 2. Infrastructure (`infra` pipeline, one environment at a time with approvals) · 3. Workload (`ml-train`) · 4. Serve (`ml-deploy`, `ml-promote`). The generated README has the full table with a "stop and check" for each phase.

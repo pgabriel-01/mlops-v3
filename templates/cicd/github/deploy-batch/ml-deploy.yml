@@ -1,4 +1,4 @@
-name: ml-deploy
+name: "4 - ml-deploy"
 
 on:
   workflow_dispatch:

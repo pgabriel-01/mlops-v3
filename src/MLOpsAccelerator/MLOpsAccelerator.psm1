@@ -41,7 +41,7 @@ function Read-MLOpsInput {
     $data = if ($Path -match '\.json$') { $raw | ConvertFrom-Json -AsHashtable } else { $raw | ConvertFrom-Yaml }
 
     if (-not $data.ContainsKey('data_source')) { $data['data_source'] = 'taxi-csv' }
-    if (-not $data.ContainsKey('environments')) { $data['environments'] = @('dev', 'prod') }
+    if (-not $data.ContainsKey('environments')) { $data['environments'] = @('dev', 'test', 'prod') }
     if (-not $data.ContainsKey('workload')) { $data['workload'] = 'tabular' }
     if (-not $data.ContainsKey('vnet_address_space')) { $data['vnet_address_space'] = '10.20.0.0/16' }
     if (-not $data.ContainsKey('allowed_outbound_fqdns')) { $data['allowed_outbound_fqdns'] = @('pypi.org', 'files.pythonhosted.org', '*.anaconda.com', 'conda.anaconda.org') }
@@ -102,7 +102,7 @@ cicd: $Cicd
 scenario: $($sc.id)
 workload: tabular
 data_source: taxi-csv
-environments: [dev, prod]
+environments: [dev, test, prod]
 tags:
   owner: ml-platform
 

@@ -46,7 +46,7 @@ For `-Deploy` you need `az` (logged in), `terraform`, plus `GITHUB_TOKEN` or `AZ
 
 ## Design notes / best-practice mapping
 - Security (WAF/CAF): OIDC/workload identity federation, no secrets; Key Vault with RBAC and purge protection; Terraform state in Azure Storage with Entra auth; checkov in CI; per-environment approvals through GitHub environments / ADO environments.
-- Operations: Log Analytics + App Insights; dev -> prod promotion, one state file per environment.
+- Operations: Log Analytics + App Insights; dev -> test -> prod promotion, one state file per environment.
 - MLOps: pipeline (prep, train, evaluate, register), model registry, managed online endpoint with safe rollout.
 
 ## Scenarios

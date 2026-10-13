@@ -14,7 +14,7 @@ data_source: taxi-csv        # or: adls
 #   account_name: mystorageacct
 #   container: raw
 #   path: taxi/taxi-data.csv  # a CSV with the taxi columns
-environments: [dev, prod]
+environments: [dev, test, prod]
 
 tags:
   owner: ml-platform
