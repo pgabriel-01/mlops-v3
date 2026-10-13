@@ -6,7 +6,7 @@
     Description          = 'Generates a complete, parameter-driven MLOps repository (bootstrap, IaC, CI/CD and workload) for Azure Machine Learning.'
     PowerShellVersion    = '7.4'
     RequiredModules      = @(@{ ModuleName = 'powershell-yaml'; ModuleVersion = '0.4.7' })
-    FunctionsToExport    = @('Get-MLOpsScenario', 'New-MLOpsInputFile', 'Deploy-MLOpsAccelerator', 'Test-MLOpsAcceleratorInput', 'Test-MLOpsAcceleratorVersion', 'Update-MLOpsAcceleratorVersion')
+    FunctionsToExport    = @('Test-MLOpsAcceleratorRequirement', 'Remove-MLOpsAccelerator', 'Grant-MLOpsStorageAccess', 'Get-MLOpsScenario', 'New-MLOpsInputFile', 'Deploy-MLOpsAccelerator', 'Test-MLOpsAcceleratorInput', 'Test-MLOpsAcceleratorVersion', 'Update-MLOpsAcceleratorVersion')
     CmdletsToExport      = @()
     VariablesToExport    = @()
     AliasesToExport      = @()

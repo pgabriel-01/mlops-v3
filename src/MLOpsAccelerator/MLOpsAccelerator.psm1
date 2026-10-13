@@ -283,22 +283,39 @@ function Deploy-MLOpsAccelerator {
     Destroy the bootstrap resources of a previously generated project in OutputPath.
     .PARAMETER SkipVersionCheck
     Skip the check for outdated pinned versions.
+    .PARAMETER AutoApprove
+    Apply or destroy the bootstrap without the interactive confirmation after the plan.
+    .PARAMETER Upgrade
+    Regenerate into a folder created by an earlier run (marked by .mlops-v3). Files are overwritten; commit first so you can review the diff.
+    .PARAMETER SkipRequirementsCheck
+    Skip the pre-flight requirements check used by -Deploy and -Destroy.
+    .PARAMETER Interactive
+    Prompt for the key inputs and write the inputs file (InputFile, default ./inputs.yaml) before generating.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory)][string] $InputFile,
+        [string] $InputFile,
         [Parameter(Mandatory)][string] $OutputPath,
         [switch] $Deploy,
         [switch] $Destroy,
         [switch] $Force,
-        [switch] $SkipVersionCheck
+        [switch] $SkipVersionCheck,
+        [switch] $AutoApprove,
+        [switch] $Upgrade,
+        [switch] $SkipRequirementsCheck,
+        [switch] $Interactive
     )
 
+    if ($Interactive) {
+        if (-not $InputFile) { $InputFile = './inputs.yaml' }
+        $null = Read-MLOpsInteractiveInput -Path $InputFile
+    }
+    if (-not $InputFile) { throw 'Provide -InputFile, or use -Interactive to be prompted.' }
     $inputs = Read-MLOpsInput -Path $InputFile
     $lock = Get-MLOpsLock
 
     if ($Destroy) {
-        Invoke-MLOpsBootstrap -ProjectPath $OutputPath -Inputs $inputs -Destroy
+        Invoke-MLOpsBootstrap -ProjectPath $OutputPath -Inputs $inputs -Destroy -AutoApprove:$AutoApprove -SkipRequirementsCheck:$SkipRequirementsCheck
         return
     }
 
@@ -309,8 +326,11 @@ function Deploy-MLOpsAccelerator {
         }
     }
 
-    if ((Test-Path $OutputPath) -and (Get-ChildItem -Force -Path $OutputPath | Select-Object -First 1) -and -not $Force) {
-        throw "Output path '$OutputPath' is not empty. Use -Force to overwrite."
+    $nonEmpty = (Test-Path $OutputPath) -and (Get-ChildItem -Force -Path $OutputPath | Select-Object -First 1)
+    $isProject = Test-Path (Join-Path $OutputPath '.mlops-v3/generation.json')
+    if ($Upgrade -and $nonEmpty -and -not $isProject) { throw "'$OutputPath' is not an MLOps v3 project (no .mlops-v3/generation.json)." }
+    if ($nonEmpty -and -not $Force -and -not ($Upgrade -and $isProject)) {
+        throw "Output path '$OutputPath' is not empty. Use -Force to overwrite, or -Upgrade for an existing MLOps v3 project."
     }
 
     $map = New-MLOpsTokenMap -Inputs $inputs -Lock $lock
@@ -350,34 +370,171 @@ function Deploy-MLOpsAccelerator {
 
     Write-Host "Generated MLOps v3 project in $OutputPath"
 
-    if ($Deploy) { Invoke-MLOpsBootstrap -ProjectPath $OutputPath -Inputs $inputs }
+    if ($Deploy) { Invoke-MLOpsBootstrap -ProjectPath $OutputPath -Inputs $inputs -AutoApprove:$AutoApprove -SkipRequirementsCheck:$SkipRequirementsCheck }
     else { Write-Host "Next: cd '$OutputPath/bootstrap'; terraform init; terraform apply -var-file=bootstrap.tfvars" }
 }
 
 function Invoke-MLOpsBootstrap {
-    param([Parameter(Mandatory)][string] $ProjectPath, [Parameter(Mandatory)] $Inputs, [switch] $Destroy)
+    param([Parameter(Mandatory)][string] $ProjectPath, [Parameter(Mandatory)] $Inputs, [switch] $Destroy, [switch] $AutoApprove, [switch] $SkipRequirementsCheck)
 
-    foreach ($tool in 'terraform', 'az') {
-        if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "'$tool' is required on PATH." }
+    if (-not $SkipRequirementsCheck) {
+        $bad = @(Test-MLOpsAcceleratorRequirement -Cicd $Inputs['cicd'] -Iac $Inputs['iac'] | Where-Object { -not $_.Passed -and $_.Required })
+        if ($bad.Count -gt 0) {
+            $bad | ForEach-Object { Write-Warning ("{0}: {1}" -f $_.Name, $_.Detail) }
+            throw 'Requirements check failed. Fix the items above or use -SkipRequirementsCheck.'
+        }
     }
-    az account show --only-show-errors *> $null
-    if ($LASTEXITCODE -ne 0) { throw "Run 'az login' first." }
-
-    if ($Inputs['cicd'] -eq 'github' -and -not $env:GITHUB_TOKEN) {
-        if (Get-Command gh -ErrorAction SilentlyContinue) { $env:GITHUB_TOKEN = (gh auth token) }
-        if (-not $env:GITHUB_TOKEN) { throw 'Set GITHUB_TOKEN (or run gh auth login) so the bootstrap can configure the repository.' }
-    }
-    if ($Inputs['cicd'] -eq 'azdo' -and -not $env:AZDO_PERSONAL_ACCESS_TOKEN) {
-        throw 'Set AZDO_PERSONAL_ACCESS_TOKEN so the bootstrap can configure Azure DevOps.'
-    }
+    if ($Inputs['cicd'] -eq 'github' -and -not $env:GITHUB_TOKEN -and (Get-Command gh -ErrorAction SilentlyContinue)) { $env:GITHUB_TOKEN = (gh auth token) }
 
     $dir = Join-Path $ProjectPath 'bootstrap'
     $env:ARM_SUBSCRIPTION_ID = $Inputs['subscription_id']
     terraform "-chdir=$dir" init -input=false
     if ($LASTEXITCODE -ne 0) { throw 'terraform init failed' }
+
     $verb = if ($Destroy) { 'destroy' } else { 'apply' }
-    terraform "-chdir=$dir" $verb -var-file=bootstrap.tfvars
+    $planArgs = @('plan', '-input=false', '-var-file=bootstrap.tfvars', '-out=tfplan')
+    if ($Destroy) { $planArgs += '-destroy' }
+    terraform "-chdir=$dir" @planArgs
+    if ($LASTEXITCODE -ne 0) { throw 'terraform plan failed' }
+    if (-not $AutoApprove) {
+        $answer = Read-Host "Review the plan above. Type 'yes' to $verb"
+        if ($answer -ne 'yes') { Write-Host "Cancelled; nothing was changed. The saved plan is $dir/tfplan."; return }
+    }
+    terraform "-chdir=$dir" apply -input=false tfplan
     if ($LASTEXITCODE -ne 0) { throw "terraform $verb failed" }
+    Remove-Item (Join-Path $dir 'tfplan') -Force -ErrorAction SilentlyContinue
+}
+
+function Test-MLOpsAcceleratorRequirement {
+    <#
+    .SYNOPSIS
+    Pre-flight check of the tools, sign-ins and tokens that -Deploy / -Destroy need.
+    .OUTPUTS
+    One object per check: Name, Required, Passed, Detail.
+    #>
+    [CmdletBinding()]
+    param(
+        [ValidateSet('github', 'azdo')][string] $Cicd = 'github',
+        [ValidateSet('terraform', 'bicep')][string] $Iac = 'terraform'
+    )
+    $r = [System.Collections.Generic.List[object]]::new()
+    $add = { param($n, $req, $ok, $d) $r.Add([pscustomobject]@{ Name = $n; Required = $req; Passed = [bool]$ok; Detail = $d }) }
+
+    & $add 'PowerShell 7.4+' $true ($PSVersionTable.PSVersion -ge [version]'7.4') "found $($PSVersionTable.PSVersion)"
+    & $add 'powershell-yaml module' $true ([bool](Get-Module -ListAvailable powershell-yaml)) 'Install-PSResource powershell-yaml'
+    & $add 'terraform' $true ([bool](Get-Command terraform -ErrorAction SilentlyContinue)) 'install Terraform and add it to PATH (bootstrap always uses it)'
+    & $add 'git' $true ([bool](Get-Command git -ErrorAction SilentlyContinue)) 'install git'
+    $az = [bool](Get-Command az -ErrorAction SilentlyContinue)
+    & $add 'Azure CLI' $true $az 'install the Azure CLI'
+    $signedIn = $false
+    if ($az) { az account show --only-show-errors *> $null; $signedIn = ($LASTEXITCODE -eq 0) }
+    & $add 'az login' $true $signedIn 'run az login'
+    if ($Iac -eq 'bicep') {
+        $bicep = $false
+        if ($az) { az bicep version --only-show-errors *> $null; $bicep = ($LASTEXITCODE -eq 0) }
+        & $add 'Bicep (az bicep)' $true $bicep 'run az bicep install'
+    }
+    if ($Cicd -eq 'github') {
+        $gh = [bool](Get-Command gh -ErrorAction SilentlyContinue)
+        $tokenOk = [bool]$env:GITHUB_TOKEN
+        if (-not $tokenOk -and $gh) { gh auth status *> $null; $tokenOk = ($LASTEXITCODE -eq 0) }
+        & $add 'GitHub token' $true $tokenOk 'set GITHUB_TOKEN or run gh auth login'
+        & $add 'GitHub CLI (gh)' $false $gh 'optional; used to read the token'
+    }
+    else {
+        & $add 'Azure DevOps token' $true ([bool]$env:AZDO_PERSONAL_ACCESS_TOKEN) 'set AZDO_PERSONAL_ACCESS_TOKEN'
+    }
+    $net = $false
+    try { $net = (Invoke-WebRequest -Uri 'https://registry.terraform.io' -Method Head -TimeoutSec 10 -SkipHttpErrorCheck).StatusCode -lt 500 } catch { $net = $false }
+    & $add 'Network: registry.terraform.io' $false $net 'needed for terraform init unless you use a mirror'
+    $r
+}
+
+function Remove-MLOpsAccelerator {
+    <#
+    .SYNOPSIS
+    Destroys the bootstrap resources of a generated project and optionally deletes the local folder.
+    .DESCRIPTION
+    Workload infrastructure (per-environment AML resources) is owned by the generated pipelines; destroy those first
+    (run the infra pipeline with the destroy option, or delete the resource groups) before removing the bootstrap.
+    #>
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+    param(
+        [Parameter(Mandatory)][string] $InputFile,
+        [Parameter(Mandatory)][string] $ProjectPath,
+        [switch] $AutoApprove,
+        [switch] $DeleteLocalFolder,
+        [switch] $SkipRequirementsCheck
+    )
+    $inputs = Read-MLOpsInput -Path $InputFile
+    if (-not (Test-Path (Join-Path $ProjectPath '.mlops-v3/generation.json'))) { throw "'$ProjectPath' is not an MLOps v3 project." }
+    if (-not $PSCmdlet.ShouldProcess($ProjectPath, 'Destroy bootstrap resources')) { return }
+    Invoke-MLOpsBootstrap -ProjectPath $ProjectPath -Inputs $inputs -Destroy -AutoApprove:$AutoApprove -SkipRequirementsCheck:$SkipRequirementsCheck
+    if ($DeleteLocalFolder -and (Test-Path (Join-Path (Join-Path $ProjectPath 'bootstrap') 'terraform.tfstate'))) {
+        Write-Warning 'Local terraform state still exists; not deleting the folder. Check the destroy result first.'
+    }
+    elseif ($DeleteLocalFolder) { Remove-Item -Recurse -Force $ProjectPath }
+}
+
+function Grant-MLOpsStorageAccess {
+    <#
+    .SYNOPSIS
+    Grants the AML workspace identity Storage Blob Data Reader on the ADLS account used by data_source: adls.
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)][string] $StorageAccountName,
+        [Parameter(Mandatory)][string] $StorageResourceGroup,
+        [Parameter(Mandatory)][string] $WorkspaceName,
+        [Parameter(Mandatory)][string] $WorkspaceResourceGroup
+    )
+    $principal = az ml workspace show -n $WorkspaceName -g $WorkspaceResourceGroup --query identity.principal_id -o tsv --only-show-errors
+    if ($LASTEXITCODE -ne 0 -or -not $principal) { throw 'Could not read the workspace managed identity. Is the workspace deployed and are you logged in?' }
+    $scope = az storage account show -n $StorageAccountName -g $StorageResourceGroup --query id -o tsv --only-show-errors
+    if ($LASTEXITCODE -ne 0 -or -not $scope) { throw "Storage account '$StorageAccountName' not found." }
+    if ($PSCmdlet.ShouldProcess($scope, "Assign Storage Blob Data Reader to $principal")) {
+        az role assignment create --assignee-object-id $principal --assignee-principal-type ServicePrincipal --role 'Storage Blob Data Reader' --scope $scope --only-show-errors | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'Role assignment failed.' }
+        Write-Host "Granted Storage Blob Data Reader on $StorageAccountName."
+    }
+}
+
+function Read-MLOpsInteractiveInput {
+    param([Parameter(Mandatory)][string] $Path)
+
+    $ask = {
+        param($prompt, $default, $choices)
+        while ($true) {
+            $hint = if ($choices) { " ($($choices -join '/'))" } else { '' }
+            $v = Read-Host "$prompt$hint [$default]"
+            if ([string]::IsNullOrWhiteSpace($v)) { $v = $default }
+            if (-not $choices -or $choices -contains $v) { return $v }
+            Write-Host "Choose one of: $($choices -join ', ')"
+        }
+    }
+    $scenarios = @(Get-MLOpsScenario)
+    $scenarios | ForEach-Object { Write-Host ("  {0,2}. {1,-28} {2}" -f $_.number, $_.id, $_.name) }
+    $sc = & $ask 'Scenario id' 'basic-public' @($scenarios.id)
+    $iac = & $ask 'IaC' 'terraform' @('terraform', 'bicep')
+    $cicd = & $ask 'CI/CD' 'github' @('github', 'azdo')
+    New-MLOpsInputFile -Scenario $sc -Path $Path -Iac $iac -Cicd $cicd -Force | Out-Null
+
+    $sub = ''; $ten = ''
+    if (Get-Command az -ErrorAction SilentlyContinue) {
+        $sub = (az account show --query id -o tsv --only-show-errors 2>$null); $ten = (az account show --query tenantId -o tsv --only-show-errors 2>$null)
+    }
+    $set = @{
+        project_name = (& $ask 'Project name' 'myml' $null)
+        location = (& $ask 'Azure region' 'eastus2' $null)
+        subscription_id = (& $ask 'Subscription id' $(if ($sub) { $sub } else { '00000000-0000-0000-0000-000000000000' }) $null)
+        tenant_id = (& $ask 'Tenant id' $(if ($ten) { $ten } else { '00000000-0000-0000-0000-000000000000' }) $null)
+    }
+    if ($cicd -eq 'github') { $set['github_org'] = (& $ask 'GitHub org' 'my-org' $null); $set['github_repo'] = (& $ask 'GitHub repo' "$($set['project_name'])-mlops" $null) }
+    else { $set['azdo_org_url'] = (& $ask 'Azure DevOps org URL' 'https://dev.azure.com/my-org' $null); $set['azdo_project'] = (& $ask 'Azure DevOps project' 'my-project' $null) }
+    $text = Get-Content -Raw $Path
+    foreach ($k in $set.Keys) { $text = [regex]::Replace($text, "(?m)^${k}:.*`$", { param($m) "${k}: $($set[$k])" }) }
+    Set-Content -Path $Path -Value $text -NoNewline
+    $Path
 }
 
 function Get-LatestVersion {
@@ -513,4 +670,4 @@ function Update-MLOpsAcceleratorVersion {
     }
 }
 
-Export-ModuleMember -Function Get-MLOpsScenario, New-MLOpsInputFile, Deploy-MLOpsAccelerator, Test-MLOpsAcceleratorInput, Test-MLOpsAcceleratorVersion, Update-MLOpsAcceleratorVersion
+Export-ModuleMember -Function Test-MLOpsAcceleratorRequirement, Remove-MLOpsAccelerator, Grant-MLOpsStorageAccess, Get-MLOpsScenario, New-MLOpsInputFile, Deploy-MLOpsAccelerator, Test-MLOpsAcceleratorInput, Test-MLOpsAcceleratorVersion, Update-MLOpsAcceleratorVersion

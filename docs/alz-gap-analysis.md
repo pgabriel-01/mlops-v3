@@ -21,3 +21,8 @@ Compared against `Azure/ALZ-PowerShell-Module` (`Deploy-Accelerator`). ALZ keeps
 2. `-Destroy` and a cleanup command for the bootstrap resources.
 3. Plan-then-approve flow for `-Deploy`.
 4. Community files and release packaging before the first push.
+
+## Status
+Done locally: requirements check, plan-then-approve and `-AutoApprove`, `-Destroy` / `Remove-MLOpsAccelerator`, `-Upgrade`, `-Interactive`, `Grant-MLOpsStorageAccess`, community files, release workflow, a manual E2E script (`tests/Invoke-E2E.ps1`, not yet run against Azure).
+
+Deliberately not done: versioned downloadable template packs, tfvars-to-JSON conversion, HTTP retry options, Terraform version management (templates ship inside the module, so these add no value yet). A wiki is deferred; `docs/` is the doc set.

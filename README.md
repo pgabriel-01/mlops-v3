@@ -31,6 +31,16 @@ Deploy-MLOpsAccelerator -InputFile my-inputs.yaml -OutputPath ./my-mlops -Deploy
 ```
 For `-Deploy` you need `az` (logged in), `terraform`, plus `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN`.
 
+## Commands
+| Command | Purpose |
+|---|---|
+| `Test-MLOpsAcceleratorRequirement` | Pre-flight check (tools, `az login`, tokens, network); also runs before `-Deploy` |
+| `New-MLOpsInputFile` / `Deploy-MLOpsAccelerator -Interactive` | Write the inputs file, optionally via prompts |
+| `Deploy-MLOpsAccelerator` | Generate; `-Deploy` plans, asks for approval, applies (`-AutoApprove` to skip); `-Upgrade` regenerates an existing project; `-Destroy` tears down the bootstrap |
+| `Remove-MLOpsAccelerator` | Destroy the bootstrap and optionally delete the local folder |
+| `Grant-MLOpsStorageAccess` | Give the AML workspace identity Storage Blob Data Reader for `data_source: adls` |
+| `Test-/Update-MLOpsAcceleratorVersion` | Check and bump pins |
+
 ## Versions
 `versions.lock.json` is the single source of truth. Python is pinned to **3.14**, not 3.15: 3.15 is still a release candidate and `pyarrow` has no wheels for it. The whole stack was checked with `pip check` on 3.14 and the training pipeline run end to end. Bump `python` in the lock once 3.15 wheels exist. `azureml-featurestore` supports only Python <= 3.12 (relevant to the planned Phase 2, which runs on Spark).
 
