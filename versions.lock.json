@@ -10,17 +10,17 @@
     "azuredevops": "1.16.0"
   },
   "pkg": {
-    "numpy": "2.5.3",
+    "numpy": "2.5.4",
     "pandas": "3.0.6",
     "scikit-learn": "1.9.1",
-    "mlflow": "3.16.1",
-    "azureml-mlflow": "1.60.0",
+    "mlflow": "3.17.1",
+    "azureml-mlflow": "1.60.0.post1",
     "azure-ai-ml": "1.35.2",
     "azure-identity": "1.26.0",
     "pyarrow": "25.0.1",
     "joblib": "1.6.0",
     "matplotlib": "3.11.2",
-    "protobuf": "6.33.6",
+    "protobuf": "7.36.2",
     "pytest": "9.1.1"
   },
   "actions": {
@@ -65,6 +65,8 @@
     "res/machine-learning-services/registry": "0.1.1"
   },
   "holds": {
-    "provider:azurerm": "AVM Terraform modules require azurerm < 5.0; stays on the latest 4.x"
+    "provider:azurerm": "AVM Terraform modules require azurerm < 5.0; stays on the latest 4.x",
+    "pypi:pyarrow": "mlflow 3.17.x requires pyarrow<26; stays on the latest 25.0.x until mlflow lifts the cap",
+    "pypi:azureml-mlflow": "azureml-mlflow 1.62 requires mlflow-skinny<=3.15.0, which conflicts with mlflow 3.17; stays on 1.60.x"
   }
 }
