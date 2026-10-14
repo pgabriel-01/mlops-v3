@@ -1,4 +1,7 @@
-# Azure Verified Modules
+---
+title: "Azure Verified Modules"
+weight: 2
+---
 
 Infra and bootstrap use AVM **resource** modules (`Azure/avm-res-*`, `br/public:avm/res/*`) and **utility** modules
 (`avm-utl-regions`, `Azure/naming`). Pattern modules are used only where one fits (AI Foundry); no AVM pattern covers a

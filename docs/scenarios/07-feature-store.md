@@ -3,8 +3,6 @@ title: "7 - Managed feature store"
 weight: 7
 ---
 
-# 7 - Managed feature store
-
 Adds an AML managed feature store workspace. Parquet data source arrives with the feature-store workload pack.
 
 | | |
@@ -23,7 +21,7 @@ Adds a managed feature store workspace alongside the project workspace.
 New-MLOpsInputFile -Scenario feature-store -Path inputs.yaml -Iac terraform -Cicd github
 ```
 
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

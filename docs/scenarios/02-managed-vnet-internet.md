@@ -3,8 +3,6 @@ title: "2 - Secure: managed VNet, internet outbound"
 weight: 2
 ---
 
-# 2 - Secure: managed VNet, internet outbound
-
 Workspace managed virtual network (AllowInternetOutbound), private endpoints, public access disabled.
 
 | | |
@@ -23,10 +21,10 @@ Public network access is disabled on the workspace and its dependencies. Outboun
 New-MLOpsInputFile -Scenario managed-vnet-internet -Path inputs.yaml -Iac terraform -Cicd github
 ```
 
-!!! note
-    Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
-
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+{{% callout style="note" %}}
+Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
+{{% /callout %}}
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

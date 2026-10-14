@@ -3,8 +3,6 @@ title: "3 - GitHub or Azure DevOps"
 weight: 3
 ---
 
-# GitHub or Azure DevOps
-
 ```yaml
 cicd: github
 github_org: contoso
@@ -17,4 +15,4 @@ azdo_project: mlops
 
 Azure DevOps pipelines are generated under `pipelines/` and must be registered manually (see [Run](../run.md)).
 
-Back to [Options](index.md).
+Back to [Options](_index.md).

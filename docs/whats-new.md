@@ -1,20 +1,23 @@
-# What's new
+---
+title: "What's new"
+weight: 2
+---
 
 Newest first. The accelerator has not had a tagged release yet, so everything is listed under a dated section. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
-!!! warning "Not yet applied to live Azure"
-    All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). `tests/Invoke-E2E.ps1` has not been run against a subscription.
-
+{{% callout style="warning" title="Not yet applied to live Azure" %}}
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). `tests/Invoke-E2E.ps1` has not been run against a subscription.
+{{% /callout %}}
 ## 2026-10-13
 
 ### Added
 
-- 11 AML scenarios on Terraform and Bicep, built on Azure Verified Modules: [Scenarios](scenarios/index.md).
-- One page per [scenario](scenarios/index.md) and per [option](options/index.md).
+- 11 AML scenarios on Terraform and Bicep, built on Azure Verified Modules: [Scenarios](scenarios/_index.md).
+- One page per [scenario](scenarios/_index.md) and per [option](options/_index.md).
 - Estimated fixed monthly cost per scenario, from the Azure Retail Prices API (`scripts/Get-ScenarioCostEstimates.ps1`).
-- `data_source: adls`: read your own CSV from ADLS Gen2 with an identity-based datastore. **[Important]** the workspace identity needs *Storage Blob Data Reader*; see [Data sources](data-sources.md).
-- [Phase 0 Planning](planning.md) decisions that map to `inputs.yaml`.
-- [Phase 1 Prerequisites](prerequisites/index.md), with a resource provider check in `Test-MLOpsAcceleratorRequirement`.
+- `data_source: adls`: read your own CSV from ADLS Gen2 with an identity-based datastore. **[Important]** the workspace identity needs *Storage Blob Data Reader*; see [Data sources](planning/data-sources.md).
+- [Phase 0 Planning](planning/_index.md) decisions that map to `inputs.yaml`.
+- [Phase 1 Prerequisites](prerequisites/_index.md), with a resource provider check in `Test-MLOpsAcceleratorRequirement`.
 - [Phase 2 Bootstrap](bootstrap.md) and [Phase 3 Run](run.md) guides.
 - Plan and approve before apply, `Remove-MLOpsAccelerator`, `-Upgrade`, `-Interactive` and `Grant-MLOpsStorageAccess`.
 - `install-local.ps1` for local install and uninstall, since the module is not published yet.
@@ -40,4 +43,4 @@ Newest first. The accelerator has not had a tagged release yet, so everything is
 - No Parquet data source or managed feature store pack yet.
 - Not published to the PowerShell Gallery.
 
-See [Gap analysis vs ALZ](alz-gap-analysis.md) for the full comparison.
+See [Gap analysis vs ALZ](reference/alz-gap-analysis.md) for the full comparison.

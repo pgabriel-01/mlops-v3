@@ -1,4 +1,7 @@
-# Azure subscriptions and permissions
+---
+title: "Azure subscriptions and permissions"
+weight: 2
+---
 
 ## Subscription
 
@@ -30,7 +33,7 @@ Register these before the first deployment (the accelerator does not register th
 
 - Check vCPU quota for the compute SKU in your region (`az vm list-usage -l <region>`), for each environment you will run training in.
 - Pick a region that offers Azure ML managed online endpoints and, for scenario 10, AI Foundry.
-- Three environments multiply cost; see [parameter checklist](../parameter-checklist.md#environments-and-cost).
+- Three environments multiply cost; see [parameter checklist](../planning/parameter-checklist.md#environments-and-cost).
 
 ## Private scenarios
 

@@ -1,4 +1,7 @@
-# Azure DevOps
+---
+title: "Azure DevOps"
+weight: 4
+---
 
 The bootstrap creates a Git repository, an environment per stage, a variable group per environment, and an Azure Resource Manager service connection per environment that uses workload identity federation. The Azure DevOps **project** must already exist.
 

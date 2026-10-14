@@ -3,8 +3,6 @@ title: "11 - Integrate with an existing platform landing zone"
 weight: 11
 ---
 
-# 11 - Integrate with an existing platform landing zone
-
 Reuses a supplied subnet, private DNS zones and Log Analytics workspace instead of creating them.
 
 | | |
@@ -25,14 +23,14 @@ New-MLOpsInputFile -Scenario existing-platform -Path inputs.yaml -Iac terraform 
 
 ## Inputs to review
 
-- `existing_platform`: see [Options](../options/index.md)
-- `budget_amount`: see [Options](../options/index.md)
-- `alert_emails`: see [Options](../options/index.md)
+- `existing_platform`: see [Options](../options/_index.md)
+- `budget_amount`: see [Options](../options/_index.md)
+- `alert_emails`: see [Options](../options/_index.md)
 
-!!! note
-    Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
-
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+{{% callout style="note" %}}
+Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
+{{% /callout %}}
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

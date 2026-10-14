@@ -3,8 +3,6 @@ title: "6 - Online endpoint with blue/green rollout"
 weight: 6
 ---
 
-# 6 - Online endpoint with blue/green rollout
-
 Managed online endpoint; the deploy workflow ships a new deployment and shifts traffic gradually.
 
 | | |
@@ -23,7 +21,7 @@ The deploy workflow creates a new deployment, shifts 10% then 100% of traffic, a
 New-MLOpsInputFile -Scenario online-bluegreen -Path inputs.yaml -Iac terraform -Cicd github
 ```
 
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

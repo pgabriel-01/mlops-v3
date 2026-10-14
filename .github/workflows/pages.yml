@@ -13,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with: { python-version: '3.14' }
-      - run: pip install -r site/requirements.txt && mkdocs build --strict -f site/mkdocs.yml
+      - uses: peaceiris/actions-hugo@v3
+        with: { hugo-version: '0.168.0', extended: true }
+      - id: cfg
+        uses: actions/configure-pages@v5
+      - run: hugo --source site --minify --baseURL "${{ steps.cfg.outputs.base_url }}/"
       - uses: actions/upload-pages-artifact@v4
         with: { path: _site }
   deploy:

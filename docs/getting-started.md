@@ -1,8 +1,11 @@
-# Getting started
+---
+title: "Quick start"
+weight: 50
+---
 
 ## 1. Prerequisites
 
-See the [parameter checklist](parameter-checklist.md). In short: PowerShell 7.4+, `powershell-yaml`, Terraform, Azure CLI
+See the [parameter checklist](planning/parameter-checklist.md). In short: PowerShell 7.4+, `powershell-yaml`, Terraform, Azure CLI
 (plus Bicep for `iac: bicep`), `az login`, and a GitHub token or Azure DevOps PAT.
 
 ## 2. Bootstrap
