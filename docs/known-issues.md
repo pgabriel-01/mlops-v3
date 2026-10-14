@@ -5,8 +5,8 @@ weight: 3
 
 Issues you may hit, with workarounds. Each entry says when it was found and when it was fixed. For fixes and changes, see [What's new](whats-new.md).
 
-{{% callout style="warning" title="Not yet applied to live Azure" %}}
-The end-to-end deployment test (`tests/Invoke-E2E.ps1`) has not been run against a real subscription. Expect more entries here after the first real runs.
+{{% callout style="warning" title="Partly applied to live Azure" %}}
+Only the scenarios marked verified in [Live deployment coverage](#live-deployment-coverage) have been applied to a real subscription. Expect more entries here as more scenarios run.
 {{% /callout %}}
 
 ## Bootstrap: new role needed for policy guardrails
@@ -53,14 +53,23 @@ Scenario 7 creates the feature store workspace but no feature set, offline store
 
 ## Live deployment coverage
 
-Only scenario 1 (basic-public, Terraform, `dev`) has been applied to a real subscription: 43 resources created, the compute cluster and both policy assignments confirmed, then destroyed cleanly. That run found and fixed two bugs (Standard container registry with zone redundancy; workspace module reading the resource group before it existed). The other scenarios, Bicep and the bootstrap are validated in CI but have not been deployed.
+The `e2e` workflow applies a scenario, checks the workspace exists, then destroys everything. Results for the `dev` environment (workload IaC only; the bootstrap is not covered):
+
+| Scenario | Terraform | Bicep | Run |
+|---|---|---|---|
+| 1 basic-public | Verified | Verified | 38554509708 |
+| 2 managed-vnet-internet | Verified | Verified | 38613440753 |
+| 3 managed-vnet-approved | Verified | Verified | 38616830510 |
+| 4 to 11 | Plan only | Plan only | Not yet applied |
+
+Live runs found and fixed: Standard ACR rejecting the default `Deny` network action, storage and Key Vault needing explicit `Allow` ACLs for public scenarios, a Terraform conditional with mismatched object types for the managed network, and the OIDC token expiring during long applies.
 
 
 ## Soft-deleted names and managed-network rules
 
 - Key Vaults (purge protection) and AML workspaces stay soft-deleted after a destroy, which blocks redeploying the same names. Change the `suffix` (Bicep param or Terraform variable) before redeploying.
 - Managed-network private endpoint outbound rules for storage, Key Vault, ACR and the workspace are created by the service. The templates define only FQDN rules.
-- Bicep scenario 2 (managed VNet) is verified live; Terraform private scenarios are not yet.
+- Scenarios 2 and 3 (managed VNet) are verified live on Terraform and Bicep; other private scenarios are not yet.
 
 ## Terraform state storage and runner networking
 
