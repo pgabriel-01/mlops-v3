@@ -85,7 +85,7 @@ Fill in `use_private_networking`, `runners_vnet_address_space` and `runner_label
 
 `workloads`: optional list of workload names (for example `[taxi, churn]`). All workloads share the one platform (a workspace per environment) and each gets its own `workloads/<name>/` folder, assets and pipelines. Omit it for a single workload at the repository root.
 
-### Decision 13 - Repository and organisation
+### Decision 13 - Repository and organization
 
 GitHub: `github_org`, `github_repo`. Azure DevOps: `azdo_org_url`, `azdo_project`.
 

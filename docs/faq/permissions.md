@@ -9,7 +9,7 @@ weight: 2
 
 ## What does the pipeline identity get?
 
-**Contributor**, **Role Based Access Control Administrator** and **Resource Policy Contributor** at subscription scope, and **Storage Blob Data Contributor** on the state account. Scope them down for production if your organisation requires it.
+**Contributor**, **Role Based Access Control Administrator** and **Resource Policy Contributor** at subscription scope, and **Storage Blob Data Contributor** on the state account. Scope them down for production if your organization requires it.
 
 ## Why does the first deploy fail with an authorization error on policy?
 

@@ -32,7 +32,7 @@ jobs:
       - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
       - name: Endpoint
         run: az ml online-endpoint create -f [[workload_dir]]mlops/azureml/online-endpoint.yml -g $RG -w $WS
-      - name: Pick colours
+      - name: Pick colors
         run: |
           LIVE=$(az ml online-endpoint show -n $EP -g $RG -w $WS --query "keys(traffic)[0]" -o tsv || true)
           if [ "$LIVE" = "blue" ]; then NEW=green; else NEW=blue; fi

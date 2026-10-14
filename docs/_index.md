@@ -41,7 +41,7 @@ Included in the platform are:
 
 Workloads are the models and pipelines that run on the platform. Each workload gets its own folder, Azure ML assets and train and deploy pipelines. Several workloads can share the one platform with the `workloads` input.
 
-See [run](run.md) and the [customisation options](options/_index.md) for more information.
+See [run](run.md) and the [customization options](options/_index.md) for more information.
 
 Questions or problems? See the [FAQ](faq/_index.md), [troubleshooting](troubleshooting.md), [advanced options](advanced.md) and [known issues](known-issues.md).
 

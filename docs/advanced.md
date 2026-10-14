@@ -1,6 +1,6 @@
 ---
 title: "Advanced"
-weight: 25
+weight: 35
 ---
 
 Options beyond the basic bootstrap and run steps.

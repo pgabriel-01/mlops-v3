@@ -5,7 +5,7 @@ weight: 2
 
 ## Subscription
 
-One subscription hosts the bootstrap and all environments by default (`subscription_id` in the inputs). Use separate subscriptions per environment later by customising the generated parameter files; that is not an input today.
+One subscription hosts the bootstrap and all environments by default (`subscription_id` in the inputs). Use separate subscriptions per environment later by customizing the generated parameter files; that is not an input today.
 
 ## Permissions for the person running the bootstrap
 

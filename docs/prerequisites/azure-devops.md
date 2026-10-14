@@ -5,10 +5,10 @@ weight: 4
 
 The bootstrap creates a Git repository, an environment per stage, a variable group per environment, and an Azure Resource Manager service connection per environment that uses workload identity federation. The Azure DevOps **project** must already exist.
 
-## Organisation and project
+## Organization and project
 
-- Know your organisation URL (`azdo_org_url`, e.g. `https://dev.azure.com/my-org`) and an existing project (`azdo_project`).
-- The organisation must be connected to the same Microsoft Entra tenant as the Azure subscription.
+- Know your organization URL (`azdo_org_url`, e.g. `https://dev.azure.com/my-org`) and an existing project (`azdo_project`).
+- The organization must be connected to the same Microsoft Entra tenant as the Azure subscription.
 - Enable the Git repos, Pipelines and Environments features in the project.
 
 ## Personal access token
