@@ -6,20 +6,44 @@ theme:
   name: material
   features: [navigation.sections, navigation.top, search.suggest, content.code.copy]
 nav:
-  - Home: index.md
-  - Prerequisites:
+  - Getting started: index.md
+  - Phase 0 - Planning:
+      - Parameter checklist: parameter-checklist.md
+      - Data sources: data-sources.md
+  - Phase 1 - Prerequisites:
       - Overview: prerequisites/index.md
       - Azure: prerequisites/azure.md
       - GitHub: prerequisites/github.md
       - Azure DevOps: prerequisites/azure-devops.md
-  - Parameter checklist: parameter-checklist.md
-  - Plan:
-      - Scenarios: scenarios.md
-      - Data sources: data-sources.md
-  - Getting started: getting-started.md
-  - Bootstrap: bootstrap.md
-  - Options: options.md
-  - Run: run.md
+  - Phase 2 - Bootstrap: bootstrap.md
+  - Phase 3 - Run: run.md
+  - Quick start: getting-started.md
+  - Scenarios:
+      - Overview: scenarios/index.md
+      - "1 - Basic, public endpoints": scenarios/01-basic-public.md
+      - "2 - Secure: managed VNet, internet outbound": scenarios/02-managed-vnet-internet.md
+      - "3 - Secure: managed VNet, approved outbound only": scenarios/03-managed-vnet-approved.md
+      - "4 - Secure: bring-your-own VNet": scenarios/04-byo-vnet.md
+      - "5 - Batch training and batch inference": scenarios/05-batch-scoring.md
+      - "6 - Online endpoint with blue/green rollout": scenarios/06-online-bluegreen.md
+      - "7 - Managed feature store": scenarios/07-feature-store.md
+      - "8 - Multi-environment with shared registry": scenarios/08-registry-promotion.md
+      - "9 - Monitoring and governance": scenarios/09-governance.md
+      - "10 - GenAI: AI Foundry hub and project": scenarios/10-genai-foundry.md
+      - "11 - Integrate with an existing platform landing zone": scenarios/11-existing-platform.md
+  - Options:
+      - Overview: options/index.md
+      - "1 - Two environments": options/01-two-environments.md
+      - "2 - Terraform or Bicep": options/02-terraform-or-bicep.md
+      - "3 - GitHub or Azure DevOps": options/03-github-or-azure-devops.md
+      - "4 - Your own data (ADLS)": options/04-your-own-data-adls.md
+      - "5 - Outbound allow-list": options/05-outbound-allow-list.md
+      - "6 - VNet address space": options/06-vnet-address-space.md
+      - "7 - Existing platform": options/07-existing-platform.md
+      - "8 - Budget alerts": options/08-budget-alerts.md
+      - "9 - Tags": options/09-tags.md
+      - "10 - Compute sizes": options/10-compute-sizes.md
+      - "11 - Switch scenario": options/11-switch-scenario.md
   - Reference:
       - Azure Verified Modules: reference/azure-verified-modules.md
       - Gap analysis vs ALZ: alz-gap-analysis.md

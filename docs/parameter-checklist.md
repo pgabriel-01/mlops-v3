@@ -5,7 +5,7 @@ Work through this before running `Deploy-MLOpsAccelerator`.
 ## Always
 - [ ] `project_name` (3-10 lowercase alphanumerics)
 - [ ] `location`, `subscription_id`, `tenant_id`
-- [ ] `scenario` (see `docs/scenarios.md`)
+- [ ] `scenario` (see [scenarios](scenarios/index.md))
 - [ ] `iac`: `terraform` or `bicep`
 - [ ] `cicd`: `github` (`github_org`, `github_repo`) or `azdo` (`azdo_org_url`, `azdo_project`)
 - [ ] `environments`: default `dev`, `test`, `prod`; any ordered subset of those (promotion and approvals follow the order)
