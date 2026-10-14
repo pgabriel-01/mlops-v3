@@ -290,6 +290,7 @@ module featureStoreWorkspace 'br/public:avm/res/machine-learning-services/worksp
     location: location
     sku: 'Basic'
     kind: 'FeatureStore'
+    featureStoreSettings: { computeRuntime: { sparkRuntimeVersion: '3.4.0' } }
     description: 'Managed feature store for ${projectName} (${environment})'
     managedIdentities: { systemAssigned: true }
     associatedApplicationInsightsResourceId: appi.outputs.resourceId
