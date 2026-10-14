@@ -18,6 +18,7 @@ nav:
       - Data sources: data-sources.md
   - Getting started: getting-started.md
   - Bootstrap: bootstrap.md
+  - Options: options.md
   - Run: run.md
   - Reference:
       - Azure Verified Modules: reference/azure-verified-modules.md
