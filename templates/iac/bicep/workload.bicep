@@ -204,6 +204,7 @@ module acr 'br/public:avm/res/container-registry/registry:[[versions.avm_bicep.r
     zoneRedundancy: isPublic ? 'Disabled' : 'Enabled'
     publicNetworkAccess: access
     networkRuleBypassOptions: 'AzureServices'
+    networkRuleSetDefaultAction: isPublic ? 'Allow' : 'Deny'
     privateEndpoints: usePe ? [peFor(peSubnetId, 'registry', nonEmpty([zoneIds.acr]))] : []
     diagnosticSettings: diagSettings
     tags: tags
