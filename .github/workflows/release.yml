@@ -8,7 +8,7 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Test
         shell: pwsh
         run: |
@@ -17,6 +17,6 @@ jobs:
       - name: Package
         run: |
           zip -r "mlops-v3-${GITHUB_REF_NAME}.zip" src templates schema docs versions.lock.json inputs.example.yaml README.md LICENSE* 2>/dev/null || zip -r "mlops-v3-${GITHUB_REF_NAME}.zip" src templates schema docs versions.lock.json inputs.example.yaml README.md
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: mlops-v3-*.zip

@@ -39,7 +39,7 @@ jobs:
         run: |
           hugo --source site --minify --printI18nWarnings --printPathWarnings 2>&1 | tee build.log
           ! grep -E "^(WARN|ERROR)" build.log
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: docs-site
           path: _site
