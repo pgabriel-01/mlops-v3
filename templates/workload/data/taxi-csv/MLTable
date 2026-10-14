@@ -1,0 +1,9 @@
+$schema: https://azuremlschemas.azureedge.net/data/latest/MLTable.schema.json
+type: mltable
+paths:
+  - file: ./taxi-data.csv
+transformations:
+  - read_delimited:
+      delimiter: ','
+      header: all_files_same_headers
+      encoding: utf8

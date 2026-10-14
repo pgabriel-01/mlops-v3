@@ -6,7 +6,8 @@ description: Train, evaluate and conditionally register a taxi fare model.
 
 inputs:
   raw_data:
-    type: uri_file
+    type: [[data_type]]
+    mode: ro_mount
     path: azureml:[[project_name]]-data@latest
 
 outputs:

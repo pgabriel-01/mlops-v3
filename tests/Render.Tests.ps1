@@ -74,6 +74,18 @@ Describe 'Generator' {
             Get-Content -Raw (Join-Path $o 'mlops/azureml/datastore.yml') | Should -Match 'account_name: stdatalake01'
             Get-Content -Raw (Join-Path $o 'mlops/azureml/data.yml') | Should -Match 'azureml://datastores/adls_raw/paths/taxi/taxi-data.csv'
         }
+        It 'registers the bundled sample as an MLTable data asset' -ForEach @('taxi-csv', 'taxi-parquet') {
+            $f = Join-Path $TestDrive "$_.yaml"
+            New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null
+            Set-Content $f ((Get-Content -Raw $f) -replace 'data_source: taxi-csv', "data_source: $_")
+            $o = Join-Path $TestDrive "$_-out"
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
+            $d = Get-Content -Raw (Join-Path $o 'mlops/azureml/data.yml')
+            $d | Should -Match 'type: mltable'
+            $d | Should -Match "path: \.\./\.\./data/$_"
+            Test-Path (Join-Path $o "data/$_/MLTable") | Should -BeTrue
+            Get-Content -Raw (Join-Path $o 'mlops/azureml/pipeline.yml') | Should -Match 'type: mltable'
+        }
         It 'requires the adls object when data_source is adls' {
             $f = Join-Path $TestDrive 'adls-bad.yaml'
             New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null

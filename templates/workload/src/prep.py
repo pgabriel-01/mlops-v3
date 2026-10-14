@@ -6,6 +6,7 @@ from pathlib import Path
 import mlflow
 import numpy as np
 import pandas as pd
+import yaml
 
 from common import FEATURE_COLS, TARGET_COL
 
@@ -20,7 +21,19 @@ def parse_args():
     return parser.parse_args()
 
 
+def read_mltable_folder(folder: Path) -> pd.DataFrame:
+    # Parses the MLTable file directly so the job does not need the mltable package,
+    # which does not yet support the Python version this accelerator pins.
+    spec = yaml.safe_load((folder / "MLTable").read_text())
+    frames = [read_raw(folder / Path(p["file"])) for p in spec["paths"] if "file" in p]
+    if not frames:
+        raise ValueError(f"MLTable in {folder} has no local file paths")
+    return pd.concat(frames, ignore_index=True)
+
+
 def read_raw(path: Path) -> pd.DataFrame:
+    if path.is_dir() and (path / "MLTable").exists():
+        return read_mltable_folder(path)
     if path.is_dir():
         files = sorted(path.glob("*.parquet")) + sorted(path.glob("*.csv"))
         if not files:

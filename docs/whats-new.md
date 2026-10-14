@@ -12,6 +12,8 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Added
 
+- `data_source: taxi-parquet`, and the bundled samples (`taxi-csv`, `taxi-parquet`) are now registered as **MLTable** data assets (`type: mltable`, mounted read-only into the prep step). The Parquet sample is a 2,000-row slice with the same columns. The Azure Open Datasets green-taxi Parquet has a different schema (and 2 GB, East US only), so it is not bundled. `prep.py` reads the MLTable file itself because the `mltable` package requires Python below 3.14. `adls` stays a single-file `uri_file`.
+
 - The module is packaged for PowerShell Gallery: `scripts/Build-Module.ps1` stages a self-contained module (templates, schema and version lock bundled), and a `v*` tag builds it, attaches a zip to the GitHub release and publishes to the Gallery when the `PSGALLERY_API_KEY` secret is set. Until the first publish, install with `install-local.ps1`.
 
 - The interactive prompt now mirrors ALZ: numbered menus for scenario, IaC, CI/CD, region and subscription, `[0]` for manual entry, a "(current)" default marker, `[AZ]` on zone-enabled regions (from `az account list-locations`), subscriptions from the current tenant, and a warning when the chosen region has no zones. Without `az` it falls back to free text.

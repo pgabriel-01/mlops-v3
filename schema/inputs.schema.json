@@ -66,10 +66,11 @@
       "type": "string",
       "enum": [
         "taxi-csv",
+        "taxi-parquet",
         "adls"
       ],
       "default": "taxi-csv",
-      "description": "taxi-csv uses the bundled sample. adls reads a CSV from an ADLS Gen2 container through an identity-based AML datastore. Parquet and other sources are planned (see docs/data-sources.md)."
+      "description": "taxi-csv and taxi-parquet use the bundled 2,000-row sample, registered as an MLTable data asset. adls reads a CSV from an ADLS Gen2 container through an identity-based AML datastore. Parquet and other sources are planned (see docs/data-sources.md)."
     },
     "environments": {
       "type": "array",

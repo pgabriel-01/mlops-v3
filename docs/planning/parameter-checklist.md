@@ -24,7 +24,7 @@ Work through this before running `Deploy-MLOpsAccelerator`.
 See [Phase 1 - Prerequisites](../prerequisites/_index.md): tools, Azure permissions and resource providers, GitHub or Azure DevOps token, quota, and self-hosted agents for private scenarios. `Test-MLOpsAcceleratorRequirement` checks what it can.
 
 ## Data source
-- [ ] `data_source: taxi-csv` (default, bundled sample) or `adls` (your own CSV in ADLS Gen2)
+- [ ] `data_source: taxi-csv` (default), `taxi-parquet` (both bundled MLTable samples) or `adls` (your own CSV in ADLS Gen2)
 - [ ] For `adls`: grant the AML workspace identity **Storage Blob Data Reader** on the account (not created by the IaC)
 - [ ] Snowflake / Azure SQL: land the data in ADLS first (ADF or Fabric), then use `adls`. See [data-sources.md](data-sources.md)
 

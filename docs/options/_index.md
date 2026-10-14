@@ -45,7 +45,7 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `iac` | `terraform` / `bicep` | required | |
 | `cicd` | `github` / `azdo` | required | |
 | `scenario` | string | required | See [scenarios](../scenarios/_index.md) |
-| `data_source` | `taxi-csv` / `adls` | `taxi-csv` | |
+| `data_source` | `taxi-csv` / `taxi-parquet` / `adls` | `taxi-csv` | |
 | `environments` | list | `[dev, test, prod]` | Ordered subset |
 | `tags` | map | `{}` | |
 | `github_org`, `github_repo` | string | | `cicd: github` |

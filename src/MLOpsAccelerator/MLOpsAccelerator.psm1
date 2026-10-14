@@ -103,7 +103,7 @@ iac: $Iac
 cicd: $Cicd
 scenario: $($sc.id)
 workload: tabular
-data_source: taxi-csv
+data_source: taxi-csv        # or: taxi-parquet, adls
 environments: [dev, test, prod]
 tags:
   owner: ml-platform
@@ -183,7 +183,8 @@ function New-MLOpsTokenMap {
         existing_dns_hcl       = $(if ($dns.Count -eq 0) { '{}' } else { '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { ' {0} = "{1}"' -f $_, $dns[$_] }) -join ',') + ' }' })
         existing_dns_bicep     = '{' + (($dnsKeys | Where-Object { $dns.ContainsKey($_) } | ForEach-Object { "`n  {0}: '{1}'" -f $_, $dns[$_] }) -join '') + "`n}"
         data_source            = $Inputs['data_source']
-        data_path              = $(if ($Inputs['data_source'] -eq 'adls') { 'azureml://datastores/adls_raw/paths/' + $Inputs['adls']['path'] } else { '../../data/taxi-data.csv' })
+        data_path              = $(if ($Inputs['data_source'] -eq 'adls') { 'azureml://datastores/adls_raw/paths/' + $Inputs['adls']['path'] } else { '../../data/' + $Inputs['data_source'] })
+        data_type              = $(if ($Inputs['data_source'] -eq 'adls') { 'uri_file' } else { 'mltable' })
         adls_account           = $(if ($Inputs['data_source'] -eq 'adls') { [string]$Inputs['adls']['account_name'] } else { '' })
         adls_container         = $(if ($Inputs['data_source'] -eq 'adls') { [string]$Inputs['adls']['container'] } else { '' })
         private_networking     = (& $lc ($sc.network_mode -ne 'public'))
