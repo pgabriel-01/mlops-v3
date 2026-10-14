@@ -72,7 +72,8 @@ Deployment flow: inputs file, then render, then bootstrap (once), then infra per
 - Use the latest compatible libraries and AVM modules. Do not bump a held pin (`azurerm` below 5.0, `pyarrow` below 26, `azureml-mlflow` 1.60.0) without reading its reason.
 - Policy is built-in Azure Policy only, at resource-group scope, effects `audit` or `deny`. No custom definitions and no DINE.
 - Docs use Hugo Relearn shortcodes (`{{% callout %}}`, `{{< tabs >}}`), not MkDocs admonitions, and US English spelling. Update `docs/whats-new.md`, and `docs/release-notes.md` for breaking changes. Hugo warnings fail CI.
-- Be honest about what is verified. Scenario 1 is applied live (Terraform and Bicep) through the e2e workflow; other scenarios are verified by render, validate and plan or what-if only.
+- Be honest about what is verified. Scenarios 1 to 3 are applied live (Terraform and Bicep) through the e2e workflow, and the docs record each pass; other scenarios are verified by render, validate and plan or what-if only.
+- Versioning: SemVer tags `v0.x.y` (matching `ModuleVersion` in the `.psd1`) until the first gold release, which is `v1.0.0` once all 11 scenarios are verified live. Tag only from `main`, after the PR merges.
 
 ## Gotchas
 

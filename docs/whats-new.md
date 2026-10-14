@@ -3,7 +3,7 @@ title: "What's new"
 weight: 2
 ---
 
-Newest first. The accelerator has not had a tagged release yet, so everything is listed under a dated section. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
+Newest first. The accelerator has not had a tagged release yet, so everything is listed under a dated section. Releases will be tagged `v0.x.y` until the first gold release (`v1.0.0`), which requires all 11 scenarios to be verified live. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Partly applied to live Azure" %}}
 All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 3 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
