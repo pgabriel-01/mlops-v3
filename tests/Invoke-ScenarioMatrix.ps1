@@ -5,7 +5,8 @@
 #   -Iac terraform|bicep   limit to one IaC flavour
 param([switch]$Quick, [string] $Scenario, [ValidateSet('terraform', 'bicep')][string] $Iac)
 Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1 -Force
-$env:TF_PLUGIN_CACHE_DIR = "$env:TMPDIR/tfcache"; New-Item -ItemType Directory -Force $env:TF_PLUGIN_CACHE_DIR | Out-Null
+$tmp = [IO.Path]::GetTempPath()
+$env:TF_PLUGIN_CACHE_DIR = Join-Path $tmp "tfcache"; New-Item -ItemType Directory -Force $env:TF_PLUGIN_CACHE_DIR | Out-Null
 $scenarios = Get-MLOpsScenario
 if ($Scenario) { $scenarios = @(Get-MLOpsScenario -Scenario $Scenario) }
 $iacs = if ($Iac) { @($Iac) } else { @('terraform', 'bicep') }
@@ -14,8 +15,8 @@ foreach ($sc in $scenarios) {
     foreach ($flavour in $iacs) {
         $cicd = if (($i++ % 2) -eq 0) { 'github' } else { 'azdo' }
         $name = "$($sc.number)-$($sc.id)-$flavour-$cicd"
-        $d = Join-Path $env:TMPDIR "m-$name"; Remove-Item -Recurse -Force $d -EA SilentlyContinue
-        $in = Join-Path $env:TMPDIR "$name.yaml"
+        $d = Join-Path $tmp "m-$name"; Remove-Item -Recurse -Force $d -EA SilentlyContinue
+        $in = Join-Path $tmp "$name.yaml"
         $null = New-MLOpsInputFile -Scenario $sc.id -Path $in -Iac $flavour -Cicd $cicd -Force
         $r = @()
         try { Deploy-MLOpsAccelerator -InputFile $in -OutputPath $d -SkipVersionCheck *>$null } catch { "${name}: GENFAIL $_"; $fail++; continue }

@@ -249,7 +249,7 @@ function Write-MLOpsFile {
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
     $isText = $script:TextExtensions -contains [IO.Path]::GetExtension($SourceFile).ToLower()
     if ($Render -and $isText) {
-        $text = Get-Content -Raw -Path $SourceFile
+        $text = (Get-Content -Raw -Path $SourceFile) -replace "`r`n", "`n"
         $out = Expand-MLOpsTemplate -Text $text -Map $Map -Environments $Environments -Source $SourceFile
         [IO.File]::WriteAllText($Destination, $out, [Text.UTF8Encoding]::new($false))
     }
@@ -653,8 +653,13 @@ function Update-MLOpsAcceleratorVersion {
     $all = @($pins) + @($unchanged) | Where-Object { $_ }
 
     if ($pins) {
-        $python = Get-Command "python$($lock.python)" -ErrorAction SilentlyContinue
-        if (-not $python) { $python = Get-Command python3 -ErrorAction SilentlyContinue }
+        $python = $null
+        foreach ($name in "python$($lock.python)", 'python3', 'python') {
+            $cand = Get-Command $name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+            if (-not $cand) { continue }
+            $v = & $cand.Source -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")' 2>$null
+            if ($v -eq $lock.python) { $python = $cand; break }
+        }
         if (-not $python) { throw "Python $($lock.python) is required to verify that the updated packages resolve together." }
         $version = & $python.Source -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")'
         if ($version -ne $lock.python) { throw "Found Python $version but the lock targets $($lock.python)." }

@@ -22,7 +22,8 @@ Not supported or not tested:
 
 - Running behind a corporate proxy. Use a temporary Azure VM instead.
 - Azure Cloud Shell.
-- Windows and Linux are expected to work; development and testing so far were on macOS.
+- Development and local testing so far were on macOS. CI runs the tests and render/validate steps on Ubuntu, Windows and macOS runners; Windows has not been exercised by hand.
+- Windows: use PowerShell 7 (not Windows PowerShell 5.1), enable long paths (`git config --system core.longpaths true` and the `LongPathsEnabled` registry setting) and keep `-OutputPath` short, because Terraform and Bicep module caches create deep folders.
 
 ## 2 - Azure subscriptions and permissions
 
