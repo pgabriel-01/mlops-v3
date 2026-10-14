@@ -21,6 +21,6 @@ alert_emails            = [[alert_emails_hcl]]
 existing_subnet_id      = "[[existing_subnet_id]]"
 existing_law_id         = "[[existing_law_id]]"
 existing_dns_zones      = [[existing_dns_hcl]]
-tags                    = {
+tags = {
 [[tags_hcl]]
 }
