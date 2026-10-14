@@ -1,8 +1,43 @@
 # What's new
 
-## Unreleased
+Newest first. The accelerator has not had a tagged release yet, so everything is listed under a dated section. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
-- Docs restructured into phases 0-3, with one page per scenario and per option.
-- Estimated fixed monthly cost per scenario (`scripts/Get-ScenarioCostEstimates.ps1`).
-- Windows and macOS support in CI; `install-local.ps1` for local install.
-- Eleven AML scenarios on Terraform and Bicep with Azure Verified Modules.
+!!! warning "Not yet applied to live Azure"
+    All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). `tests/Invoke-E2E.ps1` has not been run against a subscription.
+
+## 2026-10-13
+
+### Added
+
+- 11 AML scenarios on Terraform and Bicep, built on Azure Verified Modules: [Scenarios](scenarios/index.md).
+- One page per [scenario](scenarios/index.md) and per [option](options/index.md).
+- Estimated fixed monthly cost per scenario, from the Azure Retail Prices API (`scripts/Get-ScenarioCostEstimates.ps1`).
+- `data_source: adls`: read your own CSV from ADLS Gen2 with an identity-based datastore. **[Important]** the workspace identity needs *Storage Blob Data Reader*; see [Data sources](data-sources.md).
+- [Phase 0 Planning](planning.md) decisions that map to `inputs.yaml`.
+- [Phase 1 Prerequisites](prerequisites/index.md), with a resource provider check in `Test-MLOpsAcceleratorRequirement`.
+- [Phase 2 Bootstrap](bootstrap.md) and [Phase 3 Run](run.md) guides.
+- Plan and approve before apply, `Remove-MLOpsAccelerator`, `-Upgrade`, `-Interactive` and `Grant-MLOpsStorageAccess`.
+- `install-local.ps1` for local install and uninstall, since the module is not published yet.
+- Default environments are `dev`, `test` and `prod`.
+- Pipelines are numbered by phase.
+
+### Changed
+
+- **[Important]** Docs renumbered: Planning 0, Prerequisites 1, Bootstrap 2, Run 3.
+- Python is pinned to 3.14. Held back on purpose: `azurerm` below 5.0 (AVM requirement), `pyarrow` below 26 (mlflow cap) and `azureml-mlflow` 1.60.0.
+- Generated files are LF-only on every OS.
+- CI runs on Ubuntu, Windows and macOS (not yet run; needs a push).
+
+### Fixed
+
+- Python lookup in `Update-MLOpsAcceleratorVersion` now works on Windows (`python`, `python3`, `python3.14`).
+- The scenario test matrix uses the OS temp folder instead of `$env:TMPDIR`.
+
+### Known gaps
+
+- Compute sizes are not inputs yet.
+- The bootstrap sets no approval reviewers and does not register Azure DevOps pipelines.
+- No Parquet data source or managed feature store pack yet.
+- Not published to the PowerShell Gallery.
+
+See [Gap analysis vs ALZ](alz-gap-analysis.md) for the full comparison.
