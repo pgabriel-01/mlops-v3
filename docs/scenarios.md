@@ -21,7 +21,7 @@ Pick one with `scenario:` in the inputs file. List them with `Get-MLOpsScenario`
 
 | Start here if... | Scenario | Relative fixed cost |
 |---|---|---|
-| You are learning or prototyping and data is not sensitive | 1 `basic-public` | Lowest |
+| You are learning or prototyping and data is not sensitive | 1 `basic-public` | Lowest (about $60/month for 3 environments) |
 | You need real-time scoring with a REST endpoint | 6 `online-bluegreen` (safe rollouts) or 2-4 (private) | Low to medium |
 | Scoring runs on a schedule, not in real time | 5 `batch-scoring` | Low (compute only while running) |
 | Security requires no public access, and you have no existing network | 2 `managed-vnet-internet`, or 3 for locked-down egress | Medium; 3 adds a managed firewall, which is the largest fixed cost |
@@ -36,6 +36,27 @@ Costs are relative and exclude training compute and endpoint instance hours, whi
 
 !!! tip
     Start with 1, prove the pipeline end to end, then change `scenario` and regenerate. Decide the network mode early: switching it on an existing workspace is a larger change than adding serving or governance, and this has not been tested here.
+
+## Estimated fixed monthly cost
+
+| # | Scenario | Fixed infrastructure / month | With one online instance per environment |
+|---|---|---:|---:|
+| 1 | `basic-public` | 60.83 | 60.83 |
+| 2 | `managed-vnet-internet` | 152.08 | 763.09 |
+| 3 | `managed-vnet-approved` | 2,889.58 | 3,500.59 |
+| 4 | `byo-vnet` | 272.92 | 883.93 |
+| 5 | `batch-scoring` | 60.83 | 60.83 |
+| 6 | `online-bluegreen` | 60.83 | 671.84 |
+| 7 | `feature-store` | 60.83 | 671.84 |
+| 8 | `registry-promotion` | 111.52 | 722.53 |
+| 9 | `governance` | 60.83 | 671.84 |
+| 10 | `genai-foundry` | 60.83 | 60.83 |
+| 11 | `existing-platform` | 261.58 | 872.59 |
+
+Region **westus**, **USD**, **3** environments, retrieved 2026-10-13.
+
+!!! note
+    Based on [Azure Retail Prices](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices) list prices, not your negotiated rates. Included: Container Registry, private endpoints (5 per environment) and private DNS zones (6 per environment) for BYO VNet, the managed-network Azure Firewall (Standard, scenario 3) and the shared registry (scenario 8). The last column adds one `Standard_DS3_v2` online-endpoint instance per environment. Not included: training compute (clusters scale to zero), Log Analytics and Application Insights ingestion, storage, data transfer, AI model usage, and the managed private endpoints that AML creates for managed VNets. Managed-network outbound rules were not priced individually. Treat these as order-of-magnitude figures; generate your own with `./scripts/Get-ScenarioCostEstimates.ps1 -Region <region> -Currency <code> -Environments <n> -AsMarkdown`.
 
 ## Notes
 
