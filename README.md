@@ -13,11 +13,10 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 
 | Phase | What you do | Details |
 |---|---|---|
-| 0. Prerequisites | Install PowerShell 7.4+, `powershell-yaml`, `az` (logged in), Terraform; set `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN` | [prerequisites](docs/prerequisites/index.md), [parameter-checklist.md](docs/parameter-checklist.md) |
-| 1. Plan | Pick a scenario, IaC, CI/CD and data source | [scenarios.md](docs/scenarios/index.md), [data-sources.md](docs/data-sources.md) |
-| 2. Configure | Generate an inputs file and edit it | `New-MLOpsInputFile` |
-| 3. Generate / bootstrap | Render the repo; with `-Deploy`, create state, identities and repo wiring | `Deploy-MLOpsAccelerator` |
-| 4. Run | Push the generated repo and run the CI/CD pipelines (infra, train, deploy) | [getting-started.md](docs/getting-started.md) |
+| 0. Planning | Pick a scenario, IaC, CI/CD and data source | [planning](docs/planning.md), [scenarios](docs/scenarios/index.md), [data sources](docs/data-sources.md), [checklist](docs/parameter-checklist.md) |
+| 1. Prerequisites | Install PowerShell 7.4+, `powershell-yaml`, `az` (logged in), Terraform; set `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN` | [prerequisites](docs/prerequisites/index.md) |
+| 2. Bootstrap | Generate an inputs file (`New-MLOpsInputFile`), then render and bootstrap | [bootstrap](docs/bootstrap.md) |
+| 3. Run | Push the generated repo and run the CI/CD pipelines (infra, train, deploy) | [run](docs/run.md) |
 | 5. Maintain | Check and bump pins | `Test-MLOpsAcceleratorVersion`, `Update-MLOpsAcceleratorVersion` |
 
 ## Quick start

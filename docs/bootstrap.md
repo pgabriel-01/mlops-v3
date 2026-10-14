@@ -1,4 +1,4 @@
-# Phase 1 - Bootstrap
+# Phase 2 - Bootstrap
 
 Generates your project and, for Terraform bootstrap, creates the version-control repo, Azure identity and state storage.
 

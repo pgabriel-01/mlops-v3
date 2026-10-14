@@ -7,7 +7,9 @@ theme:
   features: [navigation.sections, navigation.top, search.suggest, content.code.copy]
 nav:
   - Getting started: index.md
+  - What's new: whats-new.md
   - Phase 0 - Planning:
+      - Decisions: planning.md
       - Parameter checklist: parameter-checklist.md
       - Data sources: data-sources.md
   - Phase 1 - Prerequisites:

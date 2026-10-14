@@ -18,7 +18,7 @@ Work through this before running `Deploy-MLOpsAccelerator`.
 - [ ] 11: `existing_platform.subnet_id`, `.log_analytics_workspace_id`, `.private_dns_zone_ids` (blob, file, vault, acr, aml_api, aml_notebooks)
 
 ## Prerequisites
-See [Phase 0 - Prerequisites](prerequisites/index.md): tools, Azure permissions and resource providers, GitHub or Azure DevOps token, quota, and self-hosted agents for private scenarios. `Test-MLOpsAcceleratorRequirement` checks what it can.
+See [Phase 1 - Prerequisites](prerequisites/index.md): tools, Azure permissions and resource providers, GitHub or Azure DevOps token, quota, and self-hosted agents for private scenarios. `Test-MLOpsAcceleratorRequirement` checks what it can.
 
 ## Data source
 - [ ] `data_source: taxi-csv` (default, bundled sample) or `adls` (your own CSV in ADLS Gen2)
