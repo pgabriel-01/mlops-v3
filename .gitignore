@@ -3,3 +3,5 @@ out/
 *.tfstate*
 scratch/
 _site/
+site/resources/
+.hugo_build.lock

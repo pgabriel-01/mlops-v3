@@ -1,4 +1,7 @@
-# Phase 2 - Bootstrap
+---
+title: "Phase 2 - Bootstrap"
+weight: 30
+---
 
 Generates your project and, for Terraform bootstrap, creates the version-control repo, Azure identity and state storage.
 
@@ -37,7 +40,7 @@ Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./my-mlops
 
 The requirements check runs first, then the Terraform plan; type `yes` to apply (`-AutoApprove` skips the prompt).
 
-!!! note
-    Publishing to the PowerShell Gallery is deferred. Until then use `install-local.ps1`, or import `src/MLOpsAccelerator/MLOpsAccelerator.psd1` directly.
-
+{{% callout style="note" %}}
+Publishing to the PowerShell Gallery is deferred. Until then use `install-local.ps1`, or import `src/MLOpsAccelerator/MLOpsAccelerator.psd1` directly.
+{{% /callout %}}
 Next: the generated project's README (Phases 2-4).

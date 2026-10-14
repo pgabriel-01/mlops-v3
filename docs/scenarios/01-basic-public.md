@@ -3,8 +3,6 @@ title: "1 - Basic, public endpoints"
 weight: 1
 ---
 
-# 1 - Basic, public endpoints
-
 Workspace, storage, Key Vault, ACR, App Insights, compute cluster. Training pipeline only; public endpoints.
 
 | | |
@@ -21,7 +19,7 @@ Workspace, storage, Key Vault, ACR, App Insights, compute cluster. Training pipe
 New-MLOpsInputFile -Scenario basic-public -Path inputs.yaml -Iac terraform -Cicd github
 ```
 
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

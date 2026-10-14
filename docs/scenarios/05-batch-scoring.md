@@ -3,8 +3,6 @@ title: "5 - Batch training and batch inference"
 weight: 5
 ---
 
-# 5 - Batch training and batch inference
-
 Compute cluster plus a batch endpoint and deployment with a scheduled scoring job.
 
 | | |
@@ -23,7 +21,7 @@ Scoring runs as a scheduled batch job (nightly workflow) instead of a real-time 
 New-MLOpsInputFile -Scenario batch-scoring -Path inputs.yaml -Iac terraform -Cicd github
 ```
 
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

@@ -3,8 +3,6 @@ title: "3 - Secure: managed VNet, approved outbound only"
 weight: 3
 ---
 
-# 3 - Secure: managed VNet, approved outbound only
-
 Workspace managed virtual network (AllowOnlyApprovedOutbound) with an FQDN/service-tag allow-list.
 
 | | |
@@ -25,12 +23,12 @@ New-MLOpsInputFile -Scenario managed-vnet-approved -Path inputs.yaml -Iac terraf
 
 ## Inputs to review
 
-- `allowed_outbound_fqdns`: see [Options](../options/index.md)
+- `allowed_outbound_fqdns`: see [Options](../options/_index.md)
 
-!!! note
-    Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
-
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+{{% callout style="note" %}}
+Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
+{{% /callout %}}
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

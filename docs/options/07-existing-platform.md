@@ -3,8 +3,6 @@ title: "7 - Existing platform"
 weight: 7
 ---
 
-# Existing platform
-
 Scenario 11 only. Supply IDs from your platform team; no network, DNS zones or Log Analytics are created:
 
 ```yaml
@@ -16,4 +14,4 @@ existing_platform:
     # file, vault, acr, aml_api, aml_notebooks
 ```
 
-Back to [Options](index.md).
+Back to [Options](_index.md).

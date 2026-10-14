@@ -3,8 +3,6 @@ title: "10 - GenAI: AI Foundry hub and project"
 weight: 10
 ---
 
-# 10 - GenAI: AI Foundry hub and project
-
 Hub workspace, AI Services account and a project for prompt flow / GenAIOps.
 
 | | |
@@ -23,7 +21,7 @@ Provisions an AI Foundry hub, an AI Services account and a project. The sample t
 New-MLOpsInputFile -Scenario genai-foundry -Path inputs.yaml -Iac terraform -Cicd github
 ```
 
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

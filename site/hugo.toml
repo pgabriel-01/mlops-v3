@@ -1,0 +1,22 @@
+baseURL = "https://example.invalid/mlops-v3/"
+title = "MLOps v3 Accelerator"
+disableKinds = ["taxonomy", "term"]
+publishDir = "../_site"
+
+theme = "relearn"
+locale = "en-us"
+
+[module]
+  [[module.mounts]]
+    source = "../docs"
+    target = "content"
+
+[markup.goldmark.renderer]
+  unsafe = true
+
+[params]
+  themeVariant = ["relearn-light", "relearn-dark"]
+  disableLandingPageButton = true
+  collapsibleMenu = true
+  editURL = ""
+

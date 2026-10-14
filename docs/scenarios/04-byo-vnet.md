@@ -3,8 +3,6 @@ title: "4 - Secure: bring-your-own VNet"
 weight: 4
 ---
 
-# 4 - Secure: bring-your-own VNet
-
 Spoke VNet, subnets, private DNS zones and private endpoints for all workspace dependencies.
 
 | | |
@@ -25,12 +23,12 @@ New-MLOpsInputFile -Scenario byo-vnet -Path inputs.yaml -Iac terraform -Cicd git
 
 ## Inputs to review
 
-- `vnet_address_space`: see [Options](../options/index.md)
+- `vnet_address_space`: see [Options](../options/_index.md)
 
-!!! note
-    Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
-
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+{{% callout style="note" %}}
+Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
+{{% /callout %}}
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

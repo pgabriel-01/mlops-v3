@@ -3,8 +3,6 @@ title: "9 - Monitoring and governance"
 weight: 9
 ---
 
-# 9 - Monitoring and governance
-
 Diagnostic settings, budget alerts, resource locks and Azure Policy assignments around the workspace.
 
 | | |
@@ -25,10 +23,10 @@ New-MLOpsInputFile -Scenario governance -Path inputs.yaml -Iac terraform -Cicd g
 
 ## Inputs to review
 
-- `budget_amount`: see [Options](../options/index.md)
-- `alert_emails`: see [Options](../options/index.md)
+- `budget_amount`: see [Options](../options/_index.md)
+- `alert_emails`: see [Options](../options/_index.md)
 
-See the [cost estimates](index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/index.md).
+See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation
 

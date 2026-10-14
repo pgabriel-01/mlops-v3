@@ -69,7 +69,7 @@ Infra and bootstrap use AVM resource modules (Terraform registry `Azure/avm-res-
 - Phase 2 (Parquet transactions data + managed feature store) is not implemented beyond an optional feature store resource.
 
 ## Docs site
-`docs/` is the source; `site/mkdocs.yml` builds it with MkDocs Material (`pip install -r site/requirements.txt; mkdocs serve -f site/mkdocs.yml`). `.github/workflows/pages.yml` publishes to GitHub Pages on push to `main` once Pages is enabled.
+`docs/` is the source; `site/hugo.toml` builds it with Hugo and the vendored Relearn theme (the same stack as the ALZ docs). Preview with `hugo server --source site`; build with `hugo --source site --minify` (output in `_site/`). `.github/workflows/pages.yml` publishes to GitHub Pages on push to `main` once Pages is enabled.
 
 ## Develop
 `Invoke-Pester ./tests`. Rendered output is additionally validated with `terraform validate`, `az bicep build` and the generated pytest (see `.github/workflows/ci.yml`).

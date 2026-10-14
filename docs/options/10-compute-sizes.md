@@ -3,8 +3,6 @@ title: "10 - Compute sizes"
 weight: 10
 ---
 
-# Compute sizes
-
 Sizes are not inputs yet. Edit the generated files and keep them out of regeneration by committing your change after each `-Upgrade` review:
 
 | What | File | Default |
@@ -15,4 +13,4 @@ Sizes are not inputs yet. Edit the generated files and keep them out of regenera
 
 Making these inputs is on the to-do list.
 
-Back to [Options](index.md).
+Back to [Options](_index.md).

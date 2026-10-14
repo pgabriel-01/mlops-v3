@@ -1,0 +1,54 @@
+{{ partial "shortcodes/callout.html" (dict
+  "page"  .Page
+  "style" "note"
+  "content" "The <code>CODE-theme</code> parameter can be changed in the generator but the change will not be reflected dynamically in the page preview."
+)}}
+{{ partial "shortcodes/button.html" (dict
+  "page" .Page
+  "action" "variant-download"
+  "style" "secondary"
+  "icon" "download"
+  "content" "Download variant"
+)}}
+{{ partial "shortcodes/button.html" (dict
+  "page" .Page
+  "action" "variant-reset"
+  "style" "warning"
+  "icon" "trash"
+  "content" "Reset variant"
+)}}
+{{ partial "shortcodes/button.html" (dict
+  "page" .Page
+  "action" "variant-reset-all"
+  "style" "warning"
+  "content" "Reset all variants"
+)}}
+<div id="R-vargenerator" class="mermaid zoomable" style="background-color: var(--INTERNAL-MAIN-TEXT-color);">
+	Graph
+</div>
+{{ partial "shortcodes/button.html" (dict
+  "page" .Page
+  "action" "variant-download"
+  "style" "secondary"
+  "icon" "download"
+  "content" "Download variant"
+)}}
+{{ partial "shortcodes/button.html" (dict
+  "page" .Page
+  "action" "variant-reset"
+  "style" "warning"
+  "icon" "trash"
+  "content" "Reset variant"
+)}}
+{{ partial "shortcodes/button.html" (dict
+  "page" .Page
+  "action" "variant-reset-all"
+  "style" "warning"
+  "content" "Reset all variants"
+)}}
+{{- /* the variant generator also requires Mermaid; so as there is no Mermaid
+       shortcode involved here to create the graph, we have to take care
+	   to load it our self; the quickest way to do this is, to set the
+	   Mermaid dependency as well */}}
+{{- .Page.Store.Set "hasMermaid" true }}
+{{- .Page.Store.Set "hasVariantGenerator" true }}

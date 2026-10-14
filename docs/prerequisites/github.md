@@ -1,4 +1,7 @@
-# GitHub
+---
+title: "GitHub"
+weight: 3
+---
 
 The bootstrap **creates** the repository (private), its environments (one per environment in your inputs), a deployment branch policy limited to `main`, and the Actions variables the pipelines use to sign in to Azure with OIDC. Nothing needs to exist beforehand except the organisation or user account.
 
