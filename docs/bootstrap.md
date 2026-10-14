@@ -22,7 +22,14 @@ New-MLOpsInputFile -Scenario 1 -Path inputs.yaml
 
 Review `inputs.yaml` (subscription, region, environments, networking address spaces) before continuing.
 
-## 3. Run
+## 3. Sign in to Azure
+
+```powershell
+az login --tenant "<tenant-id>" --use-device-code
+az account set --subscription "<bootstrap-subscription-id>"
+```
+
+## 4. Run
 
 ```powershell
 Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./my-mlops
