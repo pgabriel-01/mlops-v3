@@ -24,6 +24,10 @@ Describe 'Upgrade and cleanup guards' {
         $script:out = Join-Path $TestDrive 'proj'
         Deploy-MLOpsAccelerator -InputFile $f -OutputPath $out -SkipVersionCheck *>$null
     }
+    It 'emits LF-only text files (pipelines run on Linux agents)' {
+        $crlf = Get-ChildItem -Recurse -File $out -Include *.yml, *.tf, *.bicep, *.py, *.md | Where-Object { (Get-Content -Raw $_.FullName) -match "`r" }
+        @($crlf).Count | Should -Be 0
+    }
     It 'refuses a non-empty folder without -Force or -Upgrade' {
         { Deploy-MLOpsAccelerator -InputFile $f -OutputPath $out -SkipVersionCheck } | Should -Throw '*not empty*'
     }
