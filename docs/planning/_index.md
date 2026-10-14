@@ -25,7 +25,7 @@ This phase is optional. If you already know what you want, skip to [Phase 1](../
 
 ## Decisions
 
-Each decision maps to a key in `inputs.yaml`. The [parameter checklist](parameter-checklist.md) lists them all in one place.
+Each decision maps to a key in `inputs.yaml`. The [parameter checklist](parameter-checklist.md) lists them all in one place, and the [decision flow](decision-flow.md) shows how the choices connect.
 
 ### Decision 1 - Infrastructure as Code tooling
 
@@ -63,11 +63,29 @@ Each decision maps to a key in `inputs.yaml`. The [parameter checklist](paramete
 
 Only for some scenarios: `vnet_address_space` (BYO VNet), `allowed_outbound_fqdns` (managed approved outbound), and `existing_platform` (existing platform). Pick address space that does not overlap your corporate or Azure ranges.
 
-### Decision 10 - Governance
+### Decision 10 - Choose the bootstrap networking
+
+The bootstrap creates the Terraform state storage account, and your pipelines need to reach it. Choose how:
+
+| Option | Inputs | Use when |
+|---|---|---|
+| Public networking with GitHub-hosted runners (default) | `use_private_networking: false`, `runner_label: ubuntu-latest` | Trials, and subscriptions whose policy allows a public, Entra-only state endpoint |
+| Public networking with your own self-hosted runners | `use_private_networking: false`, `runner_label: <your label>` | You already run runners (for example on AKS with ARC) that can reach the state storage |
+| Private networking with accelerator-deployed runners (GitHub only) | `use_private_networking: true`, optional `runners_vnet_address_space` | Policy disables public access to storage. The bootstrap deploys a VNet, Azure Container Instances runners and a private endpoint for state, and sets `runner_label` to `self-hosted` |
+
+Self-hosted runners are ignored unless the label points at them. Azure DevOps managed pools are not automated yet; point the generated pipelines at your own agent pool. Review `runners_vnet_address_space` (default `10.250.0.0/24`) so it does not overlap your corporate or Azure ranges. See [known issues](../known-issues.md) for the private runner details.
+
+Fill in `use_private_networking`, `runners_vnet_address_space` and `runner_label`. The [decision flow](decision-flow.md) walks through the choice.
+
+### Decision 11 - Governance
 
 `budget_amount` and `alert_emails` for the governance scenarios.
 
-### Decision 11 - Repository and organisation
+### Decision 12 - Workloads
+
+`workloads`: optional list of workload names (for example `[taxi, churn]`). All workloads share the one platform (a workspace per environment) and each gets its own `workloads/<name>/` folder, assets and pipelines. Omit it for a single workload at the repository root.
+
+### Decision 13 - Repository and organisation
 
 GitHub: `github_org`, `github_repo`. Azure DevOps: `azdo_org_url`, `azdo_project`.
 

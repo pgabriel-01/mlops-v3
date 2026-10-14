@@ -14,6 +14,13 @@ Work through this before running `Deploy-MLOpsAccelerator`.
 - [ ] `environments`: default `dev`, `test`, `prod`; any ordered subset of those (promotion and approvals follow the order)
 - [ ] `tags`
 
+## Bootstrap networking
+- [ ] `use_private_networking` (GitHub only): `true` if policy blocks public state storage; then review `runners_vnet_address_space`
+- [ ] `runner_label`: `ubuntu-latest`, or the label of your self-hosted runners
+
+## Workloads
+- [ ] `workloads`: optional list; omit for one workload at the repository root
+
 ## By scenario
 - [ ] 3: `allowed_outbound_fqdns`
 - [ ] 4: `vnet_address_space`
