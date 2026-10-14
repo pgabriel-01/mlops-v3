@@ -1,0 +1,37 @@
+name: Bug report
+description: Something did not generate, validate or deploy as documented
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Module version
+      description: Output of `(Get-Module MLOpsAccelerator).Version`
+    validations:
+      required: true
+  - type: input
+    id: scenario
+    attributes:
+      label: Scenario, IaC and CI/CD
+      placeholder: basic-public, terraform, github
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows, macOS, Linux]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the error text. Remove subscription and tenant IDs and any secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Inputs file (redacted)
+      render: yaml

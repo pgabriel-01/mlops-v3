@@ -1,0 +1,14 @@
+name: Feature request
+description: Suggest a scenario, option or doc change
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you need, and why
+    validations:
+      required: true
+  - type: textarea
+    id: ref
+    attributes:
+      label: Microsoft Learn or ALZ reference, if any
