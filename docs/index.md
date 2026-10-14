@@ -4,7 +4,7 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 
 | Phase | Page |
 |---|---|
-| 0. Prerequisites | [Parameter checklist](parameter-checklist.md) |
+| 0. Prerequisites | [Prerequisites](prerequisites/index.md), [Parameter checklist](parameter-checklist.md) |
 | 1. Plan | [Scenarios](scenarios.md), [Data sources](data-sources.md) |
 | 2-4. Configure, generate, run | [Getting started](getting-started.md) |
 | Reference | [Gap analysis vs ALZ](alz-gap-analysis.md) |

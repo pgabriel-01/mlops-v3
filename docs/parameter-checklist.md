@@ -17,11 +17,8 @@ Work through this before running `Deploy-MLOpsAccelerator`.
 - [ ] 9, 11: `budget_amount`, `alert_emails`
 - [ ] 11: `existing_platform.subnet_id`, `.log_analytics_workspace_id`, `.private_dns_zone_ids` (blob, file, vault, acr, aml_api, aml_notebooks)
 
-## Prerequisites on your machine
-- [ ] PowerShell 7.4+, `powershell-yaml`, Terraform (bootstrap always uses it), Azure CLI (+ Bicep for `iac: bicep`)
-- [ ] `az login` with rights to create resource groups, identities and role assignments at subscription scope
-- [ ] `GITHUB_TOKEN` (or `gh auth login`) for GitHub, `AZDO_PERSONAL_ACCESS_TOKEN` for Azure DevOps
-- [ ] Quota for the compute SKU in the chosen region
+## Prerequisites
+See [Phase 0 - Prerequisites](prerequisites/index.md): tools, Azure permissions and resource providers, GitHub or Azure DevOps token, quota, and self-hosted agents for private scenarios. `Test-MLOpsAcceleratorRequirement` checks what it can.
 
 ## Data source
 - [ ] `data_source: taxi-csv` (default, bundled sample) or `adls` (your own CSV in ADLS Gen2)
