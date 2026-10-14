@@ -86,6 +86,11 @@ var blobDiag = governance ? [
     logCategoriesAndGroups: [{ categoryGroup: 'allLogs' }]
   }
 ] : []
+var allow = {
+  defaultAction: 'Allow'
+  bypass: 'AzureServices'
+}
+
 var deny = {
   defaultAction: 'Deny'
   bypass: 'AzureServices'
@@ -162,7 +167,7 @@ module storage 'br/public:avm/res/storage/storage-account:[[versions.avm_bicep.r
     // Azure ML's default datastore uses account keys unless identity-based access is configured.
     allowSharedKeyAccess: true
     publicNetworkAccess: access
-    networkAcls: isPublic ? null : deny
+    networkAcls: isPublic ? allow : deny
     privateEndpoints: usePe ? [
       peFor(peSubnetId, 'blob', nonEmpty([zoneIds.blob]))
       peFor(peSubnetId, 'file', nonEmpty([zoneIds.file]))
@@ -185,7 +190,7 @@ module vault 'br/public:avm/res/key-vault/vault:[[versions.avm_bicep.res/key-vau
     enablePurgeProtection: true
     softDeleteRetentionInDays: keyVaultRetentionDays
     publicNetworkAccess: access
-    networkAcls: isPublic ? null : deny
+    networkAcls: isPublic ? allow : deny
     privateEndpoints: usePe ? [peFor(peSubnetId, 'vault', nonEmpty([zoneIds.vault]))] : []
     diagnosticSettings: diagSettings
     tags: tags
@@ -327,7 +332,7 @@ module aiServices 'br/public:avm/res/cognitive-services/account:[[versions.avm_b
     allowProjectManagement: false
     managedIdentities: { systemAssigned: true }
     publicNetworkAccess: access
-    networkAcls: isPublic ? null : { defaultAction: 'Deny', bypass: 'AzureServices' }
+    networkAcls: isPublic ? allow : deny
     privateEndpoints: aiServicesPes
     diagnosticSettings: diagSettings
     tags: tags
