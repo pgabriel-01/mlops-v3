@@ -17,6 +17,7 @@ nav:
       - Scenarios: scenarios.md
       - Data sources: data-sources.md
   - Run: getting-started.md
+  - Bootstrap: bootstrap.md
   - Reference:
       - Azure Verified Modules: reference/azure-verified-modules.md
       - Gap analysis vs ALZ: alz-gap-analysis.md
