@@ -2,7 +2,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $script:ModuleRoot = Split-Path -Parent $PSCommandPath
-$script:RepoRoot = Resolve-Path (Join-Path $script:ModuleRoot '../..')
+# Packaged layout (templates next to the module) wins over the repo layout (src/MLOpsAccelerator)
+$script:RepoRoot = if (Test-Path (Join-Path $script:ModuleRoot 'templates')) { $script:ModuleRoot } else { Resolve-Path (Join-Path $script:ModuleRoot '../..') }
 $script:TemplateRoot = Join-Path $script:RepoRoot 'templates'
 $script:SchemaPath = Join-Path $script:RepoRoot 'schema/inputs.schema.json'
 $script:LockPath = Join-Path $script:RepoRoot 'versions.lock.json'
