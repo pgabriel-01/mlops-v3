@@ -29,3 +29,17 @@ jobs:
             terraform "-chdir=$d" init -backend=false; terraform "-chdir=$d" validate; if ($LASTEXITCODE) { exit 1 }
           }
           az bicep build --file out/bicep-github/infra/main.bicep
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: peaceiris/actions-hugo@v3
+        with: { hugo-version: '0.168.0', extended: true }
+      - name: Build docs (fail on warnings)
+        run: |
+          hugo --source site --minify --printI18nWarnings --printPathWarnings --printUnusedTemplates 2>&1 | tee build.log
+          ! grep -E "^(WARN|ERROR)" build.log
+      - uses: actions/upload-artifact@v5
+        with:
+          name: docs-site
+          path: _site
