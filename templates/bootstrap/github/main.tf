@@ -116,10 +116,22 @@ resource "github_repository" "this" {
   has_issues             = true
 }
 
+data "github_user" "approver" {
+  for_each = toset(var.approvers)
+  username = each.key
+}
+
 resource "github_repository_environment" "env" {
   for_each    = local.environments
   repository  = github_repository.this.name
   environment = each.key
+
+  dynamic "reviewers" {
+    for_each = each.key != "dev" && length(var.approvers) > 0 ? [1] : []
+    content {
+      users = [for u in data.github_user.approver : u.id]
+    }
+  }
 
   deployment_branch_policy {
     protected_branches     = false

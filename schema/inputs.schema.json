@@ -176,6 +176,12 @@
       "default": 500,
       "description": "governance: monthly budget per environment resource group (USD)."
     },
+    "approvers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "GitHub usernames required to approve deployments to every environment except dev (GitHub environment protection)."
+    },
     "alert_emails": {
       "type": "array",
       "items": {

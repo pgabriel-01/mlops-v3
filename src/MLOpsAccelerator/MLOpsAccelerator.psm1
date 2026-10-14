@@ -52,6 +52,8 @@ function Read-MLOpsInput {
     if (-not $data.ContainsKey('budget_amount')) { $data['budget_amount'] = 500 }
     if (-not $data.ContainsKey('policy_mode')) { $data['policy_mode'] = $(if ($data['scenario'] -eq 'existing-platform') { 'none' } else { 'audit' }) }
     if (-not $data.ContainsKey('alert_emails')) { $data['alert_emails'] = @() }
+    if (-not $data.ContainsKey('approvers')) { $data['approvers'] = @() }
+    $data['approvers'] = @($data['approvers'])
     $data['allowed_outbound_fqdns'] = @($data['allowed_outbound_fqdns'])
     $data['alert_emails'] = @($data['alert_emails'])
     if (-not $data.ContainsKey('tags') -or $null -eq $data['tags']) { $data['tags'] = @{} }
@@ -199,6 +201,7 @@ function New-MLOpsTokenMap {
         endpoint_public_access = $(if ($sc.network_mode -ne 'public') { 'disabled' } else { 'enabled' })
         environments_csv       = ($envs -join ', ')
         environments_yaml_list = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
+        approvers_hcl_list     = '[' + ((@($Inputs['approvers']) | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         environments_hcl_list  = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         tags_hcl               = (($tagKeys | ForEach-Object { '  {0} = "{1}"' -f ('"' + $_ + '"').PadRight($tagWidth), $tags[$_] }) -join "`n")
         tags_bicep             = (($tagKeys | ForEach-Object { $k = if ($_ -match '^[A-Za-z_][A-Za-z0-9_]*$') { $_ } else { "'$_'" }; "  {0}: '{1}'" -f $k, $tags[$_] }) -join "`n")

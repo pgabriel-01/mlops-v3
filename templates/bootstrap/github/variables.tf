@@ -6,6 +6,10 @@ variable "location_short" { type = string }
 variable "suffix" { type = string }
 variable "environments" { type = list(string) }
 variable "github_org" { type = string }
+variable "approvers" {
+  type    = list(string)
+  default = []
+}
 variable "github_repo" { type = string }
 
 variable "tags" {

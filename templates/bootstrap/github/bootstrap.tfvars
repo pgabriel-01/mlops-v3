@@ -5,6 +5,7 @@ location        = "[[location]]"
 location_short  = "[[location_short]]"
 suffix          = "[[suffix]]"
 environments    = [[environments_hcl_list]]
+approvers       = [[approvers_hcl_list]]
 github_org      = "[[github_org]]"
 github_repo     = "[[github_repo]]"
 tags = {
