@@ -250,6 +250,9 @@ resource "azapi_resource" "feature_store" {
     properties = {
       description         = "Managed feature store for ${var.project_name} (${var.environment})"
       publicNetworkAccess = local.private ? "Disabled" : "Enabled"
+      featureStoreSettings = {
+        computeRuntime = { sparkRuntimeVersion = "3.4.0" }
+      }
     }
   }
 }
