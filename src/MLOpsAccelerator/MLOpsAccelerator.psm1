@@ -444,6 +444,12 @@ function Test-MLOpsAcceleratorRequirement {
     else {
         & $add 'Azure DevOps token' $true ([bool]$env:AZDO_PERSONAL_ACCESS_TOKEN) 'set AZDO_PERSONAL_ACCESS_TOKEN'
     }
+    if ($signedIn) {
+        $need = 'Microsoft.MachineLearningServices', 'Microsoft.Storage', 'Microsoft.KeyVault', 'Microsoft.ContainerRegistry', 'Microsoft.OperationalInsights', 'Microsoft.Insights', 'Microsoft.ManagedIdentity', 'Microsoft.Network'
+        $registered = @(az provider list --query "[?registrationState=='Registered'].namespace" -o tsv --only-show-errors)
+        $missing = @($need | Where-Object { $registered -notcontains $_ })
+        & $add 'Azure resource providers' $false ($missing.Count -eq 0) $(if ($missing.Count) { 'register: ' + ($missing -join ', ') } else { 'all registered' })
+    }
     $net = $false
     try { $net = (Invoke-WebRequest -Uri 'https://registry.terraform.io' -Method Head -TimeoutSec 10 -SkipHttpErrorCheck).StatusCode -lt 500 } catch { $net = $false }
     & $add 'Network: registry.terraform.io' $false $net 'needed for terraform init unless you use a mirror'

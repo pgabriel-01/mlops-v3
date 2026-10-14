@@ -7,7 +7,12 @@ theme:
   features: [navigation.sections, navigation.top, search.suggest, content.code.copy]
 nav:
   - Home: index.md
-  - Prerequisites and checklist: parameter-checklist.md
+  - Prerequisites:
+      - Overview: prerequisites/index.md
+      - Azure: prerequisites/azure.md
+      - GitHub: prerequisites/github.md
+      - Azure DevOps: prerequisites/azure-devops.md
+  - Parameter checklist: parameter-checklist.md
   - Plan:
       - Scenarios: scenarios.md
       - Data sources: data-sources.md

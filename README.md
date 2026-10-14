@@ -13,7 +13,7 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 
 | Phase | What you do | Details |
 |---|---|---|
-| 0. Prerequisites | Install PowerShell 7.4+, `powershell-yaml`, `az` (logged in), Terraform; set `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN` | [parameter-checklist.md](docs/parameter-checklist.md) |
+| 0. Prerequisites | Install PowerShell 7.4+, `powershell-yaml`, `az` (logged in), Terraform; set `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN` | [prerequisites](docs/prerequisites/index.md), [parameter-checklist.md](docs/parameter-checklist.md) |
 | 1. Plan | Pick a scenario, IaC, CI/CD and data source | [scenarios.md](docs/scenarios.md), [data-sources.md](docs/data-sources.md) |
 | 2. Configure | Generate an inputs file and edit it | `New-MLOpsInputFile` |
 | 3. Generate / bootstrap | Render the repo; with `-Deploy`, create state, identities and repo wiring | `Deploy-MLOpsAccelerator` |
