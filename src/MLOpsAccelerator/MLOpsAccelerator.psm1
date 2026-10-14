@@ -52,7 +52,9 @@ function Read-MLOpsInput {
     if (-not $data.ContainsKey('budget_amount')) { $data['budget_amount'] = 500 }
     if (-not $data.ContainsKey('policy_mode')) { $data['policy_mode'] = $(if ($data['scenario'] -eq 'existing-platform') { 'none' } else { 'audit' }) }
     if (-not $data.ContainsKey('alert_emails')) { $data['alert_emails'] = @() }
-    if (-not $data.ContainsKey('runner_label')) { $data['runner_label'] = 'ubuntu-latest' }
+    if (-not $data.ContainsKey('use_private_networking')) { $data['use_private_networking'] = $false }
+    if (-not $data.ContainsKey('runners_vnet_address_space')) { $data['runners_vnet_address_space'] = '10.250.0.0/24' }
+    if (-not $data.ContainsKey('runner_label')) { $data['runner_label'] = if ($data['use_private_networking']) { 'self-hosted' } else { 'ubuntu-latest' } }
     if (-not $data.ContainsKey('approvers')) { $data['approvers'] = @() }
     $data['approvers'] = @($data['approvers'])
     $data['allowed_outbound_fqdns'] = @($data['allowed_outbound_fqdns'])
@@ -203,6 +205,8 @@ function New-MLOpsTokenMap {
         environments_csv       = ($envs -join ', ')
         environments_yaml_list = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         runner_label           = [string]$Inputs['runner_label']
+        use_private_networking = ([bool]$Inputs['use_private_networking']).ToString().ToLower()
+        runners_vnet_address_space = [string]$Inputs['runners_vnet_address_space']
         approvers_hcl_list     = '[' + ((@($Inputs['approvers']) | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         environments_hcl_list  = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         tags_hcl               = (($tagKeys | ForEach-Object { '  {0} = "{1}"' -f ('"' + $_ + '"').PadRight($tagWidth), $tags[$_] }) -join "`n")
@@ -407,6 +411,7 @@ function Invoke-MLOpsBootstrap {
     if ($Inputs['cicd'] -eq 'github' -and -not $env:GITHUB_TOKEN -and (Get-Command gh -ErrorAction SilentlyContinue)) { $env:GITHUB_TOKEN = (gh auth token) }
 
     $dir = Join-Path $ProjectPath 'bootstrap'
+    if ($Inputs['use_private_networking'] -and -not $env:TF_VAR_github_runners_token) { $env:TF_VAR_github_runners_token = $env:GITHUB_TOKEN }
     $env:ARM_SUBSCRIPTION_ID = $Inputs['subscription_id']
     terraform "-chdir=$dir" init -input=false
     if ($LASTEXITCODE -ne 0) { throw 'terraform init failed' }

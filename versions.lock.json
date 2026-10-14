@@ -34,6 +34,7 @@
   "notes": "Python 3.14 is the newest interpreter on which this stack resolves and runs end to end. Python 3.15 is still a release candidate and pyarrow has no wheel for it.",
   "avm_tf": {
     "res-resources-resourcegroup": "0.4.0",
+    "ptn-cicd-agents-and-runners": "0.6.2",
     "res-operationalinsights-workspace": "0.5.1",
     "res-insights-component": "0.4.0",
     "res-storage-storageaccount": "0.10.0",

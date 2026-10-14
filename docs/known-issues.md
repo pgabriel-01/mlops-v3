@@ -83,3 +83,10 @@ New GitHub repositories issue ID-based subjects (`repo:owner@ownerId/repo@repoId
 - Setup: an `e2e` environment with `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` (OIDC identity with Contributor and RBAC Administrator).
 - Each run uses a unique `name_suffix`, so soft-deleted Key Vaults and workspaces never collide. Purge can be blocked by policy; the vaults then expire on their own.
 - It tests the workload IaC only. The GitHub/Azure DevOps bootstrap is tested with `tests/Invoke-E2E.ps1`.
+
+## Private runners and private state storage
+
+Set `use_private_networking: true` (GitHub) to deploy self-hosted ACI runners in a new VNet with a NAT gateway (AVM `cicd-agents-and-runners`, as in the ALZ Accelerator). The state storage then gets a private endpoint and public access is disabled. `runner_label` defaults to `self-hosted`.
+
+- The runner registration uses a GitHub PAT with repo admin rights. `-Deploy` reuses `GITHUB_TOKEN` (or `gh auth token`); set `TF_VAR_github_runners_token` to override.
+- Not yet verified live. Azure DevOps (Managed DevOps Pools) is not generated yet.

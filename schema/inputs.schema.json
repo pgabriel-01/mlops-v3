@@ -176,6 +176,16 @@
       "default": 500,
       "description": "governance: monthly budget per environment resource group (USD)."
     },
+    "use_private_networking": {
+      "type": "boolean",
+      "default": false,
+      "description": "GitHub only. Deploy self-hosted ACI runners in a VNet (AVM cicd-agents-and-runners) and put the Terraform state storage behind a private endpoint with public access disabled. runner_label then defaults to self-hosted."
+    },
+    "runners_vnet_address_space": {
+      "type": "string",
+      "default": "10.250.0.0/24",
+      "description": "Address space of the runner VNet when use_private_networking is true."
+    },
     "runner_label": {
       "type": "string",
       "pattern": "^[A-Za-z0-9._-]+$",

@@ -21,3 +21,19 @@ variable "enable_telemetry" {
   type    = bool
   default = true
 }
+
+variable "use_private_networking" {
+  type    = bool
+  default = false
+}
+
+variable "runners_vnet_address_space" {
+  type    = string
+  default = "10.250.0.0/24"
+}
+
+variable "github_runners_token" {
+  type      = string
+  default   = ""
+  sensitive = true
+}

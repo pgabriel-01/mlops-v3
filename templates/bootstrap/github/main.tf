@@ -23,6 +23,7 @@ provider "github" {
 
 locals {
   environments = toset(var.environments)
+  private      = var.use_private_networking
   base_name    = "${var.project_name}-bootstrap-${var.location_short}"
 }
 
@@ -35,8 +36,8 @@ module "rg" {
   enable_telemetry = var.enable_telemetry
 }
 
-# State is accessed with Entra ID only: shared keys are disabled. The endpoint is public because
-# GitHub-hosted runners have no fixed IPs.
+# State is accessed with Entra ID only: shared keys are disabled. The endpoint is public unless
+# use_private_networking is set; then it is reachable only through a private endpoint from the self-hosted runners' VNet.
 module "state_storage" {
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
   version                         = "[[versions.avm_tf.res-storage-storageaccount]]"
@@ -48,13 +49,22 @@ module "state_storage" {
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
   shared_access_key_enabled       = false
-  public_network_access_enabled   = true
+  public_network_access_enabled   = !local.private
   tags                            = var.tags
   enable_telemetry                = var.enable_telemetry
 
   network_rules = {
-    default_action = "Allow"
+    default_action = local.private ? "Deny" : "Allow"
+    bypass         = local.private ? ["None"] : ["AzureServices"]
   }
+
+  private_endpoints = local.private ? {
+    blob = {
+      subnet_resource_id            = module.runners[0].private_dns_zone_subnet_resource_id
+      subresource_name              = "blob"
+      private_dns_zone_resource_ids = [module.blob_dns[0].resource_id]
+    }
+  } : {}
 
   blob_properties = {
     versioning_enabled = true
@@ -63,6 +73,46 @@ module "state_storage" {
   containers = {
     tfstate = {
       name = "tfstate"
+    }
+  }
+}
+
+# Optional private networking: ACI-based self-hosted GitHub runners in a VNet (NAT gateway for egress),
+# plus a private endpoint and DNS for the state storage. Same approach as the ALZ Accelerator.
+module "runners" {
+  count   = local.private ? 1 : 0
+  source  = "Azure/avm-ptn-cicd-agents-and-runners/azurerm"
+  version = "[[versions.avm_tf.ptn-cicd-agents-and-runners]]"
+
+  location                                     = module.rg.location
+  postfix                                      = "${var.project_name}-${var.suffix}"
+  parent_id                                    = module.rg.resource_id
+  resource_group_creation_enabled              = false
+  compute_types                                = ["azure_container_instance"]
+  version_control_system_type                  = "github"
+  version_control_system_organization          = var.github_org
+  version_control_system_repository            = github_repository.this.name
+  version_control_system_authentication_method = "pat"
+  version_control_system_personal_access_token = var.github_runners_token
+  use_private_networking                       = true
+  virtual_network_address_space                = var.runners_vnet_address_space
+  tags                                         = var.tags
+  enable_telemetry                             = var.enable_telemetry
+}
+
+module "blob_dns" {
+  count            = local.private ? 1 : 0
+  source           = "Azure/avm-res-network-privatednszone/azurerm"
+  version          = "[[versions.avm_tf.res-network-privatednszone]]"
+  domain_name      = "privatelink.blob.core.windows.net"
+  parent_id        = module.rg.resource_id
+  tags             = var.tags
+  enable_telemetry = var.enable_telemetry
+
+  virtual_network_links = {
+    runners = {
+      name               = "link-runners"
+      virtual_network_id = module.runners[0].virtual_network_resource_id
     }
   }
 }

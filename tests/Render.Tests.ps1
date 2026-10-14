@@ -123,6 +123,15 @@ Describe 'Generator' {
             Deploy-MLOpsAccelerator -InputFile $e -OutputPath $o3 -SkipVersionCheck *>$null
             Get-Content -Raw (Join-Path $o3 'infra/envs/dev.tfvars') | Should -Match 'policy_mode\s+= "none"'
         }
+        It 'enables private runners and private state storage with use_private_networking' {
+            $f = Join-Path $TestDrive 'priv.yaml'
+            New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null
+            Set-Content $f ((Get-Content -Raw $f) + "use_private_networking: true`n")
+            $o = Join-Path $TestDrive 'priv-out'
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
+            Get-Content -Raw (Join-Path $o 'bootstrap/bootstrap.tfvars') | Should -Match 'use_private_networking\s+= true'
+            Get-Content -Raw (Join-Path $o '.github/workflows/infra.yml') | Should -Match 'runs-on: self-hosted'
+        }
         It 'rejects an invalid policy_mode' {
             $f = Join-Path $TestDrive 'pol-bad.yaml'
             New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null
