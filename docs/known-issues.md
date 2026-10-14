@@ -69,3 +69,7 @@ The bootstrap state storage account is Entra-only (shared keys off) but uses a p
 ## GitHub OIDC subjects
 
 New GitHub repositories issue ID-based subjects (`repo:owner@ownerId/repo@repoId:environment:env`). The bootstrap builds the federated credentials with these IDs.
+
+## Docs site (GitHub Pages)
+
+`pages.yml` only runs when the repository variable `PAGES_ENABLED` is `true`. Pages is not available for private repositories on every plan; enable it in Settings, then set the variable.
