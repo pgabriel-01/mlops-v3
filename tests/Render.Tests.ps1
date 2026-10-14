@@ -97,6 +97,7 @@ Describe 'Generator' {
             Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'keyvault_retention_days\s+= 14'
             Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'suffix\s+= "zz99"'
             Get-Content -Raw (Join-Path $o 'bootstrap/bootstrap.tfvars') | Should -Match 'approvers\s+= \["octocat"\]'
+            Test-Path (Join-Path $o '.gitignore') | Should -BeTrue
         }
         It 'requires the adls object when data_source is adls' {
             $f = Join-Path $TestDrive 'adls-bad.yaml'

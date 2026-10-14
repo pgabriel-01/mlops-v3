@@ -61,3 +61,11 @@ Only scenario 1 (basic-public, Terraform, `dev`) has been applied to a real subs
 - Key Vaults (purge protection) and AML workspaces stay soft-deleted after a destroy, which blocks redeploying the same names. Change the `suffix` (Bicep param or Terraform variable) before redeploying.
 - Managed-network private endpoint outbound rules for storage, Key Vault, ACR and the workspace are created by the service. The templates define only FQDN rules.
 - Bicep scenario 2 (managed VNet) is verified live; Terraform private scenarios are not yet.
+
+## Terraform state storage and runner networking
+
+The bootstrap state storage account is Entra-only (shared keys off) but uses a public endpoint so GitHub-hosted runners can reach it. If your tenant policy forces storage public access off, `terraform init` in the pipeline fails with 403. Use self-hosted runners with network access to the account, or add a private endpoint.
+
+## GitHub OIDC subjects
+
+New GitHub repositories issue ID-based subjects (`repo:owner@ownerId/repo@repoId:environment:env`). The bootstrap builds the federated credentials with these IDs.

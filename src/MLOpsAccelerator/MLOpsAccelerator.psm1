@@ -363,7 +363,7 @@ function Deploy-MLOpsAccelerator {
         if (-not (Test-ManifestCondition -When $(if ($entry.PSObject.Properties.Name -contains 'when') { $entry.when }) -Map $map)) { continue }
         $render = -not ($entry.PSObject.Properties.Name -contains 'render' -and $entry.render -eq $false)
         $srcRoot = Join-Path $script:TemplateRoot $entry.src
-        foreach ($file in Get-ChildItem -Recurse -File -Path $srcRoot) {
+        foreach ($file in Get-ChildItem -Recurse -File -Force -Path $srcRoot) {
             $relative = [IO.Path]::GetRelativePath($srcRoot, $file.FullName)
             if ($relative -like '*__env__*') {
                 foreach ($e in $envs) {

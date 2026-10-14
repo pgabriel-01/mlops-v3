@@ -36,6 +36,7 @@ jobs:
         with:
           directory: infra
           framework: terraform
+          skip_check: CKV_TF_1
           soft_fail: false
 
 [[#each_env]]

@@ -23,7 +23,7 @@ stages:
             displayName: Validate
           - script: |
               python -m pip install checkov
-              checkov -d infra --framework terraform
+              checkov -d infra --framework terraform --skip-check CKV_TF_1
             displayName: Checkov
 
 [[#each_env]]

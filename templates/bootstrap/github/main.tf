@@ -35,7 +35,8 @@ module "rg" {
   enable_telemetry = var.enable_telemetry
 }
 
-# State is accessed with Entra ID only: shared keys are disabled.
+# State is accessed with Entra ID only: shared keys are disabled. The endpoint is public because
+# GitHub-hosted runners have no fixed IPs.
 module "state_storage" {
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
   version                         = "[[versions.avm_tf.res-storage-storageaccount]]"
@@ -47,8 +48,13 @@ module "state_storage" {
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
   shared_access_key_enabled       = false
+  public_network_access_enabled   = true
   tags                            = var.tags
   enable_telemetry                = var.enable_telemetry
+
+  network_rules = {
+    default_action = "Allow"
+  }
 
   blob_properties = {
     versioning_enabled = true
@@ -75,7 +81,7 @@ module "deploy_identity" {
       name     = "gh-${env}"
       audience = ["api://AzureADTokenExchange"]
       issuer   = "https://token.actions.githubusercontent.com"
-      subject  = "repo:${var.github_org}/${var.github_repo}:environment:${env}"
+      subject  = "repo:${var.github_org}@${data.github_user.owner.id}/${github_repository.this.name}@${github_repository.this.repo_id}:environment:${env}"
     }
   }
 }
@@ -114,6 +120,11 @@ resource "github_repository" "this" {
   auto_init              = true
   delete_branch_on_merge = true
   has_issues             = true
+}
+
+# GitHub issues ID-based OIDC subjects for new repositories (repo:owner@ownerId/repo@repoId:...).
+data "github_user" "owner" {
+  username = var.github_org
 }
 
 data "github_user" "approver" {
