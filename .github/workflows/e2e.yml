@@ -1,0 +1,117 @@
+name: e2e
+# Real Azure tests of the generated IaC. Plan runs for PRs labelled "safe-to-test";
+# apply + destroy runs only on manual dispatch (apply=true) or the weekly schedule.
+# Requires an `e2e` environment with AZURE_CLIENT_ID, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID
+# (a federated identity with Contributor + RBAC Administrator on a dedicated test subscription).
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Apply, verify and destroy (otherwise plan only)
+        type: boolean
+        default: false
+      scenarios:
+        description: Comma-separated scenario numbers (default all except existing-platform)
+        default: ''
+  schedule:
+    - cron: '0 3 * * 1'
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    if: github.repository == 'pgabriel-01/mlops-v3' && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'safe-to-test'))
+    outputs:
+      include: ${{ steps.m.outputs.include }}
+      apply: ${{ steps.m.outputs.apply }}
+    steps:
+      - id: m
+        shell: pwsh
+        run: |
+          $all = @(
+            @{ n = 1; id = 'basic-public' }, @{ n = 2; id = 'managed-vnet-internet' }, @{ n = 3; id = 'managed-vnet-approved' },
+            @{ n = 4; id = 'byo-vnet' }, @{ n = 5; id = 'batch-scoring' }, @{ n = 6; id = 'online-bluegreen' },
+            @{ n = 7; id = 'feature-store' }, @{ n = 8; id = 'registry-promotion' }, @{ n = 9; id = 'governance' },
+            @{ n = 10; id = 'genai-foundry' })
+          $pick = '${{ inputs.scenarios }}'
+          if ($pick) { $set = $pick -split ',' | ForEach-Object { [int]$_.Trim() }; $all = $all | Where-Object { $set -contains $_.n } }
+          $rows = foreach ($s in $all) { foreach ($iac in 'terraform', 'bicep') { @{ n = $s.n; id = $s.id; iac = $iac } } }
+          $apply = ('${{ github.event_name }}' -eq 'schedule') -or ('${{ inputs.apply }}' -eq 'true')
+          "include=$(ConvertTo-Json -InputObject @($rows) -Compress)" >> $env:GITHUB_OUTPUT
+          "apply=$($apply.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+
+  e2e:
+    needs: matrix
+    name: ${{ matrix.n }}-${{ matrix.id }} (${{ matrix.iac }})
+    runs-on: ubuntu-latest
+    environment: e2e
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.include) }}
+    env:
+      ARM_USE_OIDC: 'true'
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - shell: pwsh
+        run: Install-PSResource powershell-yaml -TrustRepository
+      - name: Render
+        shell: pwsh
+        run: |
+          Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1 -Force
+          $suffix = 'e{0:x3}' -f ([int]'${{ github.run_number }}' % 4096 + 16)   # unique per run: avoids soft-delete name collisions
+          $suffix = $suffix.Substring(0, [Math]::Min(6, $suffix.Length))
+          $null = New-MLOpsInputFile -Scenario ${{ matrix.id }} -Path in.yaml -Iac ${{ matrix.iac }} -Cicd github -Force
+          $y = Get-Content -Raw in.yaml
+          $y = $y -replace '(?m)^subscription_id:.*', 'subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}' -replace '(?m)^tenant_id:.*', 'tenant_id: ${{ secrets.AZURE_TENANT_ID }}' -replace '(?m)^project_name:.*', 'project_name: e2e${{ matrix.n }}' -replace '(?m)^environments:.*', 'environments: [dev]'
+          Set-Content in.yaml ($y + "`nname_suffix: $suffix`nkeyvault_retention_days: 7`n")
+          Deploy-MLOpsAccelerator -InputFile in.yaml -OutputPath out -SkipVersionCheck
+      - name: Terraform plan
+        if: matrix.iac == 'terraform'
+        run: |
+          terraform -chdir=out/infra init -input=false
+          terraform -chdir=out/infra plan -input=false -var-file=envs/dev.tfvars -out=dev.tfplan
+      - name: Bicep what-if
+        if: matrix.iac == 'bicep'
+        run: |
+          az deployment sub what-if --location eastus2 --template-file out/infra/main.bicep --parameters out/infra/envs/dev.bicepparam --no-pretty-print > /dev/null
+      - name: Apply
+        if: needs.matrix.outputs.apply == 'true' && matrix.iac == 'terraform'
+        run: terraform -chdir=out/infra apply -input=false dev.tfplan
+      - name: Apply (Bicep)
+        if: needs.matrix.outputs.apply == 'true' && matrix.iac == 'bicep'
+        run: az deployment sub create --name e2e-${{ github.run_number }} --location eastus2 --template-file out/infra/main.bicep --parameters out/infra/envs/dev.bicepparam
+      - name: Verify workspace
+        if: needs.matrix.outputs.apply == 'true'
+        run: |
+          rg=$(az group list --query "[?starts_with(name,'rg-e2e${{ matrix.n }}-')].name | [0]" -o tsv)
+          test -n "$rg"
+          az extension add -n ml -y -o none
+          az ml workspace list -g "$rg" --query "[].name" -o tsv | grep -q .
+      - name: Destroy
+        if: always() && needs.matrix.outputs.apply == 'true'
+        run: |
+          if [ "${{ matrix.iac }}" = terraform ]; then
+            terraform -chdir=out/infra destroy -auto-approve -input=false -var-file=envs/dev.tfvars || true
+          fi
+          for rg in $(az group list --query "[?starts_with(name,'rg-e2e${{ matrix.n }}-')].name" -o tsv); do az group delete -n "$rg" --yes --no-wait; done
+          for kv in $(az keyvault list-deleted --query "[?starts_with(name,'kv-e2e${{ matrix.n }}-')].name" -o tsv); do az keyvault purge --name "$kv" --no-wait || true; done
