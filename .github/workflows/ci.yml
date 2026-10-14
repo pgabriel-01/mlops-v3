@@ -37,7 +37,7 @@ jobs:
         with: { hugo-version: '0.168.0', extended: true }
       - name: Build docs (fail on warnings)
         run: |
-          hugo --source site --minify --printI18nWarnings --printPathWarnings --printUnusedTemplates 2>&1 | tee build.log
+          hugo --source site --minify --printI18nWarnings --printPathWarnings 2>&1 | tee build.log
           ! grep -E "^(WARN|ERROR)" build.log
       - uses: actions/upload-artifact@v5
         with:
