@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [[runner_label]]
     environment: ${{ inputs.environment }}
     env:
       RG: rg-[[project_name]]-${{ inputs.environment }}-[[location_short]]

@@ -176,6 +176,12 @@
       "default": 500,
       "description": "governance: monthly budget per environment resource group (USD)."
     },
+    "runner_label": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "default": "ubuntu-latest",
+      "description": "GitHub runs-on label for the generated workflows. Use a self-hosted label (for example an ARC scale set on a private AKS cluster) when the Terraform state storage or workspace has no public access."
+    },
     "approvers": {
       "type": "array",
       "items": { "type": "string" },

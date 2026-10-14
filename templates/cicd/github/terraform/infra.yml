@@ -23,7 +23,7 @@ env:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: [[runner_label]]
     steps:
       - uses: actions/checkout@[[versions.actions.checkout]]
       - uses: hashicorp/setup-terraform@[[versions.actions.setup_terraform]]
@@ -43,7 +43,7 @@ jobs:
   deploy-[[env]]:
     needs: [[needs]]
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: [[runner_label]]
     environment: [[env]]
     env:
       ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}

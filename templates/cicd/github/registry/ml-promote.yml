@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   promote:
-    runs-on: ubuntu-latest
+    runs-on: [[runner_label]]
     environment: ${{ inputs.source_environment }}
     env:
       RG: rg-[[project_name]]-${{ inputs.source_environment }}-[[location_short]]
