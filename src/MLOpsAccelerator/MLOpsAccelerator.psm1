@@ -279,9 +279,9 @@ function Deploy-MLOpsAccelerator {
     .SYNOPSIS
     Generates an MLOps repository from an inputs file and optionally runs the bootstrap.
     .PARAMETER InputFile
-    YAML or JSON inputs (see inputs.example.yaml).
+    YAML or JSON inputs (alias -Inputs; see inputs.example.yaml). Defaults to ./inputs.yaml; when that is missing you are prompted and the file is written.
     .PARAMETER OutputPath
-    Folder that receives the generated repository. Must be empty unless -Force is used.
+    Folder that receives the generated repository (alias -Output, default ./output). Must be empty unless -Force is used.
     .PARAMETER Deploy
     After generating, run the Terraform bootstrap (state, identity, repository wiring).
     .PARAMETER Destroy
@@ -299,8 +299,8 @@ function Deploy-MLOpsAccelerator {
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [string] $InputFile,
-        [Parameter(Mandatory)][string] $OutputPath,
+        [Alias('Inputs')][string] $InputFile,
+        [Alias('Output')][string] $OutputPath = './output',
         [switch] $Deploy,
         [switch] $Destroy,
         [switch] $Force,
@@ -311,6 +311,9 @@ function Deploy-MLOpsAccelerator {
         [switch] $Interactive
     )
 
+    if (-not $InputFile -and -not $Interactive) {
+        if (Test-Path './inputs.yaml') { $InputFile = './inputs.yaml' } else { $Interactive = [switch]::new($true) }
+    }
     if ($Interactive) {
         if (-not $InputFile) { $InputFile = './inputs.yaml' }
         $null = Read-MLOpsInteractiveInput -Path $InputFile

@@ -21,12 +21,14 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 
 ## Quick start
 ```powershell
-Install-PSResource powershell-yaml
-Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1
-Get-MLOpsScenario
-New-MLOpsInputFile -Scenario basic-public -Path my-inputs.yaml   # edit
-Deploy-MLOpsAccelerator -InputFile my-inputs.yaml -OutputPath ./my-mlops          # generate
-Deploy-MLOpsAccelerator -InputFile my-inputs.yaml -OutputPath ./my-mlops -Deploy  # generate + bootstrap
+Install-PSResource -Name MLOpsAccelerator
+Deploy-MLOpsAccelerator -Inputs "inputs.yaml"
+```
+No `inputs.yaml` yet? Run `Deploy-MLOpsAccelerator` on its own and answer the prompts; it writes the file, then generates into `./output` (use `-Output` to change). Add `-Deploy` to also run the bootstrap. Until the first Gallery publish, import the module with `./install-local.ps1`.
+
+Check the requirements first:
+```powershell
+Test-MLOpsAcceleratorRequirement
 ```
 For `-Deploy` you need `az` (logged in), `terraform`, plus `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN`.
 
