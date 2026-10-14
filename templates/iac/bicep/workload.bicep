@@ -215,32 +215,10 @@ var fqdnRules = networkMode == 'managed_approved' ? toObject(range(0, length(all
   destination: allowedFqdns[i]
   category: 'UserDefined'
 }) : {}
-var peRules = {
-  'pe-blob': {
-    type: 'PrivateEndpoint'
-    destination: { serviceResourceId: storage.outputs.resourceId, subresourceTarget: 'blob', sparkEnabled: false }
-    category: 'UserDefined'
-  }
-  'pe-file': {
-    type: 'PrivateEndpoint'
-    destination: { serviceResourceId: storage.outputs.resourceId, subresourceTarget: 'file', sparkEnabled: false }
-    category: 'UserDefined'
-  }
-  'pe-vault': {
-    type: 'PrivateEndpoint'
-    destination: { serviceResourceId: vault.outputs.resourceId, subresourceTarget: 'vault', sparkEnabled: false }
-    category: 'UserDefined'
-  }
-  'pe-acr': {
-    type: 'PrivateEndpoint'
-    destination: { serviceResourceId: acr.outputs.resourceId, subresourceTarget: 'registry', sparkEnabled: false }
-    category: 'UserDefined'
-  }
-}
 var managedNetwork = isManaged ? {
   isolationMode: networkMode == 'managed_approved' ? 'AllowOnlyApprovedOutbound' : 'AllowInternetOutbound'
   firewallSku: length(fqdnRules) > 0 ? 'Standard' : null
-  outboundRules: union(peRules, fqdnRules)
+  outboundRules: fqdnRules
 } : null
 
 // Inbound private endpoint to the workspace/hub when a subnet and AML DNS zones are available.

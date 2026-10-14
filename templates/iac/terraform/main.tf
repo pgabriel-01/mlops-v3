@@ -186,12 +186,6 @@ module "workspace" {
       fqdn = var.network_mode == "managed_approved" ? {
         for i, f in var.allowed_fqdns : "fqdn-${i}" => { destination = f }
       } : {}
-      private_endpoint = {
-        storage-blob = { resource_id = module.storage.resource_id, sub_resource_target = "blob" }
-        storage-file = { resource_id = module.storage.resource_id, sub_resource_target = "file" }
-        keyvault     = { resource_id = module.key_vault.resource_id, sub_resource_target = "vault" }
-        acr          = { resource_id = module.acr.resource_id, sub_resource_target = "registry" }
-      }
     }
   } : { isolation_mode = "Disabled" }
 

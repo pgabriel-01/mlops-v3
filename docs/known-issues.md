@@ -55,3 +55,9 @@ Scenario 7 creates the feature store workspace but no feature set, offline store
 
 Only scenario 1 (basic-public, Terraform, `dev`) has been applied to a real subscription: 43 resources created, the compute cluster and both policy assignments confirmed, then destroyed cleanly. That run found and fixed two bugs (Standard container registry with zone redundancy; workspace module reading the resource group before it existed). The other scenarios, Bicep and the bootstrap are validated in CI but have not been deployed.
 
+
+## Soft-deleted names and managed-network rules
+
+- Key Vaults (purge protection) and AML workspaces stay soft-deleted after a destroy, which blocks redeploying the same names. Change the `suffix` (Bicep param or Terraform variable) before redeploying.
+- Managed-network private endpoint outbound rules for storage, Key Vault, ACR and the workspace are created by the service. The templates define only FQDN rules.
+- Bicep scenario 2 (managed VNet) is verified live; Terraform private scenarios are not yet.
