@@ -180,14 +180,14 @@ module "workspace" {
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
 
-  workspace_managed_network = local.managed_vnet ? {
-    isolation_mode = local.isolation_mode[var.network_mode]
+  workspace_managed_network = {
+    isolation_mode = local.managed_vnet ? local.isolation_mode[var.network_mode] : "Disabled"
     outbound_rules = {
-      fqdn = var.network_mode == "managed_approved" ? {
+      fqdn = local.managed_vnet && var.network_mode == "managed_approved" ? {
         for i, f in var.allowed_fqdns : "fqdn-${i}" => { destination = f }
       } : {}
     }
-  } : { isolation_mode = "Disabled" }
+  }
 
   private_endpoints = local.byo_vnet ? {
     amlworkspace = {
