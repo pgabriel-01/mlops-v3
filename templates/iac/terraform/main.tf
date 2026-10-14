@@ -102,11 +102,13 @@ module "storage" {
 
   private_endpoints = local.byo_vnet ? {
     blob = {
+      name                          = "pe-${local.storage_name}-blob"
       subnet_resource_id            = local.pe_subnet_id
       subresource_name              = "blob"
       private_dns_zone_resource_ids = local.zone_sets.blob
     }
     file = {
+      name                          = "pe-${local.storage_name}-file"
       subnet_resource_id            = local.pe_subnet_id
       subresource_name              = "file"
       private_dns_zone_resource_ids = local.zone_sets.file
@@ -209,6 +211,9 @@ resource "azurerm_machine_learning_compute_cluster" "cpu" {
   node_public_ip_enabled        = !local.private
   local_auth_enabled            = false
   subnet_resource_id            = local.compute_subnet_id
+
+  # A cluster without public IPs needs the workspace private endpoint, which lives inside the module.
+  depends_on = [module.workspace]
 
   scale_settings {
     min_node_count                       = 0
