@@ -46,3 +46,7 @@ Some pins are held on purpose, and are recorded in `versions.lock.json`:
 ## No Responsible AI automation
 
 Fairness, explainability and content-safety checks are not generated yet. See [Responsible AI](reference/responsible-ai.md).
+
+## Feature store scenario is infrastructure only
+
+Scenario 7 creates the feature store workspace but no feature set, offline store or materialization, and the training pipeline does not use it. See [Managed feature store](scenarios/07-feature-store.md).
