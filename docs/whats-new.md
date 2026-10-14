@@ -12,6 +12,8 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Added
 
+- The module is packaged for PowerShell Gallery: `scripts/Build-Module.ps1` stages a self-contained module (templates, schema and version lock bundled), and a `v*` tag builds it, attaches a zip to the GitHub release and publishes to the Gallery when the `PSGALLERY_API_KEY` secret is set. Until the first publish, install with `install-local.ps1`.
+
 - The interactive prompt lists the regions in your subscription with their availability zone count, accepts only listed regions, and warns when the chosen region has no zones. Without `az` it falls back to free text.
 
 - **[Preview]** `policy_mode: audit | deny | none`: built-in Azure Policy guardrails on every environment resource group, documented under [Azure Policy](policy/_index.md). **[Important]** the bootstrap now grants the deploy identity *Resource Policy Contributor*; re-run the bootstrap for existing projects. The generated compute cluster now disables local authentication.

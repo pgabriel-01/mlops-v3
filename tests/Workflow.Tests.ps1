@@ -64,3 +64,16 @@ Describe 'Interactive input' {
         $y | Should -Match 'azdo_project: proj'
     }
 }
+
+Describe 'Module packaging' {
+    It 'stages a self-contained module that finds its templates' {
+        $out = Join-Path $TestDrive 'build'
+        $stage = & (Join-Path $PSScriptRoot '../scripts/Build-Module.ps1') -Version 9.8.7-test1 -OutputPath $out | Select-Object -Last 1
+        Test-Path (Join-Path $stage 'templates/manifest.json') | Should -BeTrue
+        Test-Path (Join-Path $stage 'schema/inputs.schema.json') | Should -BeTrue
+        $m = Import-PowerShellDataFile (Join-Path $stage 'MLOpsAccelerator.psd1')
+        $m.ModuleVersion | Should -Be '9.8.7'
+        $m.PrivateData.PSData.Prerelease | Should -Be 'test1'
+        $m.RequiredModules[0].ModuleVersion | Should -Be '0.4.7'
+    }
+}

@@ -10,5 +10,12 @@
     CmdletsToExport      = @()
     VariablesToExport    = @()
     AliasesToExport      = @()
-    PrivateData          = @{ PSData = @{ Tags = @('mlops', 'azure', 'azureml', 'terraform', 'bicep'); LicenseUri = 'https://opensource.org/licenses/MIT' } }
+    CompanyName          = 'Microsoft Corporation'
+    Copyright            = '(c) Microsoft Corporation. MIT License.'
+    PrivateData          = @{ PSData = @{
+            Tags         = @('mlops', 'azure', 'azureml', 'machine-learning', 'terraform', 'bicep', 'avm', 'github-actions', 'azure-devops', 'PSEdition_Core')
+            LicenseUri   = 'https://github.com/pgabriel-01/mlops-v3/blob/main/LICENSE'
+            ProjectUri   = 'https://github.com/pgabriel-01/mlops-v3'
+            ReleaseNotes = 'https://github.com/pgabriel-01/mlops-v3/releases'
+        } }
 }

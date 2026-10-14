@@ -7,6 +7,8 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
+    env:
+      PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
     steps:
       - uses: actions/checkout@v7
       - name: Test
@@ -14,9 +16,16 @@ jobs:
         run: |
           Install-PSResource Pester, powershell-yaml -TrustRepository
           Invoke-Pester ./tests -CI
+      - name: Build module
+        shell: pwsh
+        run: ./scripts/Build-Module.ps1 -Version $env:GITHUB_REF_NAME
       - name: Package
-        run: |
-          zip -r "mlops-v3-${GITHUB_REF_NAME}.zip" src templates schema docs versions.lock.json inputs.example.yaml README.md LICENSE* 2>/dev/null || zip -r "mlops-v3-${GITHUB_REF_NAME}.zip" src templates schema docs versions.lock.json inputs.example.yaml README.md
+        run: cd build && zip -r "../mlops-v3-${GITHUB_REF_NAME}.zip" MLOpsAccelerator
       - uses: softprops/action-gh-release@v3
         with:
           files: mlops-v3-*.zip
+          prerelease: ${{ contains(github.ref_name, '-') }}
+      - name: Publish to PowerShell Gallery
+        if: env.PSGALLERY_API_KEY != ''
+        shell: pwsh
+        run: Publish-PSResource -Path build/MLOpsAccelerator -Repository PSGallery -ApiKey $env:PSGALLERY_API_KEY
