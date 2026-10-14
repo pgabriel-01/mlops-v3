@@ -134,6 +134,7 @@ function New-MLOpsTokenMap {
     $short = if ($script:LocationShort.ContainsKey($loc)) { $script:LocationShort[$loc] } else { $loc.Substring(0, [Math]::Min(4, $loc.Length)) }
     $hash = [System.Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes("$($Inputs['subscription_id'])/$($Inputs['project_name'])"))
     $suffix = (($hash | Select-Object -First 2 | ForEach-Object { $_.ToString('x2') }) -join '')
+    if ($Inputs['name_suffix']) { $suffix = [string]$Inputs['name_suffix'] }
 
     $envs = @($Inputs['environments'])
     $tags = $Inputs['tags']

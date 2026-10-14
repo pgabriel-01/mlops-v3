@@ -158,6 +158,11 @@
       "default": 4,
       "description": "Maximum nodes the training cluster scales out to (minimum is always 0)."
     },
+    "name_suffix": {
+      "type": "string",
+      "pattern": "^[a-z0-9]{4,6}$",
+      "description": "Optional override for the unique 4-char resource name suffix (default: derived from subscription and project). Change it to redeploy after a destroy, because soft-deleted Key Vaults and workspaces keep their names reserved."
+    },
     "keyvault_retention_days": {
       "type": "integer",
       "minimum": 7,
