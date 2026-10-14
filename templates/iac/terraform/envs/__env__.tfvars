@@ -8,6 +8,7 @@ network_mode       = "[[network_mode]]"
 feature_store      = [[feature_store]]
 registry           = [[registry]]
 governance         = [[governance]]
+policy_mode        = "[[policy_mode]]"
 genai              = [[genai]]
 existing_platform  = [[existing_platform]]
 vnet_address_space = "[[vnet_address_space]]"

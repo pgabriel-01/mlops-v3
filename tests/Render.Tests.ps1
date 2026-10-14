@@ -80,6 +80,29 @@ Describe 'Generator' {
             Set-Content $f ((Get-Content -Raw $f) -replace 'data_source: taxi-csv', 'data_source: adls')
             { Test-MLOpsAcceleratorInput -InputFile $f } | Should -Throw
         }
+        It 'defaults policy_mode to audit, none for existing-platform, and honours deny' {
+            $f = Join-Path $TestDrive 'pol.yaml'
+            New-MLOpsInputFile -Scenario byo-vnet -Path $f | Out-Null
+            $o = Join-Path $TestDrive 'pol-out'
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
+            Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'policy_mode\s+= "audit"'
+            Set-Content $f ((Get-Content -Raw $f) + "policy_mode: deny`n")
+            $o2 = Join-Path $TestDrive 'pol-out2'
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o2 -SkipVersionCheck *>$null
+            Get-Content -Raw (Join-Path $o2 'infra/envs/dev.tfvars') | Should -Match 'policy_mode\s+= "deny"'
+            Test-Path (Join-Path $o2 'infra/policy.tf') | Should -BeTrue
+            $e = Join-Path $TestDrive 'pol-ep.yaml'
+            New-MLOpsInputFile -Scenario existing-platform -Path $e | Out-Null
+            $o3 = Join-Path $TestDrive 'pol-out3'
+            Deploy-MLOpsAccelerator -InputFile $e -OutputPath $o3 -SkipVersionCheck *>$null
+            Get-Content -Raw (Join-Path $o3 'infra/envs/dev.tfvars') | Should -Match 'policy_mode\s+= "none"'
+        }
+        It 'rejects an invalid policy_mode' {
+            $f = Join-Path $TestDrive 'pol-bad.yaml'
+            New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null
+            Set-Content $f ((Get-Content -Raw $f) + "policy_mode: block`n")
+            { Test-MLOpsAcceleratorInput -InputFile $f } | Should -Throw
+        }
         It 'requires existing_platform for the existing-platform scenario' {
             $f = Join-Path $TestDrive 'ep.yaml'
             New-MLOpsInputFile -Scenario existing-platform -Path $f | Out-Null

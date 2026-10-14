@@ -139,6 +139,11 @@
       ],
       "description": "managed-vnet-approved: FQDN allow-list."
     },
+    "policy_mode": {
+      "type": "string",
+      "enum": ["audit", "deny", "none"],
+      "description": "Built-in Azure Policy guardrails on each environment resource group. Default: audit (none for the existing-platform scenario)."
+    },
     "budget_amount": {
       "type": "number",
       "minimum": 1,

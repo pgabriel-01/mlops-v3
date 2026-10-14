@@ -47,6 +47,7 @@ function Read-MLOpsInput {
     if (-not $data.ContainsKey('vnet_address_space')) { $data['vnet_address_space'] = '10.20.0.0/16' }
     if (-not $data.ContainsKey('allowed_outbound_fqdns')) { $data['allowed_outbound_fqdns'] = @('pypi.org', 'files.pythonhosted.org', '*.anaconda.com', 'conda.anaconda.org') }
     if (-not $data.ContainsKey('budget_amount')) { $data['budget_amount'] = 500 }
+    if (-not $data.ContainsKey('policy_mode')) { $data['policy_mode'] = $(if ($data['scenario'] -eq 'existing-platform') { 'none' } else { 'audit' }) }
     if (-not $data.ContainsKey('alert_emails')) { $data['alert_emails'] = @() }
     $data['allowed_outbound_fqdns'] = @($data['allowed_outbound_fqdns'])
     $data['alert_emails'] = @($data['alert_emails'])
@@ -171,6 +172,8 @@ function New-MLOpsTokenMap {
         existing_platform      = (& $lc $sc.existing_platform)
         vnet_address_space     = $Inputs['vnet_address_space']
         budget_amount          = [string]$Inputs['budget_amount']
+        policy_mode            = $Inputs['policy_mode']
+        policy_enabled         = (& $lc ($Inputs['policy_mode'] -ne 'none'))
         allowed_fqdns_hcl      = '[' + (($fqdn | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         allowed_fqdns_bicep    = '[' + (($fqdn | ForEach-Object { "'" + $_ + "'" }) -join ', ') + ']'
         alert_emails_hcl       = '[' + (($mails | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'

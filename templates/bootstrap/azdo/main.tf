@@ -115,6 +115,14 @@ resource "azurerm_role_assignment" "access_admin" {
   principal_id         = module.deploy_identity[each.key].principal_id
 }
 
+# Needed to assign the built-in policy guardrails (policy_mode); Contributor cannot write policy assignments.
+resource "azurerm_role_assignment" "policy" {
+  for_each             = local.environments
+  scope                = "/subscriptions/${var.subscription_id}"
+  role_definition_name = "Resource Policy Contributor"
+  principal_id         = module.deploy_identity[each.key].principal_id
+}
+
 resource "azurerm_role_assignment" "state" {
   for_each             = local.environments
   scope                = module.state_storage.resource_id

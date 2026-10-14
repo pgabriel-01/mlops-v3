@@ -212,6 +212,7 @@ resource "azurerm_machine_learning_compute_cluster" "cpu" {
   vm_priority                   = "Dedicated"
   vm_size                       = "Standard_DS3_v2"
   node_public_ip_enabled        = !local.private
+  local_auth_enabled            = false
   subnet_resource_id            = local.compute_subnet_id
 
   scale_settings {

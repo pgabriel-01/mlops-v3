@@ -15,7 +15,7 @@ The bootstrap creates a resource group, a state storage account, a user-assigned
 
 No Microsoft Entra directory permissions are required: the identity is an Azure managed identity, not an app registration.
 
-The deploy identity that the pipelines use receives **Contributor** and **Role Based Access Control Administrator** at subscription scope, and **Storage Blob Data Contributor** on the state account. Scope these down for production.
+The deploy identity that the pipelines use receives **Contributor**, **Role Based Access Control Administrator** and **Resource Policy Contributor** (for the [policy guardrails](../policy/_index.md)) at subscription scope, and **Storage Blob Data Contributor** on the state account. Scope these down for production.
 
 ## Resource providers
 

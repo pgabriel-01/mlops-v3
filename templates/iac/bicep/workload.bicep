@@ -12,6 +12,8 @@ param networkMode string
 param featureStore bool
 param registry bool
 param governance bool
+@allowed(['audit', 'deny', 'none'])
+param policyMode string = 'audit'
 param genai bool
 param existingPlatform bool
 param vnetAddressSpace string
@@ -278,6 +280,7 @@ resource cpu 'Microsoft.MachineLearningServices/workspaces/computes@2025-06-01' 
   location: location
   properties: {
     computeType: 'AmlCompute'
+    disableLocalAuth: true
     properties: {
       vmSize: 'Standard_DS3_v2'
       vmPriority: 'Dedicated'
@@ -401,21 +404,43 @@ module project 'br/public:avm/res/machine-learning-services/workspace:[[versions
   }
 }
 
-// Built-in policy: Azure Machine Learning Workspaces should disable public network access.
+// Built-in policy guardrails on the resource group (policyMode: audit | deny | none).
 // The AVM policy-assignment pattern deploys at management-group scope, so a resource-group assignment is raw.
-resource policy 'Microsoft.Authorization/policyAssignments@2025-03-01' = if (governance) {
-  name: 'mlops-${baseName}'
-  properties: isPublic ? {
-    displayName: 'Audit missing project tag (${baseName})'
-    policyDefinitionId: tenantResourceId('Microsoft.Authorization/policyDefinitions', '871b6d14-10aa-478d-b590-94f262ecfa99')
-    parameters: { tagName: { value: 'project' } }
-    enforcementMode: 'DoNotEnforce'
-  } : {
-    displayName: 'Audit ML workspaces with public network access (${baseName})'
-    policyDefinitionId: tenantResourceId('Microsoft.Authorization/policyDefinitions', '438c38d2-3772-465a-a9cc-7a6666a275ce')
-    parameters: { effect: { value: 'Audit' } }
+var policyEffect = policyMode == 'deny' ? 'Deny' : 'Audit'
+var policies = concat([
+  {
+    key: 'compute-local-auth'
+    name: 'Compute should have local authentication disabled'
+    id: 'e96a9a5f-07ca-471b-9bc5-6a0f33cbd68f'
+    parameters: { effect: { value: policyEffect } }
+    enforce: true
   }
-}
+  {
+    key: 'require-project-tag'
+    name: 'Require the project tag'
+    id: '871b6d14-10aa-478d-b590-94f262ecfa99'
+    parameters: { tagName: { value: 'project' } }
+    enforce: policyMode == 'deny'
+  }
+], isPublic ? [] : [
+  {
+    key: 'workspace-no-public-access'
+    name: 'ML workspaces should disable public network access'
+    id: '438c38d2-3772-465a-a9cc-7a6666a275ce'
+    parameters: { effect: { value: policyEffect } }
+    enforce: true
+  }
+])
+
+resource guardrails 'Microsoft.Authorization/policyAssignments@2025-03-01' = [for p in policies: if (policyMode != 'none') {
+  name: take('mlops-${environment}-${p.key}', 64)
+  properties: {
+    displayName: '${p.name} (${baseName})'
+    policyDefinitionId: tenantResourceId('Microsoft.Authorization/policyDefinitions', p.id)
+    parameters: p.parameters
+    enforcementMode: p.enforce ? 'Default' : 'DoNotEnforce'
+  }
+}]
 
 output workspaceName string = workspace.outputs.name
 output registryName string = registry ? amlRegistry!.outputs.name : ''

@@ -50,6 +50,17 @@ variable "governance" {
   default = false
 }
 
+variable "policy_mode" {
+  type        = string
+  default     = "audit"
+  description = "Built-in Azure Policy guardrails: audit, deny or none."
+
+  validation {
+    condition     = contains(["audit", "deny", "none"], var.policy_mode)
+    error_message = "policy_mode must be audit, deny or none."
+  }
+}
+
 variable "genai" {
   type    = bool
   default = false
