@@ -204,6 +204,9 @@ function New-MLOpsTokenMap {
         endpoint_public_access = $(if ($sc.network_mode -ne 'public') { 'disabled' } else { 'enabled' })
         environments_csv       = ($envs -join ', ')
         environments_yaml_list = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
+        workload_name          = [string]$Inputs['project_name']
+        workload_dir           = ''
+        workload_label         = ''
         runner_label           = [string]$Inputs['runner_label']
         use_private_networking = ([bool]$Inputs['use_private_networking']).ToString().ToLower()
         runners_vnet_address_space = [string]$Inputs['runners_vnet_address_space']
@@ -365,23 +368,42 @@ function Deploy-MLOpsAccelerator {
     New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
     $OutputPath = (Resolve-Path $OutputPath).Path
 
+    $project = [string]$inputs['project_name']
+    $workloads = @($inputs['workloads'] | Where-Object { $_ })
+
     foreach ($entry in $manifest) {
         if (-not (Test-ManifestCondition -When $(if ($entry.PSObject.Properties.Name -contains 'when') { $entry.when }) -Map $map)) { continue }
         $render = -not ($entry.PSObject.Properties.Name -contains 'render' -and $entry.render -eq $false)
+        $isWorkload = $entry.PSObject.Properties.Name -contains 'scope' -and $entry.scope -eq 'workload'
+        $suffixFiles = $entry.PSObject.Properties.Name -contains 'suffix_files' -and $entry.suffix_files
         $srcRoot = Join-Path $script:TemplateRoot $entry.src
-        foreach ($file in Get-ChildItem -Recurse -File -Force -Path $srcRoot) {
-            $relative = [IO.Path]::GetRelativePath($srcRoot, $file.FullName)
-            if ($relative -like '*__env__*') {
-                foreach ($e in $envs) {
-                    $local = $map.Clone(); $local['env'] = $e
-                    $local['registry'] = (([bool]($map['registry'] -eq 'true')) -and $e -eq $envs[0]).ToString().ToLower()
-                    $dest = Join-Path (Join-Path $OutputPath $entry.dest) ($relative -replace '__env__', $e)
-                    Write-MLOpsFile -SourceFile $file.FullName -Destination $dest -Render $render -Map $local -Environments $envs
-                }
+        $targets = if ($isWorkload -and $workloads.Count -gt 0) { $workloads } else { @('') }
+        foreach ($wl in $targets) {
+            $base = $map.Clone()
+            $destRoot = $entry.dest
+            $suffix = ''
+            if ($wl) {
+                $base['workload_name'] = $wl
+                $base['workload_dir'] = "workloads/$wl/"
+                $base['workload_label'] = " ($wl)"
+                $base['model_ref'] = ([string]$map['model_ref']).Replace("$project-model", "$wl-model")
+                if ($suffixFiles) { $suffix = "-$wl" } else { $destRoot = "workloads/$wl/$($entry.dest)" }
             }
-            else {
-                $dest = Join-Path (Join-Path $OutputPath $entry.dest) $relative
-                Write-MLOpsFile -SourceFile $file.FullName -Destination $dest -Render $render -Map $map -Environments $envs
+            foreach ($file in Get-ChildItem -Recurse -File -Force -Path $srcRoot) {
+                $relative = [IO.Path]::GetRelativePath($srcRoot, $file.FullName)
+                if ($suffix) { $relative = [IO.Path]::ChangeExtension($relative, $null).TrimEnd('.') + $suffix + [IO.Path]::GetExtension($relative) }
+                if ($relative -like '*__env__*') {
+                    foreach ($e in $envs) {
+                        $local = $base.Clone(); $local['env'] = $e
+                        $local['registry'] = (([bool]($map['registry'] -eq 'true')) -and $e -eq $envs[0]).ToString().ToLower()
+                        $dest = Join-Path (Join-Path $OutputPath $destRoot) ($relative -replace '__env__', $e)
+                        Write-MLOpsFile -SourceFile $file.FullName -Destination $dest -Render $render -Map $local -Environments $envs
+                    }
+                }
+                else {
+                    $dest = Join-Path (Join-Path $OutputPath $destRoot) $relative
+                    Write-MLOpsFile -SourceFile $file.FullName -Destination $dest -Render $render -Map $base -Environments $envs
+                }
             }
         }
     }

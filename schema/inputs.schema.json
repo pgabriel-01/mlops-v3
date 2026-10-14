@@ -176,6 +176,12 @@
       "default": 500,
       "description": "governance: monthly budget per environment resource group (USD)."
     },
+    "workloads": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,14}[a-z0-9]$" },
+      "description": "Optional list of workload names sharing the one platform (one workspace per environment). Each gets workloads/<name>/ (src, mlops, data, tests) and its own ml-train/ml-deploy pipelines. Omit for a single workload at the repo root."
+    },
     "use_private_networking": {
       "type": "boolean",
       "default": false,

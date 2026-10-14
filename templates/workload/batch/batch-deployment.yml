@@ -1,6 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/latest/modelBatchDeployment.schema.json
 name: default
-endpoint_name: [[project_name]]-batch-[[suffix]]
+endpoint_name: [[workload_name]]-batch-[[suffix]]
 type: model
 model: [[model_ref]]
 compute: azureml:cpu-cluster

@@ -1,4 +1,4 @@
-name: "4 - ml-deploy"
+name: "4 - ml-deploy[[workload_label]]"
 
 on:
   workflow_dispatch:
@@ -34,12 +34,12 @@ jobs:
         run: |
           RG=rg-[[project_name]]-$ENV_NAME-[[location_short]]
           WS=mlw-[[project_name]]-$ENV_NAME-[[location_short]]
-          az ml batch-endpoint create -f mlops/azureml/batch-endpoint.yml -g $RG -w $WS
-          az ml batch-deployment create -f mlops/azureml/batch-deployment.yml --set-default -g $RG -w $WS
+          az ml batch-endpoint create -f [[workload_dir]]mlops/azureml/batch-endpoint.yml -g $RG -w $WS
+          az ml batch-deployment create -f [[workload_dir]]mlops/azureml/batch-deployment.yml --set-default -g $RG -w $WS
       - name: Score the batch input
         run: |
           RG=rg-[[project_name]]-$ENV_NAME-[[location_short]]
           WS=mlw-[[project_name]]-$ENV_NAME-[[location_short]]
-          az ml data create -f mlops/azureml/batch-data.yml -g $RG -w $WS
+          az ml data create -f [[workload_dir]]mlops/azureml/batch-data.yml -g $RG -w $WS
           az ml batch-endpoint invoke --name [[project_name]]-batch-[[suffix]] \
             --input azureml:[[project_name]]-batch-data@latest -g $RG -w $WS

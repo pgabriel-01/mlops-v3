@@ -11,6 +11,7 @@ scenario: basic-public  # see Get-MLOpsScenario (11 AML scenarios)
 workload: tabular
 # compute_vm_size: Standard_DS3_v2   # training cluster and online endpoint size
 # compute_max_nodes: 4
+# workloads: [taxi, churn]   # several workloads on the one platform; default is a single workload at the repo root
 # use_private_networking: false   # GitHub: self-hosted ACI runners + private state storage
 # runners_vnet_address_space: 10.250.0.0/24
 # runner_label: ubuntu-latest   # or a private self-hosted runner label

@@ -25,5 +25,5 @@ steps:
         WS=mlw-[[project_name]]-${{ parameters.source_environment }}-[[location_short]]
         az extension add --name ml --version [[versions.ml_cli_extension]] --yes
         V="${{ parameters.model_version }}"
-        if [ -z "$V" ]; then V=$(az ml model list -n [[project_name]]-model -g $RG -w $WS --query "max_by([], &to_number(version)).version" -o tsv); fi
-        az ml model share -n [[project_name]]-model -v "$V" --share-with-name [[project_name]]-model --share-with-version "$V" --registry-name [[registry_name]] -g $RG -w $WS
+        if [ -z "$V" ]; then V=$(az ml model list -n [[workload_name]]-model -g $RG -w $WS --query "max_by([], &to_number(version)).version" -o tsv); fi
+        az ml model share -n [[workload_name]]-model -v "$V" --share-with-name [[workload_name]]-model --share-with-version "$V" --registry-name [[registry_name]] -g $RG -w $WS

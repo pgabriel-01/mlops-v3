@@ -123,6 +123,23 @@ Describe 'Generator' {
             Deploy-MLOpsAccelerator -InputFile $e -OutputPath $o3 -SkipVersionCheck *>$null
             Get-Content -Raw (Join-Path $o3 'infra/envs/dev.tfvars') | Should -Match 'policy_mode\s+= "none"'
         }
+        It 'renders one folder and pipeline set per workload when workloads is set' {
+            $f = Join-Path $TestDrive 'wl.yaml'
+            New-MLOpsInputFile -Scenario online-bluegreen -Path $f | Out-Null
+            Set-Content $f ((Get-Content -Raw $f) + "workloads: [taxi, churn]`n")
+            $o = Join-Path $TestDrive 'wl-out'
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
+            foreach ($w in 'taxi', 'churn') {
+                Test-Path (Join-Path $o "workloads/$w/src/train.py") | Should -BeTrue
+                Test-Path (Join-Path $o "workloads/$w/tests/test_smoke.py") | Should -BeTrue
+                Get-Content -Raw (Join-Path $o ".github/workflows/ml-train-$w.yml") | Should -Match "workloads/$w/mlops/azureml/pipeline.yml"
+                Get-Content -Raw (Join-Path $o "workloads/$w/mlops/azureml/pipeline.yml") | Should -Match "model_name: $w-model"
+                Get-Content -Raw (Join-Path $o ".github/workflows/ml-deploy-$w.yml") | Should -Match "workloads/$w/data/taxi-request.json"
+            }
+            Test-Path (Join-Path $o 'src') | Should -BeFalse
+            Test-Path (Join-Path $o '.github/workflows/infra.yml') | Should -BeTrue
+            (Get-ChildItem -Recurse -File $o -Include *.yml, *.md | Select-String '[[' -SimpleMatch).Count | Should -Be 0
+        }
         It 'enables private runners and private state storage with use_private_networking' {
             $f = Join-Path $TestDrive 'priv.yaml'
             New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null

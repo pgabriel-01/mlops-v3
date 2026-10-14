@@ -1,4 +1,4 @@
-name: "3 - ml-train"
+name: "3 - ml-train[[workload_label]]"
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
         type: choice
         options: [[environments_yaml_list]]
   pull_request:
-    paths: ["src/**", "mlops/azureml/**", "data/**"]
+    paths: ["[[workload_dir]]src/**", "[[workload_dir]]mlops/azureml/**", "[[workload_dir]]data/**"]
 
 permissions:
   id-token: write
@@ -45,10 +45,10 @@ jobs:
       - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
       - name: Register data and environment
         run: |
-          [ -f mlops/azureml/datastore.yml ] && az ml datastore create -f mlops/azureml/datastore.yml -g $RG -w $WS
-          az ml data create -f mlops/azureml/data.yml -g $RG -w $WS
-          az ml environment create -f mlops/azureml/env.yml -g $RG -w $WS
+          [ -f [[workload_dir]]mlops/azureml/datastore.yml ] && az ml datastore create -f [[workload_dir]]mlops/azureml/datastore.yml -g $RG -w $WS
+          az ml data create -f [[workload_dir]]mlops/azureml/data.yml -g $RG -w $WS
+          az ml environment create -f [[workload_dir]]mlops/azureml/env.yml -g $RG -w $WS
       - name: Run training pipeline
         run: >-
-          az ml job create -f mlops/azureml/pipeline.yml -g $RG -w $WS
+          az ml job create -f [[workload_dir]]mlops/azureml/pipeline.yml -g $RG -w $WS
           --stream --set display_name=train-${{ github.run_number }}

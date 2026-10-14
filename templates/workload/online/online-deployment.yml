@@ -1,6 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
 name: blue
-endpoint_name: [[project_name]]-online-[[suffix]]
+endpoint_name: [[workload_name]]-online-[[suffix]]
 model: [[model_ref]]
 instance_type: [[compute_vm_size]]
 instance_count: 1

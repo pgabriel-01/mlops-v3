@@ -1,4 +1,4 @@
-name: [[project_name]]-train
+name: [[workload_name]]-train
 channels:
   - conda-forge
 dependencies:

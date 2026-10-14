@@ -1,4 +1,4 @@
-name: "4 - ml-deploy"
+name: "4 - ml-deploy[[workload_label]]"
 
 on:
   workflow_dispatch:
@@ -30,8 +30,8 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
       - name: Endpoint
-        run: az ml online-endpoint create -f mlops/azureml/online-endpoint.yml -g $RG -w $WS
+        run: az ml online-endpoint create -f [[workload_dir]]mlops/azureml/online-endpoint.yml -g $RG -w $WS
       - name: Deployment
         run: >-
-          az ml online-deployment create -f mlops/azureml/online-deployment.yml
+          az ml online-deployment create -f [[workload_dir]]mlops/azureml/online-deployment.yml
           --all-traffic -g $RG -w $WS

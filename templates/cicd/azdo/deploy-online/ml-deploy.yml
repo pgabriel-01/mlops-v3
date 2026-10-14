@@ -29,5 +29,5 @@ stages:
                       RG=rg-[[project_name]]-${{ parameters.environment }}-[[location_short]]
                       WS=mlw-[[project_name]]-${{ parameters.environment }}-[[location_short]]
                       az extension add --name ml --version [[versions.ml_cli_extension]] --yes
-                      az ml online-endpoint create -f mlops/azureml/online-endpoint.yml -g $RG -w $WS
-                      az ml online-deployment create -f mlops/azureml/online-deployment.yml --all-traffic -g $RG -w $WS
+                      az ml online-endpoint create -f [[workload_dir]]mlops/azureml/online-endpoint.yml -g $RG -w $WS
+                      az ml online-deployment create -f [[workload_dir]]mlops/azureml/online-deployment.yml --all-traffic -g $RG -w $WS

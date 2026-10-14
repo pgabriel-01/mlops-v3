@@ -2,36 +2,47 @@
   {
     "src": "workload/data",
     "dest": "data",
-    "render": false
+    "render": false,
+    "scope": "workload"
   },
   {
     "src": "workload/src",
-    "dest": "src"
+    "dest": "src",
+    "scope": "workload"
+  },
+  {
+    "src": "workload/tests",
+    "dest": "tests",
+    "scope": "workload"
   },
   {
     "src": "workload/azureml",
-    "dest": "mlops/azureml"
+    "dest": "mlops/azureml",
+    "scope": "workload"
   },
   {
     "src": "workload/adls",
     "dest": "mlops/azureml",
     "when": {
       "data_source": "adls"
-    }
+    },
+    "scope": "workload"
   },
   {
     "src": "workload/online",
     "dest": "mlops/azureml",
     "when": {
       "endpoint_online": "true"
-    }
+    },
+    "scope": "workload"
   },
   {
     "src": "workload/batch",
     "dest": "mlops/azureml",
     "when": {
       "endpoint_batch": "true"
-    }
+    },
+    "scope": "workload"
   },
   {
     "src": "root",
@@ -56,7 +67,9 @@
     "dest": ".github/workflows",
     "when": {
       "cicd": "github"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/github/terraform",
@@ -80,7 +93,9 @@
     "when": {
       "cicd": "github",
       "deploy_mode": "online"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/github/deploy-bluegreen",
@@ -88,7 +103,9 @@
     "when": {
       "cicd": "github",
       "deploy_mode": "bluegreen"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/github/deploy-batch",
@@ -96,7 +113,9 @@
     "when": {
       "cicd": "github",
       "deploy_mode": "batch"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/github/registry",
@@ -104,14 +123,18 @@
     "when": {
       "cicd": "github",
       "registry": "true"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/azdo/common",
     "dest": "pipelines",
     "when": {
       "cicd": "azdo"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/azdo/terraform",
@@ -135,7 +158,9 @@
     "when": {
       "cicd": "azdo",
       "deploy_mode": "online"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/azdo/deploy-bluegreen",
@@ -143,7 +168,9 @@
     "when": {
       "cicd": "azdo",
       "deploy_mode": "bluegreen"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/azdo/deploy-batch",
@@ -151,7 +178,9 @@
     "when": {
       "cicd": "azdo",
       "deploy_mode": "batch"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "cicd/azdo/registry",
@@ -159,7 +188,9 @@
     "when": {
       "cicd": "azdo",
       "registry": "true"
-    }
+    },
+    "scope": "workload",
+    "suffix_files": true
   },
   {
     "src": "bootstrap/github",

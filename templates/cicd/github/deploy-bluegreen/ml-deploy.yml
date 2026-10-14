@@ -1,4 +1,4 @@
-name: "4 - ml-deploy"
+name: "4 - ml-deploy[[workload_label]]"
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - run: az extension add --name ml --version [[versions.ml_cli_extension]] --yes
       - name: Endpoint
-        run: az ml online-endpoint create -f mlops/azureml/online-endpoint.yml -g $RG -w $WS
+        run: az ml online-endpoint create -f [[workload_dir]]mlops/azureml/online-endpoint.yml -g $RG -w $WS
       - name: Pick colours
         run: |
           LIVE=$(az ml online-endpoint show -n $EP -g $RG -w $WS --query "keys(traffic)[0]" -o tsv || true)
@@ -39,14 +39,14 @@ jobs:
           echo "LIVE=$LIVE" >> $GITHUB_ENV
           echo "NEW=$NEW" >> $GITHUB_ENV
       - name: Create new deployment with no traffic
-        run: az ml online-deployment create -f mlops/azureml/online-deployment.yml --name $NEW -g $RG -w $WS
+        run: az ml online-deployment create -f [[workload_dir]]mlops/azureml/online-deployment.yml --name $NEW -g $RG -w $WS
       - name: Smoke test the new deployment
-        run: az ml online-endpoint invoke -n $EP --deployment-name $NEW --request-file data/taxi-request.json -g $RG -w $WS
+        run: az ml online-endpoint invoke -n $EP --deployment-name $NEW --request-file [[workload_dir]]data/taxi-request.json -g $RG -w $WS
       - name: Shift traffic 10% then 100%
         run: |
           if [ -n "$LIVE" ]; then
             az ml online-endpoint update -n $EP --traffic "$LIVE=90 $NEW=10" -g $RG -w $WS
-            az ml online-endpoint invoke -n $EP --deployment-name $NEW --request-file data/taxi-request.json -g $RG -w $WS
+            az ml online-endpoint invoke -n $EP --deployment-name $NEW --request-file [[workload_dir]]data/taxi-request.json -g $RG -w $WS
           fi
           az ml online-endpoint update -n $EP --traffic "$NEW=100" -g $RG -w $WS
       - name: Retire the previous deployment

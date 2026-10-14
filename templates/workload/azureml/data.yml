@@ -1,5 +1,5 @@
 $schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
 type: [[data_type]]
-name: [[project_name]]-data
+name: [[workload_name]]-data
 description: Taxi fare training dataset ([[data_source]])
 path: [[data_path]]

@@ -56,6 +56,7 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `policy_mode` | `audit` / `deny` / `none` | `audit` (`none` for scenario 11) | [Azure Policy](../policy/_index.md) |
 | `compute_vm_size` | string | `Standard_DS3_v2` | Training cluster and online endpoint VM size |
 | `compute_max_nodes` | integer | 4 | Training cluster maximum nodes |
+| `workloads` | list | (single) | Workload names sharing the platform; each gets `workloads/<name>/` and its own pipelines |
 | `use_private_networking` | bool | false | GitHub: deploy self-hosted ACI runners in a VNet and make the state storage private-endpoint only |
 | `runners_vnet_address_space` | string | 10.250.0.0/24 | Runner VNet address space |
 | `runner_label` | string | ubuntu-latest | GitHub `runs-on` label for generated workflows (self-hosted/private runners) |
