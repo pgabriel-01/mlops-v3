@@ -241,6 +241,8 @@ resource "azapi_resource" "feature_store" {
     type = "SystemAssigned"
   }
 
+  depends_on = [module.storage, module.key_vault, module.acr, module.app_insights]
+
   body = {
     kind = "FeatureStore"
     sku = {
@@ -249,7 +251,15 @@ resource "azapi_resource" "feature_store" {
     }
     properties = {
       description         = "Managed feature store for ${var.project_name} (${var.environment})"
+      storageAccount      = module.storage.resource_id
+      keyVault            = module.key_vault.resource_id
+      applicationInsights = module.app_insights.resource_id
+      containerRegistry   = module.acr.resource_id
       publicNetworkAccess = local.private ? "Disabled" : "Enabled"
+      # Serverless Spark needs a managed network, and allow_internet_outbound is the only mode feature stores support.
+      managedNetwork = {
+        isolationMode = "AllowInternetOutbound"
+      }
       featureStoreSettings = {
         computeRuntime = { sparkRuntimeVersion = "3.4.0" }
       }
