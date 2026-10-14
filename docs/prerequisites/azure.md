@@ -24,10 +24,10 @@ Register these before the first deployment (the accelerator does not register th
 ```powershell
 'Microsoft.MachineLearningServices','Microsoft.Storage','Microsoft.KeyVault','Microsoft.ContainerRegistry',
 'Microsoft.OperationalInsights','Microsoft.Insights','Microsoft.ManagedIdentity','Microsoft.Authorization',
-'Microsoft.Network','Microsoft.CognitiveServices' | ForEach-Object { az provider register --namespace $_ }
+'Microsoft.PolicyInsights','Microsoft.Network','Microsoft.CognitiveServices','Microsoft.Consumption' | ForEach-Object { az provider register --namespace $_ }
 ```
 
-`Microsoft.CognitiveServices` is for scenario 10 (AI Foundry); `Microsoft.Network` for scenarios with networking. `Microsoft.Consumption` / `Microsoft.Billing` budgets (scenarios 9 and 11) also need `Microsoft.Consumption`.
+See [Resource providers](../reference/resource-providers.md) for what each one is for.
 
 ## Quota and region
 
