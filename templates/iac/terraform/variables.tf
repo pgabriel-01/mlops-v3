@@ -82,6 +82,16 @@ variable "allowed_fqdns" {
   default = []
 }
 
+variable "compute_vm_size" {
+  type    = string
+  default = "Standard_DS3_v2"
+}
+
+variable "compute_max_nodes" {
+  type    = number
+  default = 4
+}
+
 variable "budget_amount" {
   type    = number
   default = 0

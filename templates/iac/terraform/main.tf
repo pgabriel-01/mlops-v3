@@ -211,14 +211,14 @@ resource "azurerm_machine_learning_compute_cluster" "cpu" {
   location                      = module.rg.location
   machine_learning_workspace_id = module.workspace.resource_id
   vm_priority                   = "Dedicated"
-  vm_size                       = "Standard_DS3_v2"
+  vm_size                       = var.compute_vm_size
   node_public_ip_enabled        = !local.private
   local_auth_enabled            = false
   subnet_resource_id            = local.compute_subnet_id
 
   scale_settings {
     min_node_count                       = 0
-    max_node_count                       = 4
+    max_node_count                       = var.compute_max_nodes
     scale_down_nodes_after_idle_duration = "PT15M"
   }
 

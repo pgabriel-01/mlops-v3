@@ -10,6 +10,8 @@ param baseName string
 param suffix string
 param networkMode string
 param featureStore bool
+param computeVmSize string
+param computeMaxNodes int
 param registry bool
 param governance bool
 @allowed(['audit', 'deny', 'none'])
@@ -283,13 +285,13 @@ resource cpu 'Microsoft.MachineLearningServices/workspaces/computes@2025-06-01' 
     computeType: 'AmlCompute'
     disableLocalAuth: true
     properties: {
-      vmSize: 'Standard_DS3_v2'
+      vmSize: computeVmSize
       vmPriority: 'Dedicated'
       enableNodePublicIp: isPublic
       subnet: isByo ? { id: computeSubnetId } : null
       scaleSettings: {
         minNodeCount: 0
-        maxNodeCount: 4
+        maxNodeCount: computeMaxNodes
         nodeIdleTimeBeforeScaleDown: 'PT15M'
       }
     }

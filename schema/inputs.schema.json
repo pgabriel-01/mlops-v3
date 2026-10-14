@@ -145,6 +145,19 @@
       "enum": ["audit", "deny", "none"],
       "description": "Built-in Azure Policy guardrails on each environment resource group. Default: audit (none for the existing-platform scenario)."
     },
+    "compute_vm_size": {
+      "type": "string",
+      "pattern": "^Standard_[A-Za-z0-9_]+$",
+      "default": "Standard_DS3_v2",
+      "description": "VM size for the training cluster (cpu-cluster) and the online endpoint deployment. Check quota in your region first."
+    },
+    "compute_max_nodes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 4,
+      "description": "Maximum nodes the training cluster scales out to (minimum is always 0)."
+    },
     "budget_amount": {
       "type": "number",
       "minimum": 1,

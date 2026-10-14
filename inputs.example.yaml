@@ -9,6 +9,8 @@ iac: terraform          # terraform | bicep
 cicd: github            # github | azdo
 scenario: basic-public  # see Get-MLOpsScenario (11 AML scenarios)
 workload: tabular
+# compute_vm_size: Standard_DS3_v2   # training cluster and online endpoint size
+# compute_max_nodes: 4
 data_source: taxi-csv        # or: adls
 # adls:                      # required when data_source: adls
 #   account_name: mystorageacct

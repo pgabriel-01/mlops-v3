@@ -2,5 +2,5 @@ $schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.sch
 name: blue
 endpoint_name: [[project_name]]-online-[[suffix]]
 model: [[model_ref]]
-instance_type: Standard_DS3_v2
+instance_type: [[compute_vm_size]]
 instance_count: 1

@@ -23,6 +23,8 @@ param genai bool = false
 param existingPlatform bool = false
 param vnetAddressSpace string = '10.20.0.0/16'
 param allowedFqdns array = []
+param computeVmSize string = 'Standard_DS3_v2'
+param computeMaxNodes int = 4
 param budgetAmount int = 0
 param alertEmails array = []
 param existingSubnetId string = ''
@@ -77,6 +79,8 @@ module workload 'workload.bicep' = {
     locationShort: locationShort
     networkMode: networkMode
     featureStore: featureStore
+    computeVmSize: computeVmSize
+    computeMaxNodes: computeMaxNodes
     registry: registry
     governance: governance
     policyMode: policyMode

@@ -54,6 +54,8 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `vnet_address_space` | CIDR | `10.20.0.0/16` | Scenario 4 |
 | `allowed_outbound_fqdns` | list | PyPI and conda hosts | Scenario 3 |
 | `policy_mode` | `audit` / `deny` / `none` | `audit` (`none` for scenario 11) | [Azure Policy](../policy/_index.md) |
+| `compute_vm_size` | string | `Standard_DS3_v2` | Training cluster and online endpoint VM size |
+| `compute_max_nodes` | integer | 4 | Training cluster maximum nodes |
 | `budget_amount` | number | 500 | Scenarios 9, 11 |
 | `alert_emails` | list | `[]` | Scenarios 9, 11 |
 | `existing_platform` | object | | Scenario 11 |

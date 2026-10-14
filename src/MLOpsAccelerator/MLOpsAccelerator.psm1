@@ -46,6 +46,8 @@ function Read-MLOpsInput {
     if (-not $data.ContainsKey('workload')) { $data['workload'] = 'tabular' }
     if (-not $data.ContainsKey('vnet_address_space')) { $data['vnet_address_space'] = '10.20.0.0/16' }
     if (-not $data.ContainsKey('allowed_outbound_fqdns')) { $data['allowed_outbound_fqdns'] = @('pypi.org', 'files.pythonhosted.org', '*.anaconda.com', 'conda.anaconda.org') }
+    if (-not $data.ContainsKey('compute_vm_size')) { $data['compute_vm_size'] = 'Standard_DS3_v2' }
+    if (-not $data.ContainsKey('compute_max_nodes')) { $data['compute_max_nodes'] = 4 }
     if (-not $data.ContainsKey('budget_amount')) { $data['budget_amount'] = 500 }
     if (-not $data.ContainsKey('policy_mode')) { $data['policy_mode'] = $(if ($data['scenario'] -eq 'existing-platform') { 'none' } else { 'audit' }) }
     if (-not $data.ContainsKey('alert_emails')) { $data['alert_emails'] = @() }
@@ -171,6 +173,8 @@ function New-MLOpsTokenMap {
         genai                  = (& $lc $sc.genai)
         existing_platform      = (& $lc $sc.existing_platform)
         vnet_address_space     = $Inputs['vnet_address_space']
+        compute_vm_size        = [string]$Inputs['compute_vm_size']
+        compute_max_nodes      = [string]$Inputs['compute_max_nodes']
         budget_amount          = [string]$Inputs['budget_amount']
         policy_mode            = $Inputs['policy_mode']
         policy_enabled         = (& $lc ($Inputs['policy_mode'] -ne 'none'))
@@ -527,7 +531,10 @@ function Get-MLOpsAzureContext {
     $q = "sort_by([?metadata.regionType=='Physical'].{name:name,displayName:displayName,zones:length(availabilityZoneMappings||``[]``)}, &displayName)"
     $regions = az account list-locations --query $q -o json --only-show-errors 2>$null
     if ($LASTEXITCODE -eq 0 -and $regions) {
-        $ctx.Regions = @($regions | ConvertFrom-Json | ForEach-Object { @{ label = "$($_.displayName) ($($_.name))$(if ($_.zones -gt 0) { ' [AZ]' } else { '' })"; value = $_.name; zones = [int]$_.zones } })
+        # Keep only regions where AML workspaces can be created; if the provider lookup fails, keep them all.
+        $amlRegions = az provider show -n Microsoft.MachineLearningServices --query "resourceTypes[?resourceType=='workspaces'].locations | [0]" -o json --only-show-errors 2>$null
+        $amlNames = if ($LASTEXITCODE -eq 0 -and $amlRegions) { @($amlRegions | ConvertFrom-Json) } else { @() }
+        $ctx.Regions = @($regions | ConvertFrom-Json | Where-Object { -not $amlNames.Count -or $amlNames -contains $_.displayName } | ForEach-Object { @{ label = "$($_.displayName) ($($_.name))$(if ($_.zones -gt 0) { ' [AZ]' } else { '' })"; value = $_.name; zones = [int]$_.zones } })
     }
     $ctx
 }
