@@ -33,6 +33,7 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 9. [Tags](09-tags.md)
 10. [Compute sizes](10-compute-sizes.md)
 11. [Switch scenario](11-switch-scenario.md)
+12. [Policy mode](12-policy-mode.md)
 
 ## All inputs
 
@@ -52,6 +53,7 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `workload` | `tabular` | `tabular` | `nlp`, `vision` planned |
 | `vnet_address_space` | CIDR | `10.20.0.0/16` | Scenario 4 |
 | `allowed_outbound_fqdns` | list | PyPI and conda hosts | Scenario 3 |
+| `policy_mode` | `audit` / `deny` / `none` | `audit` (`none` for scenario 11) | [Azure Policy](../policy/_index.md) |
 | `budget_amount` | number | 500 | Scenarios 9, 11 |
 | `alert_emails` | list | `[]` | Scenarios 9, 11 |
 | `existing_platform` | object | | Scenario 11 |

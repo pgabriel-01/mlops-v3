@@ -12,6 +12,7 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Added
 
+- **[Preview]** `policy_mode: audit | deny | none`: built-in Azure Policy guardrails on every environment resource group, documented under [Azure Policy](policy/_index.md). **[Important]** the bootstrap now grants the deploy identity *Resource Policy Contributor*; re-run the bootstrap for existing projects. The generated compute cluster now disables local authentication.
 - 11 AML scenarios on Terraform and Bicep, built on Azure Verified Modules: [Scenarios](scenarios/_index.md).
 - One page per [scenario](scenarios/_index.md) and per [option](options/_index.md).
 - Estimated fixed monthly cost per scenario, from the Azure Retail Prices API (`scripts/Get-ScenarioCostEstimates.ps1`).

@@ -9,6 +9,7 @@ param networkMode = '[[network_mode]]'
 param featureStore = [[feature_store]]
 param registry = [[registry]]
 param governance = [[governance]]
+param policyMode = '[[policy_mode]]'
 param genai = [[genai]]
 param existingPlatform = [[existing_platform]]
 param vnetAddressSpace = '[[vnet_address_space]]'

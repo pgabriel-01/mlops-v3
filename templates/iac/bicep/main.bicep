@@ -16,6 +16,8 @@ param featureStore bool = false
 @description('Create the shared AML registry in this environment.')
 param registry bool = false
 param governance bool = false
+@allowed(['audit', 'deny', 'none'])
+param policyMode string = 'audit'
 param genai bool = false
 @description('Reuse an existing platform landing zone (subnet, private DNS zones, Log Analytics) instead of creating them.')
 param existingPlatform bool = false
@@ -77,6 +79,7 @@ module workload 'workload.bicep' = {
     featureStore: featureStore
     registry: registry
     governance: governance
+    policyMode: policyMode
     genai: genai
     existingPlatform: existingPlatform
     vnetAddressSpace: vnetAddressSpace
