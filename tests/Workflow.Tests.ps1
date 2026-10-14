@@ -50,10 +50,18 @@ Describe 'Upgrade and cleanup guards' {
 }
 
 Describe 'Interactive input' {
-    It 'writes an inputs file from prompts' {
-        $script:answers = [System.Collections.Queue]::new(@('managed-vnet-approved', 'bicep', 'azdo', 'demo', 'westus3', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'https://dev.azure.com/acme', 'proj'))
+    BeforeEach {
+        Mock Get-MLOpsAzureContext {
+            @{ TenantId = '22222222-2222-2222-2222-222222222222'; SubscriptionId = '11111111-1111-1111-1111-111111111111'
+                Subscriptions = @(@{ label = 'Sub A (11111111-1111-1111-1111-111111111111)'; value = '11111111-1111-1111-1111-111111111111' })
+                Regions = @(@{ label = 'East US 2 (eastus2) [AZ]'; value = 'eastus2'; zones = 3 }, @{ label = 'West US 3 (westus3) [AZ]'; value = 'westus3'; zones = 3 }, @{ label = 'No Zone (noaz)'; value = 'noaz'; zones = 0 })
+            }
+        } -ModuleName MLOpsAccelerator
+    }
+    It 'writes an inputs file from menu picks and prompts' {
+        # scenario 3, bicep=2, azdo=2, project, region 2 (westus3), subscription default, tenant default, azdo org/project
+        $script:answers = [System.Collections.Queue]::new(@('3', '2', '2', 'demo', '2', '', '', 'https://dev.azure.com/acme', 'proj'))
         Mock Read-Host { $script:answers.Dequeue() } -ModuleName MLOpsAccelerator
-        Mock Get-MLOpsRegionZoneInfo { @([pscustomobject]@{ name = 'eastus2'; zones = 3 }, [pscustomobject]@{ name = 'westus3'; zones = 3 }, [pscustomobject]@{ name = 'noazregion'; zones = 0 }) } -ModuleName MLOpsAccelerator
         $f = Join-Path $TestDrive 'ix.yaml'
         InModuleScope MLOpsAccelerator -Parameters @{ f = $f } { Read-MLOpsInteractiveInput -Path $f | Out-Null }
         Test-MLOpsAcceleratorInput -InputFile $f | Should -BeTrue
@@ -61,7 +69,22 @@ Describe 'Interactive input' {
         $y | Should -Match 'project_name: demo'
         $y | Should -Match 'iac: bicep'
         $y | Should -Match 'scenario: managed-vnet-approved'
+        $y | Should -Match 'location: westus3'
+        $y | Should -Match 'subscription_id: 11111111-1111-1111-1111-111111111111'
         $y | Should -Match 'azdo_project: proj'
+    }
+    It 'takes defaults on Enter and supports manual entry with validation' {
+        # defaults for scenario/iac/cicd, project, region 0 -> manual, subscription 0 -> bad then good guid
+        $script:answers = [System.Collections.Queue]::new(@('', '', '', 'demo', '0', 'uksouth', '0', 'nope', '33333333-3333-3333-3333-333333333333', '', 'my-org', 'my-repo'))
+        Mock Read-Host { $script:answers.Dequeue() } -ModuleName MLOpsAccelerator
+        $f = Join-Path $TestDrive 'ix2.yaml'
+        InModuleScope MLOpsAccelerator -Parameters @{ f = $f } { Read-MLOpsInteractiveInput -Path $f | Out-Null }
+        $y = Get-Content -Raw $f
+        $y | Should -Match 'scenario: basic-public'
+        $y | Should -Match 'iac: terraform'
+        $y | Should -Match 'location: uksouth'
+        $y | Should -Match 'subscription_id: 33333333-3333-3333-3333-333333333333'
+        $y | Should -Match 'github_repo: my-repo'
     }
 }
 

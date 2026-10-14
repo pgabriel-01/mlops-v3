@@ -509,56 +509,106 @@ function Grant-MLOpsStorageAccess {
     }
 }
 
-function Get-MLOpsRegionZoneInfo {
-    # Physical regions and their availability zone count, from the signed-in subscription. Empty when az is unavailable.
-    if (-not (Get-Command az -ErrorAction SilentlyContinue)) { return @() }
-    $q = "[?metadata.regionType=='Physical'].{name:name,zones:length(availabilityZoneMappings||``[]``)}"
-    $json = az account list-locations --query $q -o json --only-show-errors 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $json) { return @() }
-    @($json | ConvertFrom-Json | Sort-Object name)
+function Get-MLOpsAzureContext {
+    # Subscriptions (current tenant) and physical regions with availability zone support, from the signed-in az account.
+    # Anything az cannot return is left empty so the prompt falls back to manual entry.
+    $ctx = @{ TenantId = ''; SubscriptionId = ''; Subscriptions = @(); Regions = @() }
+    if (-not (Get-Command az -ErrorAction SilentlyContinue)) { return $ctx }
+    $acct = az account show --query '{id:id,tenantId:tenantId}' -o json --only-show-errors 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $acct) { return $ctx }
+    $acct = $acct | ConvertFrom-Json
+    $ctx.TenantId = $acct.tenantId; $ctx.SubscriptionId = $acct.id
+    $subs = az account list --query "sort_by([?tenantId=='$($acct.tenantId)'].{id:id,name:name}, &name)" -o json --only-show-errors 2>$null
+    if ($LASTEXITCODE -eq 0 -and $subs) { $ctx.Subscriptions = @($subs | ConvertFrom-Json | ForEach-Object { @{ label = "$($_.name) ($($_.id))"; value = $_.id } }) }
+    $q = "sort_by([?metadata.regionType=='Physical'].{name:name,displayName:displayName,zones:length(availabilityZoneMappings||``[]``)}, &displayName)"
+    $regions = az account list-locations --query $q -o json --only-show-errors 2>$null
+    if ($LASTEXITCODE -eq 0 -and $regions) {
+        $ctx.Regions = @($regions | ConvertFrom-Json | ForEach-Object { @{ label = "$($_.displayName) ($($_.name))$(if ($_.zones -gt 0) { ' [AZ]' } else { '' })"; value = $_.name; zones = [int]$_.zones } })
+    }
+    $ctx
+}
+
+function Read-MLOpsMenuSelection {
+    # Numbered menu in the style of the ALZ accelerator: [n] options, [0] manual entry, Enter takes the current default.
+    param(
+        [Parameter(Mandatory)][string] $Title,
+        [string] $OptionsTitle,
+        [array] $Options = @(),
+        $DefaultValue,
+        [switch] $AllowManualEntry,
+        [string] $ManualEntryPrompt = 'Enter value',
+        [scriptblock] $ManualEntryValidator,
+        [string] $ManualEntryError = 'Invalid input. Please try again.'
+    )
+    Write-Host $Title -ForegroundColor Cyan
+    $default = $DefaultValue
+    $defaultIndex = 0
+    for ($i = 0; $i -lt $Options.Count; $i++) { if ($Options[$i].value -eq $default) { $defaultIndex = $i; break } }
+    $hasDefaultOption = $Options.Count -gt 0 -and ($Options[$defaultIndex].value -eq $default)
+    if ($Options.Count) {
+        if ($OptionsTitle) { Write-Host $OptionsTitle }
+        for ($i = 0; $i -lt $Options.Count; $i++) {
+            if ($hasDefaultOption -and $i -eq $defaultIndex) { Write-Host ("  [{0}] {1} (current)" -f ($i + 1), $Options[$i].label) -ForegroundColor Green }
+            else { Write-Host ("  [{0}] {1}" -f ($i + 1), $Options[$i].label) }
+        }
+        if ($AllowManualEntry) { Write-Host '  [0] Enter manually' }
+    }
+    else { $AllowManualEntry = $true }
+    $range = if ($Options.Count) { "1-$($Options.Count)" } else { '' }
+    $prompt = if ($Options.Count) { "$Title - Enter selection ($range$(if ($AllowManualEntry) { ', 0 for manual entry' }), default: $(if ($hasDefaultOption) { $defaultIndex + 1 } else { 0 }))" } else { $ManualEntryPrompt }
+    while ($true) {
+        $sel = Read-Host $prompt
+        if ($Options.Count -and [string]::IsNullOrWhiteSpace($sel)) {
+            if ($hasDefaultOption) { return $Options[$defaultIndex].value }
+            $sel = '0'
+        }
+        if ($AllowManualEntry -and ($sel -eq '0' -or -not $Options.Count)) {
+            while ($true) {
+                $manual = if ($Options.Count) { Read-Host $ManualEntryPrompt } else { $sel }
+                if ([string]::IsNullOrWhiteSpace($manual)) { $manual = $default }
+                if ([string]::IsNullOrWhiteSpace($manual)) { Write-Host 'This field is required.' -ForegroundColor Red }
+                elseif ($ManualEntryValidator -and -not (& $ManualEntryValidator $manual)) { Write-Host $ManualEntryError -ForegroundColor Red }
+                else { return $manual }
+                if (-not $Options.Count) { $sel = Read-Host $ManualEntryPrompt }
+            }
+        }
+        $n = 0
+        if ([int]::TryParse($sel, [ref]$n) -and $n -ge 1 -and $n -le $Options.Count) { return $Options[$n - 1].value }
+        Write-Host 'Invalid selection, please try again.' -ForegroundColor Yellow
+    }
 }
 
 function Read-MLOpsInteractiveInput {
     param([Parameter(Mandatory)][string] $Path)
 
     $ask = {
-        param($prompt, $default, $choices)
-        while ($true) {
-            $hint = if ($choices) { " ($($choices -join '/'))" } else { '' }
-            $v = Read-Host "$prompt$hint [$default]"
-            if ([string]::IsNullOrWhiteSpace($v)) { $v = $default }
-            if (-not $choices -or $choices -contains $v) { return $v }
-            Write-Host "Choose one of: $($choices -join ', ')"
-        }
+        param($prompt, $default)
+        $v = Read-Host "$prompt [$default]"
+        if ([string]::IsNullOrWhiteSpace($v)) { $default } else { $v }
     }
     $scenarios = @(Get-MLOpsScenario)
-    $scenarios | ForEach-Object { Write-Host ("  {0,2}. {1,-28} {2}" -f $_.number, $_.id, $_.name) }
-    $sc = & $ask 'Scenario id' 'basic-public' @($scenarios.id)
-    $iac = & $ask 'IaC' 'terraform' @('terraform', 'bicep')
-    $cicd = & $ask 'CI/CD' 'github' @('github', 'azdo')
+    $sc = Read-MLOpsMenuSelection -Title 'Scenario' -OptionsTitle 'Available scenarios:' -DefaultValue 'basic-public' -Options @($scenarios | ForEach-Object { @{ label = "$($_.name) ($($_.id))"; value = $_.id } })
+    $iac = Read-MLOpsMenuSelection -Title 'Infrastructure as Code' -DefaultValue 'terraform' -Options @(@{ label = 'Terraform'; value = 'terraform' }, @{ label = 'Bicep'; value = 'bicep' })
+    $cicd = Read-MLOpsMenuSelection -Title 'CI/CD platform' -DefaultValue 'github' -Options @(@{ label = 'GitHub Actions'; value = 'github' }, @{ label = 'Azure DevOps'; value = 'azdo' })
     New-MLOpsInputFile -Scenario $sc -Path $Path -Iac $iac -Cicd $cicd -Force | Out-Null
 
-    $sub = ''; $ten = ''
-    if (Get-Command az -ErrorAction SilentlyContinue) {
-        $sub = (az account show --query id -o tsv --only-show-errors 2>$null); $ten = (az account show --query tenantId -o tsv --only-show-errors 2>$null)
-    }
-    $regions = @(Get-MLOpsRegionZoneInfo)
-    if ($regions.Count) {
-        Write-Host 'Regions (AZ = availability zones; the container registry and other zone-redundant resources need them):'
-        $regions | ForEach-Object { Write-Host ("  {0,-20} {1}" -f $_.name, $(if ($_.zones -gt 0) { "AZ x$($_.zones)" } else { 'no AZ' })) }
-    }
-    $project = & $ask 'Project name' 'myml' $null
-    $location = & $ask 'Azure region' 'eastus2' $(if ($regions.Count) { @($regions.name) } else { $null })
-    $picked = $regions | Where-Object name -eq $location
+    $ctx = Get-MLOpsAzureContext
+    if ($ctx.Regions.Count) { Write-Host "Found $($ctx.Subscriptions.Count) subscriptions and $($ctx.Regions.Count) regions" }
+    else { Write-Host 'Could not query Azure (az not installed or not signed in); enter values manually.' -ForegroundColor Yellow }
+    $project = & $ask 'Project name' 'myml'
+    $location = Read-MLOpsMenuSelection -Title 'Azure region' -OptionsTitle 'Available regions ([AZ] = availability zone support; zone-redundant resources need it):' -Options $ctx.Regions -DefaultValue 'eastus2' -AllowManualEntry -ManualEntryPrompt 'Enter region name (e.g. uksouth, eastus2)'
+    $picked = $ctx.Regions | Where-Object { $_.value -eq $location }
     if ($picked -and $picked.zones -eq 0) { Write-Warning "$location has no availability zones; zone-redundant options will not apply." }
+    $guid = { param($v) $v -match '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$' }
+    $subDefault = if ($ctx.SubscriptionId) { $ctx.SubscriptionId } else { '00000000-0000-0000-0000-000000000000' }
     $set = @{
         project_name = $project
         location = $location
-        subscription_id = (& $ask 'Subscription id' $(if ($sub) { $sub } else { '00000000-0000-0000-0000-000000000000' }) $null)
-        tenant_id = (& $ask 'Tenant id' $(if ($ten) { $ten } else { '00000000-0000-0000-0000-000000000000' }) $null)
+        subscription_id = (Read-MLOpsMenuSelection -Title 'Azure subscription' -OptionsTitle 'Available subscriptions:' -Options $ctx.Subscriptions -DefaultValue $subDefault -AllowManualEntry -ManualEntryPrompt 'Enter subscription ID' -ManualEntryValidator $guid -ManualEntryError 'Invalid GUID format (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).')
+        tenant_id = (& $ask 'Tenant id' $(if ($ctx.TenantId) { $ctx.TenantId } else { '00000000-0000-0000-0000-000000000000' }))
     }
-    if ($cicd -eq 'github') { $set['github_org'] = (& $ask 'GitHub org' 'my-org' $null); $set['github_repo'] = (& $ask 'GitHub repo' "$($set['project_name'])-mlops" $null) }
-    else { $set['azdo_org_url'] = (& $ask 'Azure DevOps org URL' 'https://dev.azure.com/my-org' $null); $set['azdo_project'] = (& $ask 'Azure DevOps project' 'my-project' $null) }
+    if ($cicd -eq 'github') { $set['github_org'] = (& $ask 'GitHub org' 'my-org'); $set['github_repo'] = (& $ask 'GitHub repo' "$($set['project_name'])-mlops") }
+    else { $set['azdo_org_url'] = (& $ask 'Azure DevOps org URL' 'https://dev.azure.com/my-org'); $set['azdo_project'] = (& $ask 'Azure DevOps project' 'my-project') }
     $text = Get-Content -Raw $Path
     foreach ($k in $set.Keys) { $text = [regex]::Replace($text, "(?m)^${k}:.*`$", { param($m) "${k}: $($set[$k])" }) }
     Set-Content -Path $Path -Value $text -NoNewline
