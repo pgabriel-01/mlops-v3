@@ -182,6 +182,9 @@ module "workspace" {
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
 
+  # Private endpoints and DNS zone groups live inside these modules; wait for all of them.
+  depends_on = [module.storage, module.key_vault, module.acr, module.app_insights]
+
   workspace_managed_network = {
     isolation_mode = local.managed_vnet ? local.isolation_mode[var.network_mode] : "Disabled"
     outbound_rules = {
