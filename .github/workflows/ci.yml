@@ -12,8 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Windows/macOS minutes cost 2x/10x, so run them on PRs, schedule and manual runs only
-        os: ${{ fromJSON(github.event_name == 'push' && '["ubuntu-latest"]' || '["ubuntu-latest","windows-latest","macos-latest"]') }}
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -36,8 +35,6 @@ jobs:
           }
           az bicep build --file out/bicep-github/infra/main.bicep
   matrix:
-    # 11 scenario jobs only on PRs, schedule and manual runs to save Actions minutes
-    if: github.event_name != 'push'
     name: ${{ matrix.scenario }} - ${{ matrix.id }}
     runs-on: ubuntu-latest
     strategy:
@@ -72,7 +69,7 @@ jobs:
           path: results
   report:
     needs: matrix
-    if: always() && github.event_name != 'push'
+    if: always()
     runs-on: ubuntu-latest
     permissions:
       contents: read
