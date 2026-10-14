@@ -169,7 +169,6 @@ module "workspace" {
   version                       = "[[versions.avm_tf.res-machinelearningservices-workspace]]"
   name                          = module.naming.machine_learning_workspace.name
   location                      = module.rg.location
-  # Derived from the id so the module reads the group after it exists, not at plan time.
   resource_group_name           = element(split("/", module.rg.resource_id), 4)
   storage_account               = { resource_id = module.storage.resource_id }
   key_vault                     = { resource_id = module.key_vault.resource_id }
