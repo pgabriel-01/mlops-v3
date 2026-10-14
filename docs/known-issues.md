@@ -72,7 +72,7 @@ New GitHub repositories issue ID-based subjects (`repo:owner@ownerId/repo@repoId
 
 ## Docs site (GitHub Pages)
 
-`pages.yml` only runs when the repository variable `PAGES_ENABLED` is `true`. Pages is not available for private repositories on every plan; enable it in Settings, then set the variable.
+`pages.yml` only runs when the repository variable `PAGES_ENABLED` is `true`. This repository is public, Pages is enabled (source: GitHub Actions) and the variable is set. For a fork or a private copy, enable Pages in Settings (private repositories need a paid plan), then set the variable.
 
 ## End-to-end workflow
 
