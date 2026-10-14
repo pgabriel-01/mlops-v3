@@ -43,6 +43,8 @@ Workloads are the models and pipelines that run on the platform. Each workload g
 
 See [run](run.md) and the [customisation options](options/_index.md) for more information.
 
+Questions or problems? See the [FAQ](faq/_index.md), [troubleshooting](troubleshooting.md), [advanced options](advanced.md) and [known issues](known-issues.md).
+
 To get started, look at the [quick start](getting-started.md) or the [bootstrap your environment](bootstrap.md) process.
 
 ## What gets created
