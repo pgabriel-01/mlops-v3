@@ -81,8 +81,10 @@ jobs:
           $suffix = 'e{0:x2}' -f ([int]'${{ github.run_number }}' % 240 + 16)   # unique per run: avoids soft-delete name collisions
           $suffix = $suffix.Substring(0, [Math]::Min(3, $suffix.Length)) + '${{ matrix.iac }}'.Substring(0, 1)   # iac letter keeps parallel Terraform/Bicep jobs from sharing resource names
           $null = New-MLOpsInputFile -Scenario ${{ matrix.id }} -Path in.yaml -Iac ${{ matrix.iac }} -Cicd github -Force
+          $proj = 'e2e${{ matrix.n }}' + $suffix.Substring(1)   # unique per run and IaC; soft-deleted AML workspaces block name reuse
+          "E2E_PROJECT=$proj" >> $env:GITHUB_ENV
           $y = Get-Content -Raw in.yaml
-          $y = $y -replace '(?m)^subscription_id:.*', 'subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}' -replace '(?m)^tenant_id:.*', 'tenant_id: ${{ secrets.AZURE_TENANT_ID }}' -replace '(?m)^project_name:.*', "project_name: e2e${{ matrix.n }}$($suffix.Substring(3))" -replace '(?m)^environments:.*', 'environments: [dev]'
+          $y = $y -replace '(?m)^subscription_id:.*', 'subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}' -replace '(?m)^tenant_id:.*', 'tenant_id: ${{ secrets.AZURE_TENANT_ID }}' -replace '(?m)^project_name:.*', "project_name: $proj" -replace '(?m)^environments:.*', 'environments: [dev]'
           Set-Content in.yaml ($y + "`nname_suffix: $suffix`nkeyvault_retention_days: 7`n")
           Deploy-MLOpsAccelerator -InputFile in.yaml -OutputPath out -SkipVersionCheck
       - name: Terraform plan
@@ -104,7 +106,7 @@ jobs:
       - name: Verify workspace
         if: needs.matrix.outputs.apply == 'true'
         run: |
-          rg=$(az group list --query "[?starts_with(name,'rg-e2e${{ matrix.n }}${{ matrix.iac == 'terraform' && 't' || 'b' }}-')].name | [0]" -o tsv)
+          rg=$(az group list --query "[?starts_with(name,'rg-${E2E_PROJECT}-')].name | [0]" -o tsv)
           test -n "$rg"
           az extension add -n ml -y -o none
           az ml workspace list -g "$rg" --query "[].name" -o tsv | grep -q .
@@ -114,5 +116,5 @@ jobs:
           if [ "${{ matrix.iac }}" = terraform ]; then
             terraform -chdir=out/infra destroy -auto-approve -input=false -var-file=envs/dev.tfvars || true
           fi
-          for rg in $(az group list --query "[?starts_with(name,'rg-e2e${{ matrix.n }}${{ matrix.iac == 'terraform' && 't' || 'b' }}-')].name" -o tsv); do az group delete -n "$rg" --yes --no-wait; done
-          for kv in $(az keyvault list-deleted --query "[?starts_with(name,'kv-e2e${{ matrix.n }}${{ matrix.iac == 'terraform' && 't' || 'b' }}-')].name" -o tsv); do az keyvault purge --name "$kv" --no-wait || true; done
+          for rg in $(az group list --query "[?starts_with(name,'rg-${E2E_PROJECT}-')].name" -o tsv); do az group delete -n "$rg" --yes --no-wait; done
+          for kv in $(az keyvault list-deleted --query "[?starts_with(name,'kv-${E2E_PROJECT}-')].name" -o tsv); do az keyvault purge --name "$kv" --no-wait || true; done
