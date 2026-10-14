@@ -73,3 +73,7 @@ Infra and bootstrap use AVM resource modules (Terraform registry `Azure/avm-res-
 
 ## Develop
 `Invoke-Pester ./tests`. Rendered output is additionally validated with `terraform validate`, `az bicep build` and the generated pytest (see `.github/workflows/ci.yml`).
+
+## License
+
+[MIT](LICENSE). Contributions follow [CONTRIBUTING.md](CONTRIBUTING.md); security reports go through [SECURITY.md](SECURITY.md).
