@@ -1,3 +1,8 @@
+---
+title: Scenarios
+weight: 20
+---
+
 # AML scenarios
 
 Pick one with `scenario:` in the inputs file. List them with `Get-MLOpsScenario`; scaffold an inputs file with
@@ -5,17 +10,17 @@ Pick one with `scenario:` in the inputs file. List them with `Get-MLOpsScenario`
 
 | # | Id | Network | Serving | Adds |
 |---|---|---|---|---|
-| 1 | `basic-public` | public | none | Workspace, storage, Key Vault, ACR, App Insights, CPU cluster, training pipeline |
-| 2 | `managed-vnet-internet` | managed VNet, internet outbound | online | Private endpoints, public access disabled |
-| 3 | `managed-vnet-approved` | managed VNet, approved outbound only | online | FQDN/service-tag allow-list (`allowed_outbound_fqdns`) |
-| 4 | `byo-vnet` | your VNet (created) | online | Spoke VNet, subnets, private DNS zones, private endpoints (`vnet_address_space`) |
-| 5 | `batch-scoring` | public | batch | Batch endpoint and deployment, nightly scoring workflow |
-| 6 | `online-bluegreen` | public | online (blue/green) | Deploy workflow shifts 10% then 100% of traffic and retires the old deployment |
-| 7 | `feature-store` | public | online | Managed feature store workspace |
-| 8 | `registry-promotion` | public | online | Shared AML registry in the first environment, `ml-promote` workflow, deploy from the registry |
-| 9 | `governance` | public | online | Diagnostics, budget alerts (`budget_amount`, `alert_emails`), lock, policy |
-| 10 | `genai-foundry` | public | none | AI Foundry hub, AI Services account and project |
-| 11 | `existing-platform` | existing subnet and DNS | online | Reuses `existing_platform` subnet, private DNS zones and Log Analytics; governance on |
+| 1 | [`basic-public`](01-basic-public.md) | public | none | Workspace, storage, Key Vault, ACR, App Insights, CPU cluster, training pipeline |
+| 2 | [`managed-vnet-internet`](02-managed-vnet-internet.md) | managed VNet, internet outbound | online | Private endpoints, public access disabled |
+| 3 | [`managed-vnet-approved`](03-managed-vnet-approved.md) | managed VNet, approved outbound only | online | FQDN/service-tag allow-list (`allowed_outbound_fqdns`) |
+| 4 | [`byo-vnet`](04-byo-vnet.md) | your VNet (created) | online | Spoke VNet, subnets, private DNS zones, private endpoints (`vnet_address_space`) |
+| 5 | [`batch-scoring`](05-batch-scoring.md) | public | batch | Batch endpoint and deployment, nightly scoring workflow |
+| 6 | [`online-bluegreen`](06-online-bluegreen.md) | public | online (blue/green) | Deploy workflow shifts 10% then 100% of traffic and retires the old deployment |
+| 7 | [`feature-store`](07-feature-store.md) | public | online | Managed feature store workspace |
+| 8 | [`registry-promotion`](08-registry-promotion.md) | public | online | Shared AML registry in the first environment, `ml-promote` workflow, deploy from the registry |
+| 9 | [`governance`](09-governance.md) | public | online | Diagnostics, budget alerts (`budget_amount`, `alert_emails`), lock, policy |
+| 10 | [`genai-foundry`](10-genai-foundry.md) | public | none | AI Foundry hub, AI Services account and project |
+| 11 | [`existing-platform`](11-existing-platform.md) | existing subnet and DNS | online | Reuses `existing_platform` subnet, private DNS zones and Log Analytics; governance on |
 
 ## Choosing a scenario
 
@@ -32,7 +37,7 @@ Pick one with `scenario:` in the inputs file. List them with `Get-MLOpsScenario`
 | Finance or audit needs budgets, policy and diagnostics | 9 `governance` | Low added cost |
 | You are building generative AI apps | 10 `genai-foundry` | Depends on the models you deploy |
 
-Costs are relative and exclude training compute and endpoint instance hours, which dominate once you deploy. The default is three environments (see [Environments and cost](parameter-checklist.md)); set two to cut the fixed cost.
+Costs are relative and exclude training compute and endpoint instance hours, which dominate once you deploy. The default is three environments (see [Environments and cost](../parameter-checklist.md)); set two to cut the fixed cost.
 
 !!! tip
     Start with 1, prove the pipeline end to end, then change `scenario` and regenerate. Decide the network mode early: switching it on an existing workspace is a larger change than adding serving or governance, and this has not been tested here.
@@ -41,17 +46,17 @@ Costs are relative and exclude training compute and endpoint instance hours, whi
 
 | # | Scenario | Fixed infrastructure / month | With one online instance per environment |
 |---|---|---:|---:|
-| 1 | `basic-public` | 60.83 | 60.83 |
-| 2 | `managed-vnet-internet` | 152.08 | 763.09 |
-| 3 | `managed-vnet-approved` | 2,889.58 | 3,500.59 |
-| 4 | `byo-vnet` | 272.92 | 883.93 |
-| 5 | `batch-scoring` | 60.83 | 60.83 |
-| 6 | `online-bluegreen` | 60.83 | 671.84 |
-| 7 | `feature-store` | 60.83 | 671.84 |
-| 8 | `registry-promotion` | 111.52 | 722.53 |
-| 9 | `governance` | 60.83 | 671.84 |
-| 10 | `genai-foundry` | 60.83 | 60.83 |
-| 11 | `existing-platform` | 261.58 | 872.59 |
+| 1 | [`basic-public`](01-basic-public.md) | 60.83 | 60.83 |
+| 2 | [`managed-vnet-internet`](02-managed-vnet-internet.md) | 152.08 | 763.09 |
+| 3 | [`managed-vnet-approved`](03-managed-vnet-approved.md) | 2,889.58 | 3,500.59 |
+| 4 | [`byo-vnet`](04-byo-vnet.md) | 272.92 | 883.93 |
+| 5 | [`batch-scoring`](05-batch-scoring.md) | 60.83 | 60.83 |
+| 6 | [`online-bluegreen`](06-online-bluegreen.md) | 60.83 | 671.84 |
+| 7 | [`feature-store`](07-feature-store.md) | 60.83 | 671.84 |
+| 8 | [`registry-promotion`](08-registry-promotion.md) | 111.52 | 722.53 |
+| 9 | [`governance`](09-governance.md) | 60.83 | 671.84 |
+| 10 | [`genai-foundry`](10-genai-foundry.md) | 60.83 | 60.83 |
+| 11 | [`existing-platform`](11-existing-platform.md) | 261.58 | 872.59 |
 
 Region **westus**, **USD**, **3** environments, retrieved 2026-10-13.
 

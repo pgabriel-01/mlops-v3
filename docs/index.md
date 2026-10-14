@@ -4,10 +4,12 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 
 | Phase | Page |
 |---|---|
-| 0. Prerequisites | [Prerequisites](prerequisites/index.md), [Parameter checklist](parameter-checklist.md) |
-| 1. Plan | [Scenarios](scenarios.md), [Data sources](data-sources.md) |
-| 2-4. Configure, generate, run | [Getting started](getting-started.md) |
-| Reference | [Gap analysis vs ALZ](alz-gap-analysis.md) |
+| 0. Planning | [Parameter checklist](parameter-checklist.md), [Data sources](data-sources.md), [Scenarios](scenarios/index.md) |
+| 1. Prerequisites | [Prerequisites](prerequisites/index.md) |
+| 2. Bootstrap | [Bootstrap](bootstrap.md) |
+| 3. Run | [Run](run.md) |
+| Customise | [Options](options/index.md) |
+| Reference | [Gap analysis vs ALZ](alz-gap-analysis.md), [Azure Verified Modules](reference/azure-verified-modules.md) |
 
 !!! warning "Status"
     Generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). It has not yet been applied to a live Azure subscription.

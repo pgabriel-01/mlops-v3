@@ -14,7 +14,7 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 | Phase | What you do | Details |
 |---|---|---|
 | 0. Prerequisites | Install PowerShell 7.4+, `powershell-yaml`, `az` (logged in), Terraform; set `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN` | [prerequisites](docs/prerequisites/index.md), [parameter-checklist.md](docs/parameter-checklist.md) |
-| 1. Plan | Pick a scenario, IaC, CI/CD and data source | [scenarios.md](docs/scenarios.md), [data-sources.md](docs/data-sources.md) |
+| 1. Plan | Pick a scenario, IaC, CI/CD and data source | [scenarios.md](docs/scenarios/index.md), [data-sources.md](docs/data-sources.md) |
 | 2. Configure | Generate an inputs file and edit it | `New-MLOpsInputFile` |
 | 3. Generate / bootstrap | Render the repo; with `-Deploy`, create state, identities and repo wiring | `Deploy-MLOpsAccelerator` |
 | 4. Run | Push the generated repo and run the CI/CD pipelines (infra, train, deploy) | [getting-started.md](docs/getting-started.md) |
@@ -51,7 +51,7 @@ For `-Deploy` you need `az` (logged in), `terraform`, plus `GITHUB_TOKEN` or `AZ
 
 ## Scenarios
 
-Eleven AML scenarios (public, managed VNet, BYO VNet, batch, blue/green, feature store, registry, governance, GenAI, existing platform) are described in [docs/scenarios.md](docs/scenarios.md); the input checklist is in [docs/parameter-checklist.md](docs/parameter-checklist.md).
+Eleven AML scenarios (public, managed VNet, BYO VNet, batch, blue/green, feature store, registry, governance, GenAI, existing platform) are described in [docs/scenarios/index.md](docs/scenarios/index.md); the input checklist is in [docs/parameter-checklist.md](docs/parameter-checklist.md).
 
 ```powershell
 Get-MLOpsScenario
