@@ -21,7 +21,7 @@ foreach ($sc in $scenarios) {
         $in = Join-Path $tmp "$name.yaml"
         $null = New-MLOpsInputFile -Scenario $sc.id -Path $in -Iac $flavour -Cicd $cicd -Force
         $r = @()
-        try { Deploy-MLOpsAccelerator -InputFile $in -OutputPath $d -SkipVersionCheck *>$null } catch { "${name}: GENFAIL $_"; $fail++; $rows += [pscustomobject]@{ scenario = "$($sc.number)-$($sc.id)"; iac = $flavour; cicd = $cicd; status = 'fail'; seconds = [int]$sw.Elapsed.TotalSeconds; checks = "generation failed: $_" }; continue }
+        try { Deploy-MLOpsAccelerator -InputFile $in -OutputPath $d -SkipVersionCheck *>$null } catch { "${name}: GENFAIL $_"; $fail++; $rows += [pscustomobject]@{ scenario = "$($sc.number)-$($sc.id)"; name = $sc.name; iac = $flavour; cicd = $cicd; status = 'fail'; seconds = [int]$sw.Elapsed.TotalSeconds; checks = "generation failed: $_" }; continue }
         $left = @(Get-ChildItem -Recurse -File $d | Where-Object { $_.Extension -in '.yml', '.tf', '.bicep', '.bicepparam', '.tfvars', '.md' } | Select-String '[[' -SimpleMatch).Count
         $r += "tokens=$left"; if ($left) { $fail++ }
         $doValidate = -not $Quick -or -not $quickDone[$flavour]
@@ -47,7 +47,7 @@ foreach ($sc in $scenarios) {
             $r += "bootstrap-$cicd validate=$(if($v){'FAIL'}else{'ok'}) fmt=$(if($f){'FAIL'}else{'ok'})"; if ($v -or $f) { $fail++ }
         }
         "${name}: $($r -join ' | ')"
-        $rows += [pscustomobject]@{ scenario = "$($sc.number)-$($sc.id)"; iac = $flavour; cicd = $cicd; status = $(if ($fail -gt $failBefore) { 'fail' } else { 'pass' }); seconds = [int]$sw.Elapsed.TotalSeconds; checks = ($r -join ' | ') }
+        $rows += [pscustomobject]@{ scenario = "$($sc.number)-$($sc.id)"; name = $sc.name; iac = $flavour; cicd = $cicd; status = $(if ($fail -gt $failBefore) { 'fail' } else { 'pass' }); seconds = [int]$sw.Elapsed.TotalSeconds; checks = ($r -join ' | ') }
     }
 }
 if ($ResultsPath) { ConvertTo-Json -InputObject @($rows) -Depth 4 | Set-Content $ResultsPath }

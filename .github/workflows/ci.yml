@@ -30,12 +30,23 @@ jobs:
           }
           az bicep build --file out/bicep-github/infra/main.bicep
   matrix:
-    name: scenario ${{ matrix.scenario }}
+    name: ${{ matrix.scenario }} - ${{ matrix.id }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        scenario: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        include:
+          - { scenario: 1, id: basic-public }
+          - { scenario: 2, id: managed-vnet-internet }
+          - { scenario: 3, id: managed-vnet-approved }
+          - { scenario: 4, id: byo-vnet }
+          - { scenario: 5, id: batch-scoring }
+          - { scenario: 6, id: online-bluegreen }
+          - { scenario: 7, id: feature-store }
+          - { scenario: 8, id: registry-promotion }
+          - { scenario: 9, id: governance }
+          - { scenario: 10, id: genai-foundry }
+          - { scenario: 11, id: existing-platform }
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
@@ -68,8 +79,8 @@ jobs:
         shell: pwsh
         run: |
           $rows = Get-ChildItem results -Filter *.json | ForEach-Object { Get-Content -Raw $_ | ConvertFrom-Json } | Sort-Object scenario, iac
-          $lines = @("## Scenario matrix results", "", "Commit ``$($env:GITHUB_SHA.Substring(0,7))``. Checks: render, no leftover tokens, ``terraform validate``/``fmt`` or ``bicep build``, bootstrap validate. No Azure deployment.", "", "| Scenario | IaC | CI/CD | Result | Time | Checks |", "|---|---|---|---|---|---|")
-          foreach ($r in $rows) { $lines += "| $($r.scenario) | $($r.iac) | $($r.cicd) | $(if ($r.status -eq 'pass') { ':white_check_mark: pass' } else { ':x: fail' }) | $($r.seconds)s | $($r.checks) |" }
+          $lines = @("## Scenario matrix results", "", "Commit ``$($env:GITHUB_SHA.Substring(0,7))``. Checks: render, no leftover tokens, ``terraform validate``/``fmt`` or ``bicep build``, bootstrap validate. No Azure deployment.", "", "| Scenario | Name | IaC | CI/CD | Result | Time | Checks |", "|---|---|---|---|---|---|---|")
+          foreach ($r in $rows) { $lines += "| $($r.scenario) | $($r.name) | $($r.iac) | $($r.cicd) | $(if ($r.status -eq 'pass') { ':white_check_mark: pass' } else { ':x: fail' }) | $($r.seconds)s | $($r.checks) |" }
           $failed = @($rows | Where-Object status -eq 'fail').Count
           $lines += "", "**$(@($rows).Count - $failed) of $(@($rows).Count) passed.**"
           if (-not $rows) { $lines += "No results were produced. Check the scenario jobs." }
