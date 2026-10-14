@@ -36,6 +36,8 @@ jobs:
           }
           az bicep build --file out/bicep-github/infra/main.bicep
   matrix:
+    # 11 scenario jobs only on PRs, schedule and manual runs to save Actions minutes
+    if: github.event_name != 'push'
     name: ${{ matrix.scenario }} - ${{ matrix.id }}
     runs-on: ubuntu-latest
     strategy:
@@ -70,7 +72,7 @@ jobs:
           path: results
   report:
     needs: matrix
-    if: always()
+    if: always() && github.event_name != 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
