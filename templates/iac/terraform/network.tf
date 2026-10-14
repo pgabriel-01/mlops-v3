@@ -18,14 +18,20 @@ locals {
     } : {}
   )
 
-  zone_ids = {
+  # Whether a zone exists is decided from known values only, so the private endpoint modules can
+  # evaluate length(private_dns_zone_resource_ids) at plan time while the zone IDs are still unknown.
+  zone_lists = {
     for k in keys(local.dns_domains) : k => (
-      var.existing_platform ? lookup(var.existing_dns_zones, k, "") : (local.create_vnet ? module.dns[k].resource_id : "")
+      var.existing_platform
+      ? (lookup(var.existing_dns_zones, k, "") == "" ? [] : [var.existing_dns_zones[k]])
+      : (local.create_vnet ? [module.dns[k].resource_id] : [])
     )
   }
-  zone_sets = {
-    for k, v in local.zone_ids : k => v == "" ? toset([]) : toset([v])
-  }
+  zone_sets     = { for k, v in local.zone_lists : k => toset(v) }
+  zone_sets_aml = toset(concat(local.zone_lists.aml_api, local.zone_lists.aml_notebooks))
+  zone_sets_genai = toset(var.genai ? concat(
+    local.zone_lists.cognitiveservices, local.zone_lists.openai, local.zone_lists.aiservices
+  ) : [])
 
   # Shared by every resource that supports diagnostic settings.
   diag_settings = var.governance ? {
