@@ -17,6 +17,26 @@ Pick one with `scenario:` in the inputs file. List them with `Get-MLOpsScenario`
 | 10 | `genai-foundry` | public | none | AI Foundry hub, AI Services account and project |
 | 11 | `existing-platform` | existing subnet and DNS | online | Reuses `existing_platform` subnet, private DNS zones and Log Analytics; governance on |
 
+## Choosing a scenario
+
+| Start here if... | Scenario | Relative fixed cost |
+|---|---|---|
+| You are learning or prototyping and data is not sensitive | 1 `basic-public` | Lowest |
+| You need real-time scoring with a REST endpoint | 6 `online-bluegreen` (safe rollouts) or 2-4 (private) | Low to medium |
+| Scoring runs on a schedule, not in real time | 5 `batch-scoring` | Low (compute only while running) |
+| Security requires no public access, and you have no existing network | 2 `managed-vnet-internet`, or 3 for locked-down egress | Medium; 3 adds a managed firewall, which is the largest fixed cost |
+| You must control the network yourself | 4 `byo-vnet` | Medium (private endpoints and DNS zones) |
+| A platform team already owns the subnet, DNS and Log Analytics | 11 `existing-platform` | Medium; reuses shared services |
+| Several teams share models across workspaces or environments | 8 `registry-promotion` | Low added cost |
+| You need reusable features across models | 7 `feature-store` | Low added cost |
+| Finance or audit needs budgets, policy and diagnostics | 9 `governance` | Low added cost |
+| You are building generative AI apps | 10 `genai-foundry` | Depends on the models you deploy |
+
+Costs are relative and exclude training compute and endpoint instance hours, which dominate once you deploy. The default is three environments (see [Environments and cost](parameter-checklist.md)); set two to cut the fixed cost.
+
+!!! tip
+    Start with 1, prove the pipeline end to end, then change `scenario` and regenerate. Decide the network mode early: switching it on an existing workspace is a larger change than adding serving or governance, and this has not been tested here.
+
 ## Notes
 
 - Network modes other than `public` disable public access; run the pipelines on self-hosted agents that can reach the private endpoints.
