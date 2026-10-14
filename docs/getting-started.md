@@ -18,8 +18,7 @@ Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./out -Deploy    # ge
 
 ## 3. Run
 
-Push `./out` to the repository, merge to `main` to deploy `infra/`, then run `ml-train` (phase 3) and `ml-deploy` (phase 4)
-(`ml-promote` for the registry scenario).
+See [Run](run.md) for pushing the project, approvals, running each pipeline, local runs and cleanup.
 
 ## Keeping current
 
