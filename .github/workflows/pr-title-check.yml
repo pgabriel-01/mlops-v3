@@ -1,0 +1,15 @@
+name: pr-title
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+permissions:
+  pull-requests: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conventional title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "$TITLE" | grep -Eq '^(feat|fix|docs|chore|ci|test|refactor|build|deps)(\([a-z0-9-]+\))?!?: .+' || { echo "PR title must look like 'feat: add x' (feat|fix|docs|chore|ci|test|refactor|build|deps)"; exit 1; }
