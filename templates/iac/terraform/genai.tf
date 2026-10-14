@@ -18,12 +18,8 @@ module "ai_services" {
 
   private_endpoints = local.byo_vnet ? {
     account = {
-      subnet_resource_id = local.pe_subnet_id
-      private_dns_zone_resource_ids = setunion(
-        local.zone_sets.cognitiveservices,
-        local.zone_sets.openai,
-        local.zone_sets.aiservices
-      )
+      subnet_resource_id            = local.pe_subnet_id
+      private_dns_zone_resource_ids = local.zone_sets_genai
     }
   } : {}
 
@@ -58,7 +54,7 @@ module "hub" {
   private_endpoints = local.byo_vnet ? {
     amlworkspace = {
       subnet_resource_id            = local.pe_subnet_id
-      private_dns_zone_resource_ids = setunion(local.zone_sets.aml_api, local.zone_sets.aml_notebooks)
+      private_dns_zone_resource_ids = local.zone_sets_aml
     }
   } : {}
 }
