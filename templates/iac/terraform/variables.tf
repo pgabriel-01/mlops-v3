@@ -92,6 +92,11 @@ variable "compute_max_nodes" {
   default = 4
 }
 
+variable "keyvault_retention_days" {
+  type    = number
+  default = 7
+}
+
 variable "budget_amount" {
   type    = number
   default = 0

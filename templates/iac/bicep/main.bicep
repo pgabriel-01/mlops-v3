@@ -25,6 +25,9 @@ param vnetAddressSpace string = '10.20.0.0/16'
 param allowedFqdns array = []
 param computeVmSize string = 'Standard_DS3_v2'
 param computeMaxNodes int = 4
+@minValue(7)
+@maxValue(90)
+param keyVaultRetentionDays int = 7
 param budgetAmount int = 0
 param alertEmails array = []
 param existingSubnetId string = ''
@@ -81,6 +84,7 @@ module workload 'workload.bicep' = {
     featureStore: featureStore
     computeVmSize: computeVmSize
     computeMaxNodes: computeMaxNodes
+    keyVaultRetentionDays: keyVaultRetentionDays
     registry: registry
     governance: governance
     policyMode: policyMode

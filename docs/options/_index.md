@@ -56,6 +56,7 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `policy_mode` | `audit` / `deny` / `none` | `audit` (`none` for scenario 11) | [Azure Policy](../policy/_index.md) |
 | `compute_vm_size` | string | `Standard_DS3_v2` | Training cluster and online endpoint VM size |
 | `compute_max_nodes` | integer | 4 | Training cluster maximum nodes |
+| `keyvault_retention_days` | integer | 7 | Key Vault soft-delete retention (7-90, fixed at creation) |
 | `budget_amount` | number | 500 | Scenarios 9, 11 |
 | `alert_emails` | list | `[]` | Scenarios 9, 11 |
 | `existing_platform` | object | | Scenario 11 |

@@ -89,11 +89,12 @@ Describe 'Generator' {
         It 'applies compute_vm_size and compute_max_nodes to IaC and the online deployment' {
             $f = Join-Path $TestDrive 'compute.yaml'
             New-MLOpsInputFile -Scenario managed-vnet-internet -Path $f | Out-Null
-            Set-Content $f ((Get-Content -Raw $f) + "compute_vm_size: Standard_E4s_v3`ncompute_max_nodes: 2`n")
+            Set-Content $f ((Get-Content -Raw $f) + "compute_vm_size: Standard_E4s_v3`ncompute_max_nodes: 2`nkeyvault_retention_days: 14`n")
             $o = Join-Path $TestDrive 'compute-out'
             Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
             Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'compute_vm_size\s+= "Standard_E4s_v3"'
             Get-Content -Raw (Join-Path $o 'mlops/azureml/online-deployment.yml') | Should -Match 'instance_type: Standard_E4s_v3'
+            Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'keyvault_retention_days\s+= 14'
         }
         It 'requires the adls object when data_source is adls' {
             $f = Join-Path $TestDrive 'adls-bad.yaml'

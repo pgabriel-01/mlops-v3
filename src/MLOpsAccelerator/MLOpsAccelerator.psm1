@@ -48,6 +48,7 @@ function Read-MLOpsInput {
     if (-not $data.ContainsKey('allowed_outbound_fqdns')) { $data['allowed_outbound_fqdns'] = @('pypi.org', 'files.pythonhosted.org', '*.anaconda.com', 'conda.anaconda.org') }
     if (-not $data.ContainsKey('compute_vm_size')) { $data['compute_vm_size'] = 'Standard_DS3_v2' }
     if (-not $data.ContainsKey('compute_max_nodes')) { $data['compute_max_nodes'] = 4 }
+    if (-not $data.ContainsKey('keyvault_retention_days')) { $data['keyvault_retention_days'] = 7 }
     if (-not $data.ContainsKey('budget_amount')) { $data['budget_amount'] = 500 }
     if (-not $data.ContainsKey('policy_mode')) { $data['policy_mode'] = $(if ($data['scenario'] -eq 'existing-platform') { 'none' } else { 'audit' }) }
     if (-not $data.ContainsKey('alert_emails')) { $data['alert_emails'] = @() }
@@ -175,6 +176,7 @@ function New-MLOpsTokenMap {
         vnet_address_space     = $Inputs['vnet_address_space']
         compute_vm_size        = [string]$Inputs['compute_vm_size']
         compute_max_nodes      = [string]$Inputs['compute_max_nodes']
+        keyvault_retention_days = [string]$Inputs['keyvault_retention_days']
         budget_amount          = [string]$Inputs['budget_amount']
         policy_mode            = $Inputs['policy_mode']
         policy_enabled         = (& $lc ($Inputs['policy_mode'] -ne 'none'))

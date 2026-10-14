@@ -12,6 +12,7 @@ param networkMode string
 param featureStore bool
 param computeVmSize string
 param computeMaxNodes int
+param keyVaultRetentionDays int
 param registry bool
 param governance bool
 @allowed(['audit', 'deny', 'none'])
@@ -182,7 +183,7 @@ module vault 'br/public:avm/res/key-vault/vault:[[versions.avm_bicep.res/key-vau
     sku: 'standard'
     enableRbacAuthorization: true
     enablePurgeProtection: true
-    softDeleteRetentionInDays: 7
+    softDeleteRetentionInDays: keyVaultRetentionDays
     publicNetworkAccess: access
     networkAcls: isPublic ? null : deny
     privateEndpoints: usePe ? [peFor(peSubnetId, 'vault', nonEmpty([zoneIds.vault]))] : []

@@ -15,6 +15,7 @@ vnet_address_space = "[[vnet_address_space]]"
 allowed_fqdns      = [[allowed_fqdns_hcl]]
 compute_vm_size    = "[[compute_vm_size]]"
 compute_max_nodes  = [[compute_max_nodes]]
+keyvault_retention_days = [[keyvault_retention_days]]
 budget_amount      = [[budget_amount]]
 alert_emails       = [[alert_emails_hcl]]
 existing_subnet_id = "[[existing_subnet_id]]"

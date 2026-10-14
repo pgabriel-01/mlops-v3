@@ -158,6 +158,13 @@
       "default": 4,
       "description": "Maximum nodes the training cluster scales out to (minimum is always 0)."
     },
+    "keyvault_retention_days": {
+      "type": "integer",
+      "minimum": 7,
+      "maximum": 90,
+      "default": 7,
+      "description": "Key Vault soft-delete retention in days. Fixed at creation. Purge protection stays on, so a destroyed vault name is reserved for this long."
+    },
     "budget_amount": {
       "type": "number",
       "minimum": 1,

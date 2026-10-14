@@ -16,6 +16,7 @@ param vnetAddressSpace = '[[vnet_address_space]]'
 param allowedFqdns = [[allowed_fqdns_bicep]]
 param computeVmSize = '[[compute_vm_size]]'
 param computeMaxNodes = [[compute_max_nodes]]
+param keyVaultRetentionDays = [[keyvault_retention_days]]
 param budgetAmount = [[budget_amount]]
 param alertEmails = [[alert_emails_bicep]]
 param existingSubnetId = '[[existing_subnet_id]]'

@@ -125,7 +125,7 @@ module "key_vault" {
   tenant_id                     = data.azurerm_client_config.current.tenant_id
   sku_name                      = "standard"
   purge_protection_enabled      = true
-  soft_delete_retention_days    = 7
+  soft_delete_retention_days    = var.keyvault_retention_days
   public_network_access_enabled = !local.private
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
