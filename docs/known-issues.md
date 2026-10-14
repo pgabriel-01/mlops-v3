@@ -50,3 +50,8 @@ Fairness, explainability and content-safety checks are not generated yet. See [R
 ## Feature store scenario is infrastructure only
 
 Scenario 7 creates the feature store workspace but no feature set, offline store or materialization, and the training pipeline does not use it. See [Managed feature store](scenarios/07-feature-store.md).
+
+## Live deployment coverage
+
+Only scenario 1 (basic-public, Terraform, `dev`) has been applied to a real subscription: 43 resources created, the compute cluster and both policy assignments confirmed, then destroyed cleanly. That run found and fixed two bugs (Standard container registry with zone redundancy; workspace module reading the resource group before it existed). The other scenarios, Bicep and the bootstrap are validated in CI but have not been deployed.
+

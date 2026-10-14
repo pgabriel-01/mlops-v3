@@ -198,6 +198,7 @@ module acr 'br/public:avm/res/container-registry/registry:[[versions.avm_bicep.r
     location: location
     acrSku: isPublic ? 'Standard' : 'Premium'
     acrAdminUserEnabled: false
+    zoneRedundancy: isPublic ? 'Disabled' : 'Enabled'
     publicNetworkAccess: access
     networkRuleBypassOptions: 'AzureServices'
     privateEndpoints: usePe ? [peFor(peSubnetId, 'registry', nonEmpty([zoneIds.acr]))] : []

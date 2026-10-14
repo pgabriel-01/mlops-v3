@@ -149,6 +149,7 @@ module "acr" {
   resource_group_name           = module.rg.name
   sku                           = local.private ? "Premium" : "Standard"
   admin_enabled                 = false
+  zone_redundancy_enabled       = local.private
   public_network_access_enabled = !local.private
   tags                          = local.tags
   enable_telemetry              = var.enable_telemetry
@@ -168,7 +169,8 @@ module "workspace" {
   version                       = "[[versions.avm_tf.res-machinelearningservices-workspace]]"
   name                          = module.naming.machine_learning_workspace.name
   location                      = module.rg.location
-  resource_group_name           = module.rg.name
+  # Derived from the id so the module reads the group after it exists, not at plan time.
+  resource_group_name           = element(split("/", module.rg.resource_id), 4)
   storage_account               = { resource_id = module.storage.resource_id }
   key_vault                     = { resource_id = module.key_vault.resource_id }
   container_registry            = { resource_id = module.acr.resource_id }

@@ -44,7 +44,8 @@ module "hub" {
   version                       = "[[versions.avm_tf.res-machinelearningservices-workspace]]"
   name                          = "hub-${var.project_name}-${var.environment}-${var.location_short}"
   location                      = module.rg.location
-  resource_group_name           = module.rg.name
+  # Derived from the id so the module reads the group after it exists, not at plan time.
+  resource_group_name           = element(split("/", module.rg.resource_id), 4)
   kind                          = "Hub"
   storage_account               = { resource_id = module.storage.resource_id }
   key_vault                     = { resource_id = module.key_vault.resource_id }
@@ -89,7 +90,8 @@ module "project" {
   version                       = "[[versions.avm_tf.res-machinelearningservices-workspace]]"
   name                          = "proj-${var.project_name}-${var.environment}-${var.location_short}"
   location                      = module.rg.location
-  resource_group_name           = module.rg.name
+  # Derived from the id so the module reads the group after it exists, not at plan time.
+  resource_group_name           = element(split("/", module.rg.resource_id), 4)
   kind                          = "Project"
   azure_ai_hub                  = { resource_id = module.hub[0].resource_id }
   managed_identities            = { system_assigned = true }
