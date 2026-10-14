@@ -5,3 +5,5 @@ scratch/
 _site/
 site/resources/
 .hugo_build.lock
+__pycache__/
+*.pyc
