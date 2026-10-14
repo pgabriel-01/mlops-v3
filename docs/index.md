@@ -2,14 +2,37 @@
 
 A PowerShell module that turns one inputs file into a ready-to-run Azure Machine Learning MLOps repository: bootstrap, infrastructure (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub Actions or Azure DevOps) and a training workload.
 
-| Phase | Page |
-|---|---|
-| 0. Planning | [Parameter checklist](parameter-checklist.md), [Data sources](data-sources.md), [Scenarios](scenarios/index.md) |
-| 1. Prerequisites | [Prerequisites](prerequisites/index.md) |
-| 2. Bootstrap | [Bootstrap](bootstrap.md) |
-| 3. Run | [Run](run.md) |
-| Customise | [Options](options/index.md) |
-| Reference | [Gap analysis vs ALZ](alz-gap-analysis.md), [Azure Verified Modules](reference/azure-verified-modules.md) |
+The accelerator follows four phases:
+
+0. [Planning](planning.md): optional decisions that map to `inputs.yaml`.
+1. [Prerequisites](prerequisites/index.md): tools, credentials, permissions and quota.
+2. [Bootstrap](bootstrap.md): run the PowerShell module to create the repository, identity and environments.
+3. [Run](run.md): push the generated project and deploy through CI/CD.
+
+Then [customise](options/index.md) it, or compare [scenarios](scenarios/index.md).
+
+## What gets created
+
+=== "GitHub"
+
+    - Azure: user-assigned managed identity with federated credentials, role assignments
+    - Private repository containing the generated project
+    - One GitHub environment per stage (`dev`, `test`, `prod`)
+    - Actions variables for subscription, tenant and identity
+    - Workflows: infra, ml-train, ml-deploy, ml-promote
+
+=== "Azure DevOps"
+
+    - Azure: user-assigned managed identity with federated credentials, role assignments
+    - Repository, environments and variable groups in your project
+    - Service connections using workload identity federation
+    - Pipeline definitions in `pipelines/` (register them manually)
+
+=== "Local files only"
+
+    - The generated project is written to disk; wire your own VCS and pipelines
+
+Each environment then deploys an Azure ML workspace with storage, key vault, container registry and monitoring. Private scenarios add networking.
 
 !!! warning "Status"
     Generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). It has not yet been applied to a live Azure subscription.

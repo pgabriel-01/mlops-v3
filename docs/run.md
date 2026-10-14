@@ -1,4 +1,4 @@
-# Phases 2-4 - Run
+# Phase 3 - Run
 
 Bootstrap has created the repository, identity and environments. Now push the generated project and run its pipelines.
 

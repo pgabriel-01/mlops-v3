@@ -1,4 +1,4 @@
-# Phase 0 - Prerequisites
+# Phase 1 - Prerequisites
 
 Work through the three steps, then continue to [Plan and configure](../getting-started.md). Run `Test-MLOpsAcceleratorRequirement` at any point to check the tools, sign-ins and tokens below.
 
