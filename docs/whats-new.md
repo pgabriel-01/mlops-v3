@@ -6,7 +6,7 @@ weight: 2
 Newest first. The accelerator has not had a tagged release yet, so everything is listed under a dated section. Releases will be tagged `v0.x.y` until the first gold release (`v1.0.0`), which requires all 11 scenarios to be verified live. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Partly applied to live Azure" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 3 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 4 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
 ## 2026-10-14
 
@@ -16,9 +16,13 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 - Bicep: public scenarios set explicit `Allow` network ACLs on storage, Key Vault and the container registry.
 - `e2e` workflow: re-logs in before verify and destroy because the OIDC token expires after about 5 minutes.
 
+### Fixed (Terraform, byo-vnet)
+
+- Private DNS zone counts are known at plan time, storage blob and file private endpoints have unique names, and the workspace, hub and compute cluster use `depends_on` so private endpoints exist first.
+
 ### Verified
 
-- Scenarios 1 to 3 applied, verified and destroyed live on Terraform and Bicep.
+- Scenarios 1 to 4 applied, verified and destroyed live on Terraform and Bicep.
 
 ## 2026-10-13
 
