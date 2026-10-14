@@ -6,11 +6,13 @@ weight: 2
 Newest first. The accelerator has not had a tagged release yet, so everything is listed under a dated section. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Not yet applied to live Azure" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). `tests/Invoke-E2E.ps1` has not been run against a subscription.
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). `tests/Invoke-E2E.ps1` has not been run against a subscription. Only scenario 1 (Terraform) has been deployed by hand; see [Known issues](known-issues.md).
 {{% /callout %}}
 ## 2026-10-13
 
 ### Added
+
+- The interactive prompt lists the regions in your subscription with their availability zone count, accepts only listed regions, and warns when the chosen region has no zones. Without `az` it falls back to free text.
 
 - **[Preview]** `policy_mode: audit | deny | none`: built-in Azure Policy guardrails on every environment resource group, documented under [Azure Policy](policy/_index.md). **[Important]** the bootstrap now grants the deploy identity *Resource Policy Contributor*; re-run the bootstrap for existing projects. The generated compute cluster now disables local authentication.
 - 11 AML scenarios on Terraform and Bicep, built on Azure Verified Modules: [Scenarios](scenarios/_index.md).

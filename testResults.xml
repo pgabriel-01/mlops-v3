@@ -1,86 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="45" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2026-10-13" time="22:28:07">
-  <environment cwd="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3" os-version="25.6.0" nunit-version="2.5.8.0" platform="Darwin" clr-version="8.0.10" user-domain="" machine-name="WorkPC.local" user="gabriel" />
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="9" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2026-10-13" time="22:31:41">
+  <environment platform="Darwin" clr-version="8.0.10" user-domain="" os-version="25.6.0" nunit-version="2.5.8.0" machine-name="WorkPC.local" cwd="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3" user="gabriel" />
   <culture-info current-culture="en-US" current-uiculture="en-US" />
-  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="38.3867" asserts="0" description="Pester">
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="25.083" asserts="0" description="Pester">
     <results>
-      <test-suite type="TestFixture" name="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3/tests/Render.Tests.ps1" executed="True" result="Success" success="True" time="13.1881" asserts="0" description="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3/tests/Render.Tests.ps1">
+      <test-suite type="TestFixture" name="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3/tests/Workflow.Tests.ps1" executed="True" result="Success" success="True" time="25.083" asserts="0" description="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3/tests/Workflow.Tests.ps1">
         <results>
-          <test-suite type="TestFixture" name="Generator" executed="True" result="Success" success="True" time="12.5673" asserts="0" description="Generator">
+          <test-suite type="TestFixture" name="Requirements check" executed="True" result="Success" success="True" time="21.3787" asserts="0" description="Requirements check">
             <results>
-              <test-suite type="TestFixture" name="Generator.Scenarios" executed="True" result="Success" success="True" time="12.4655" asserts="0" description="Generator.Scenarios">
-                <results>
-                  <test-case description="has 11 scenarios with unique ids" name="Generator.Scenarios.has 11 scenarios with unique ids" time="0.0353" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="renders an identity-based ADLS datastore when data_source is adls" name="Generator.Scenarios.renders an identity-based ADLS datastore when data_source is adls" time="0.2767" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="requires the adls object when data_source is adls" name="Generator.Scenarios.requires the adls object when data_source is adls" time="0.0664" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="defaults policy_mode to audit, none for existing-platform, and honours deny" name="Generator.Scenarios.defaults policy_mode to audit, none for existing-platform, and honours deny" time="0.8549" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="rejects an invalid policy_mode" name="Generator.Scenarios.rejects an invalid policy_mode" time="0.0459" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="requires existing_platform for the existing-platform scenario" name="Generator.Scenarios.requires existing_platform for the existing-platform scenario" time="0.0516" asserts="0" success="True" result="Success" executed="True" />
-                  <test-suite type="ParameterizedTest" name="Generator.Scenarios.renders scenario &lt;id&gt; for &lt;iac&gt; with the expected files" executed="True" result="Success" success="True" time="7.8446" asserts="0" description="renders scenario &lt;id&gt; for &lt;iac&gt; with the expected files">
-                    <results>
-                      <test-case description="renders scenario basic-public for terraform with the expected files" name="Generator.Scenarios.renders scenario basic-public for terraform with the expected files" time="0.4088" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario basic-public for bicep with the expected files" name="Generator.Scenarios.renders scenario basic-public for bicep with the expected files" time="0.356" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario managed-vnet-internet for terraform with the expected files" name="Generator.Scenarios.renders scenario managed-vnet-internet for terraform with the expected files" time="0.3764" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario managed-vnet-internet for bicep with the expected files" name="Generator.Scenarios.renders scenario managed-vnet-internet for bicep with the expected files" time="0.3453" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario managed-vnet-approved for terraform with the expected files" name="Generator.Scenarios.renders scenario managed-vnet-approved for terraform with the expected files" time="0.4335" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario managed-vnet-approved for bicep with the expected files" name="Generator.Scenarios.renders scenario managed-vnet-approved for bicep with the expected files" time="0.3711" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario byo-vnet for terraform with the expected files" name="Generator.Scenarios.renders scenario byo-vnet for terraform with the expected files" time="0.4002" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario byo-vnet for bicep with the expected files" name="Generator.Scenarios.renders scenario byo-vnet for bicep with the expected files" time="0.3273" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario batch-scoring for terraform with the expected files" name="Generator.Scenarios.renders scenario batch-scoring for terraform with the expected files" time="0.3692" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario batch-scoring for bicep with the expected files" name="Generator.Scenarios.renders scenario batch-scoring for bicep with the expected files" time="0.3431" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario online-bluegreen for terraform with the expected files" name="Generator.Scenarios.renders scenario online-bluegreen for terraform with the expected files" time="0.3911" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario online-bluegreen for bicep with the expected files" name="Generator.Scenarios.renders scenario online-bluegreen for bicep with the expected files" time="0.3255" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario feature-store for terraform with the expected files" name="Generator.Scenarios.renders scenario feature-store for terraform with the expected files" time="0.3649" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario feature-store for bicep with the expected files" name="Generator.Scenarios.renders scenario feature-store for bicep with the expected files" time="0.3084" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario registry-promotion for terraform with the expected files" name="Generator.Scenarios.renders scenario registry-promotion for terraform with the expected files" time="0.3836" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario registry-promotion for bicep with the expected files" name="Generator.Scenarios.renders scenario registry-promotion for bicep with the expected files" time="0.3313" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario governance for terraform with the expected files" name="Generator.Scenarios.renders scenario governance for terraform with the expected files" time="0.374" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario governance for bicep with the expected files" name="Generator.Scenarios.renders scenario governance for bicep with the expected files" time="0.311" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario genai-foundry for terraform with the expected files" name="Generator.Scenarios.renders scenario genai-foundry for terraform with the expected files" time="0.3329" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario genai-foundry for bicep with the expected files" name="Generator.Scenarios.renders scenario genai-foundry for bicep with the expected files" time="0.2909" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario existing-platform for terraform with the expected files" name="Generator.Scenarios.renders scenario existing-platform for terraform with the expected files" time="0.3698" asserts="0" success="True" result="Success" executed="True" />
-                      <test-case description="renders scenario existing-platform for bicep with the expected files" name="Generator.Scenarios.renders scenario existing-platform for bicep with the expected files" time="0.3303" asserts="0" success="True" result="Success" executed="True" />
-                    </results>
-                  </test-suite>
-                </results>
-              </test-suite>
-              <test-case description="rejects invalid input" name="Generator.rejects invalid input" time="0.0973" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="refuses a non-empty output folder" name="Generator.refuses a non-empty output folder" time="0.069" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="uses only AVM/utility module sources in Terraform infra" name="Generator.uses only AVM/utility module sources in Terraform infra" time="0.3138" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="uses AVM registry modules in Bicep infra" name="Generator.uses AVM registry modules in Bicep infra" time="0.2761" asserts="0" success="True" result="Success" executed="True" />
-              <test-suite type="ParameterizedTest" name="Generator.renders &lt;iac&gt;/&lt;cicd&gt; with no unresolved tokens" executed="True" result="Success" success="True" time="1.8563" asserts="0" description="renders &lt;iac&gt;/&lt;cicd&gt; with no unresolved tokens">
-                <results>
-                  <test-case description="renders terraform/github with no unresolved tokens" name="Generator.renders terraform/github with no unresolved tokens" time="0.9499" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="renders terraform/azdo with no unresolved tokens" name="Generator.renders terraform/azdo with no unresolved tokens" time="0.3312" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="renders bicep/github with no unresolved tokens" name="Generator.renders bicep/github with no unresolved tokens" time="0.3061" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="renders bicep/azdo with no unresolved tokens" name="Generator.renders bicep/azdo with no unresolved tokens" time="0.269" asserts="0" success="True" result="Success" executed="True" />
-                </results>
-              </test-suite>
+              <test-case description="returns named checks with Passed and Required" name="Requirements check.returns named checks with Passed and Required" time="12.2975" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="checks the Azure DevOps token for azdo" name="Requirements check.checks the Azure DevOps token for azdo" time="9.0324" asserts="0" success="True" result="Success" executed="True" />
             </results>
           </test-suite>
-        </results>
-      </test-suite>
-      <test-suite type="TestFixture" name="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3/tests/Workflow.Tests.ps1" executed="True" result="Success" success="True" time="25.1986" asserts="0" description="/Users/gabriel/.copilot/chats/2026-10-13/literate-meme-48f5bae8/mlops-v3/tests/Workflow.Tests.ps1">
-        <results>
-          <test-suite type="TestFixture" name="Requirements check" executed="True" result="Success" success="True" time="22.6355" asserts="0" description="Requirements check">
+          <test-suite type="TestFixture" name="Upgrade and cleanup guards" executed="True" result="Success" success="True" time="22.5414" asserts="0" description="Upgrade and cleanup guards">
             <results>
-              <test-case description="returns named checks with Passed and Required" name="Requirements check.returns named checks with Passed and Required" time="13.491" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="checks the Azure DevOps token for azdo" name="Requirements check.checks the Azure DevOps token for azdo" time="9.1402" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="emits LF-only text files (pipelines run on Linux agents)" name="Upgrade and cleanup guards.emits LF-only text files (pipelines run on Linux agents)" time="0.0799" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="refuses a non-empty folder without -Force or -Upgrade" name="Upgrade and cleanup guards.refuses a non-empty folder without -Force or -Upgrade" time="0.0747" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="regenerates an existing project with -Upgrade" name="Upgrade and cleanup guards.regenerates an existing project with -Upgrade" time="0.2601" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="rejects -Upgrade on a folder that is not a project" name="Upgrade and cleanup guards.rejects -Upgrade on a folder that is not a project" time="0.0357" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Remove-MLOpsAccelerator rejects a non-project folder" name="Upgrade and cleanup guards.Remove-MLOpsAccelerator rejects a non-project folder" time="0.0333" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Remove-MLOpsAccelerator honours -WhatIf" name="Upgrade and cleanup guards.Remove-MLOpsAccelerator honours -WhatIf" time="0.0301" asserts="0" success="True" result="Success" executed="True" />
             </results>
           </test-suite>
-          <test-suite type="TestFixture" name="Upgrade and cleanup guards" executed="True" result="Success" success="True" time="23.2703" asserts="0" description="Upgrade and cleanup guards">
+          <test-suite type="TestFixture" name="Interactive input" executed="True" result="Success" success="True" time="24.5975" asserts="0" description="Interactive input">
             <results>
-              <test-case description="emits LF-only text files (pipelines run on Linux agents)" name="Upgrade and cleanup guards.emits LF-only text files (pipelines run on Linux agents)" time="0.0416" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="refuses a non-empty folder without -Force or -Upgrade" name="Upgrade and cleanup guards.refuses a non-empty folder without -Force or -Upgrade" time="0.0294" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="regenerates an existing project with -Upgrade" name="Upgrade and cleanup guards.regenerates an existing project with -Upgrade" time="0.2027" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="rejects -Upgrade on a folder that is not a project" name="Upgrade and cleanup guards.rejects -Upgrade on a folder that is not a project" time="0.0288" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="Remove-MLOpsAccelerator rejects a non-project folder" name="Upgrade and cleanup guards.Remove-MLOpsAccelerator rejects a non-project folder" time="0.0238" asserts="0" success="True" result="Success" executed="True" />
-              <test-case description="Remove-MLOpsAccelerator honours -WhatIf" name="Upgrade and cleanup guards.Remove-MLOpsAccelerator honours -WhatIf" time="0.0235" asserts="0" success="True" result="Success" executed="True" />
-            </results>
-          </test-suite>
-          <test-suite type="TestFixture" name="Interactive input" executed="True" result="Success" success="True" time="25.136" asserts="0" description="Interactive input">
-            <results>
-              <test-case description="writes an inputs file from prompts" name="Interactive input.writes an inputs file from prompts" time="1.8629" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="writes an inputs file from prompts" name="Interactive input.writes an inputs file from prompts" time="2.0506" asserts="0" success="True" result="Success" executed="True" />
             </results>
           </test-suite>
         </results>

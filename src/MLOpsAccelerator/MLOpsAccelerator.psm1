@@ -509,6 +509,15 @@ function Grant-MLOpsStorageAccess {
     }
 }
 
+function Get-MLOpsRegionZoneInfo {
+    # Physical regions and their availability zone count, from the signed-in subscription. Empty when az is unavailable.
+    if (-not (Get-Command az -ErrorAction SilentlyContinue)) { return @() }
+    $q = "[?metadata.regionType=='Physical'].{name:name,zones:length(availabilityZoneMappings||``[]``)}"
+    $json = az account list-locations --query $q -o json --only-show-errors 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $json) { return @() }
+    @($json | ConvertFrom-Json | Sort-Object name)
+}
+
 function Read-MLOpsInteractiveInput {
     param([Parameter(Mandatory)][string] $Path)
 
@@ -533,9 +542,18 @@ function Read-MLOpsInteractiveInput {
     if (Get-Command az -ErrorAction SilentlyContinue) {
         $sub = (az account show --query id -o tsv --only-show-errors 2>$null); $ten = (az account show --query tenantId -o tsv --only-show-errors 2>$null)
     }
+    $regions = @(Get-MLOpsRegionZoneInfo)
+    if ($regions.Count) {
+        Write-Host 'Regions (AZ = availability zones; the container registry and other zone-redundant resources need them):'
+        $regions | ForEach-Object { Write-Host ("  {0,-20} {1}" -f $_.name, $(if ($_.zones -gt 0) { "AZ x$($_.zones)" } else { 'no AZ' })) }
+    }
+    $project = & $ask 'Project name' 'myml' $null
+    $location = & $ask 'Azure region' 'eastus2' $(if ($regions.Count) { @($regions.name) } else { $null })
+    $picked = $regions | Where-Object name -eq $location
+    if ($picked -and $picked.zones -eq 0) { Write-Warning "$location has no availability zones; zone-redundant options will not apply." }
     $set = @{
-        project_name = (& $ask 'Project name' 'myml' $null)
-        location = (& $ask 'Azure region' 'eastus2' $null)
+        project_name = $project
+        location = $location
         subscription_id = (& $ask 'Subscription id' $(if ($sub) { $sub } else { '00000000-0000-0000-0000-000000000000' }) $null)
         tenant_id = (& $ask 'Tenant id' $(if ($ten) { $ten } else { '00000000-0000-0000-0000-000000000000' }) $null)
     }

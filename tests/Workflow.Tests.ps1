@@ -53,6 +53,7 @@ Describe 'Interactive input' {
     It 'writes an inputs file from prompts' {
         $script:answers = [System.Collections.Queue]::new(@('managed-vnet-approved', 'bicep', 'azdo', 'demo', 'westus3', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'https://dev.azure.com/acme', 'proj'))
         Mock Read-Host { $script:answers.Dequeue() } -ModuleName MLOpsAccelerator
+        Mock Get-MLOpsRegionZoneInfo { @([pscustomobject]@{ name = 'eastus2'; zones = 3 }, [pscustomobject]@{ name = 'westus3'; zones = 3 }, [pscustomobject]@{ name = 'noazregion'; zones = 0 }) } -ModuleName MLOpsAccelerator
         $f = Join-Path $TestDrive 'ix.yaml'
         InModuleScope MLOpsAccelerator -Parameters @{ f = $f } { Read-MLOpsInteractiveInput -Path $f | Out-Null }
         Test-MLOpsAcceleratorInput -InputFile $f | Should -BeTrue
