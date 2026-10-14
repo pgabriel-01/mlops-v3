@@ -29,6 +29,65 @@ jobs:
             terraform "-chdir=$d" init -backend=false; terraform "-chdir=$d" validate; if ($LASTEXITCODE) { exit 1 }
           }
           az bicep build --file out/bicep-github/infra/main.bicep
+  matrix:
+    name: scenario ${{ matrix.scenario }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - shell: pwsh
+        run: Install-PSResource powershell-yaml -TrustRepository
+      - name: Render and validate (Terraform and Bicep)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory results | Out-Null
+          ./tests/Invoke-ScenarioMatrix.ps1 -Scenario ${{ matrix.scenario }} -ResultsPath results/${{ matrix.scenario }}.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: results-${{ matrix.scenario }}
+          path: results
+  report:
+    needs: matrix
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: results-*
+          merge-multiple: true
+          path: results
+      - name: Build report
+        shell: pwsh
+        run: |
+          $rows = Get-ChildItem results -Filter *.json | ForEach-Object { Get-Content -Raw $_ | ConvertFrom-Json } | Sort-Object scenario, iac
+          $lines = @("## Scenario matrix results", "", "Commit ``$($env:GITHUB_SHA.Substring(0,7))``. Checks: render, no leftover tokens, ``terraform validate``/``fmt`` or ``bicep build``, bootstrap validate. No Azure deployment.", "", "| Scenario | IaC | CI/CD | Result | Time | Checks |", "|---|---|---|---|---|---|")
+          foreach ($r in $rows) { $lines += "| $($r.scenario) | $($r.iac) | $($r.cicd) | $(if ($r.status -eq 'pass') { ':white_check_mark: pass' } else { ':x: fail' }) | $($r.seconds)s | $($r.checks) |" }
+          $failed = @($rows | Where-Object status -eq 'fail').Count
+          $lines += "", "**$(@($rows).Count - $failed) of $(@($rows).Count) passed.**"
+          if (-not $rows) { $lines += "No results were produced. Check the scenario jobs." }
+          $lines -join "`n" | Set-Content report.md
+          Get-Content report.md >> $env:GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v7
+        with:
+          name: matrix-report
+          path: report.md
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '<!-- matrix-report -->'; cat report.md; } > body.md
+          id=$(gh api repos/${{ github.repository }}/issues/${{ github.event.number }}/comments --jq '[.[] | select(.body | startswith("<!-- matrix-report -->"))][0].id // empty')
+          if [ -n "$id" ]; then gh api -X PATCH repos/${{ github.repository }}/issues/comments/$id -F body=@body.md
+          else gh pr comment ${{ github.event.number }} --repo ${{ github.repository }} --body-file body.md; fi
   docs:
     runs-on: ubuntu-latest
     steps:

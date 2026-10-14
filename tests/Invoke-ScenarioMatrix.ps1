@@ -3,23 +3,25 @@
 #   -Quick         validate only one Terraform and one Bicep scenario (render everything)
 #   -Scenario id   limit to a scenario id or number
 #   -Iac terraform|bicep   limit to one IaC flavour
-param([switch]$Quick, [string] $Scenario, [ValidateSet('terraform', 'bicep')][string] $Iac)
+#   -ResultsPath file.json  also write machine-readable results (used by CI for the report)
+param([switch]$Quick, [string] $Scenario, [ValidateSet('terraform', 'bicep')][string] $Iac, [string] $ResultsPath)
 Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1 -Force
 $tmp = [IO.Path]::GetTempPath()
 $env:TF_PLUGIN_CACHE_DIR = Join-Path $tmp "tfcache"; New-Item -ItemType Directory -Force $env:TF_PLUGIN_CACHE_DIR | Out-Null
 $scenarios = Get-MLOpsScenario
 if ($Scenario) { $scenarios = @(Get-MLOpsScenario -Scenario $Scenario) }
 $iacs = if ($Iac) { @($Iac) } else { @('terraform', 'bicep') }
-$validatedBootstrap = @{}; $quickDone = @{}; $fail = 0; $i = 0
+$validatedBootstrap = @{}; $quickDone = @{}; $fail = 0; $i = 0; $rows = @(); $sw = [Diagnostics.Stopwatch]::new()
 foreach ($sc in $scenarios) {
     foreach ($flavour in $iacs) {
+        $sw.Restart(); $failBefore = $fail
         $cicd = if (($i++ % 2) -eq 0) { 'github' } else { 'azdo' }
         $name = "$($sc.number)-$($sc.id)-$flavour-$cicd"
         $d = Join-Path $tmp "m-$name"; Remove-Item -Recurse -Force $d -EA SilentlyContinue
         $in = Join-Path $tmp "$name.yaml"
         $null = New-MLOpsInputFile -Scenario $sc.id -Path $in -Iac $flavour -Cicd $cicd -Force
         $r = @()
-        try { Deploy-MLOpsAccelerator -InputFile $in -OutputPath $d -SkipVersionCheck *>$null } catch { "${name}: GENFAIL $_"; $fail++; continue }
+        try { Deploy-MLOpsAccelerator -InputFile $in -OutputPath $d -SkipVersionCheck *>$null } catch { "${name}: GENFAIL $_"; $fail++; $rows += [pscustomobject]@{ scenario = "$($sc.number)-$($sc.id)"; iac = $flavour; cicd = $cicd; status = 'fail'; seconds = [int]$sw.Elapsed.TotalSeconds; checks = "generation failed: $_" }; continue }
         $left = @(Get-ChildItem -Recurse -File $d | Where-Object { $_.Extension -in '.yml', '.tf', '.bicep', '.bicepparam', '.tfvars', '.md' } | Select-String '[[' -SimpleMatch).Count
         $r += "tokens=$left"; if ($left) { $fail++ }
         $doValidate = -not $Quick -or -not $quickDone[$flavour]
@@ -45,6 +47,8 @@ foreach ($sc in $scenarios) {
             $r += "bootstrap-$cicd validate=$(if($v){'FAIL'}else{'ok'}) fmt=$(if($f){'FAIL'}else{'ok'})"; if ($v -or $f) { $fail++ }
         }
         "${name}: $($r -join ' | ')"
+        $rows += [pscustomobject]@{ scenario = "$($sc.number)-$($sc.id)"; iac = $flavour; cicd = $cicd; status = $(if ($fail -gt $failBefore) { 'fail' } else { 'pass' }); seconds = [int]$sw.Elapsed.TotalSeconds; checks = ($r -join ' | ') }
     }
 }
+if ($ResultsPath) { ConvertTo-Json -InputObject @($rows) -Depth 4 | Set-Content $ResultsPath }
 if ($fail) { "FAILED: $fail check(s)"; exit 1 } else { 'ALL OK' }
