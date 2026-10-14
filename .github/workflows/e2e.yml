@@ -88,7 +88,7 @@ jobs:
       - name: Terraform plan
         if: matrix.iac == 'terraform'
         run: |
-          terraform -chdir=out/infra init -input=false
+          terraform -chdir=out/infra init -input=false -backend=false
           terraform -chdir=out/infra plan -input=false -var-file=envs/dev.tfvars -out=dev.tfplan
       - name: Bicep what-if
         if: matrix.iac == 'bicep'
