@@ -5,13 +5,50 @@ PowerShell module `Deploy-MLOpsAccelerator` (`src/MLOpsAccelerator`) that render
 ## Architecture
 
 ```mermaid
-graph TD
-    In["inputs.yaml<br/>(schema/inputs.schema.json)"] --> Mod["MLOpsAccelerator module<br/>Deploy-MLOpsAccelerator"]
-    Mod --> Man["templates/manifest.json<br/>+ scenarios.json + versions.lock.json"]
-    Man --> Boot["bootstrap/<br/>state, OIDC identities, repo and environments"]
-    Man --> Iac["infra/<br/>Terraform or Bicep on AVM"]
-    Man --> Cicd["CI/CD<br/>GitHub Actions or Azure DevOps"]
-    Man --> Wl["workload/<br/>src, mlops/azureml, tests"]
+flowchart LR
+    subgraph IN["Inputs"]
+        direction TB
+        A["inputs.yaml"]
+        B["inputs.schema.json"]
+    end
+
+    subgraph ENG["Accelerator engine"]
+        direction TB
+        C["MLOpsAccelerator module<br/>Deploy-MLOpsAccelerator"]
+        D["templates/manifest.json<br/>scenarios.json<br/>versions.lock.json"]
+    end
+
+    subgraph OUT["Generated project"]
+        direction TB
+        E["bootstrap/<br/>State, OIDC identities,<br/>repository, environments"]
+        F["infra/<br/>Terraform or Bicep<br/>Azure Verified Modules"]
+        G["CI/CD<br/>GitHub Actions or<br/>Azure DevOps"]
+        H["workload/<br/>src, mlops/azureml, tests"]
+    end
+
+    subgraph AZ["Azure"]
+        direction TB
+        I["Remote state and<br/>managed identities"]
+        J["Azure Machine Learning<br/>workspace and dependencies"]
+    end
+
+    A --> C
+    B -. validates .-> C
+    C --> D
+    D --> E & F & G & H
+    E -->|"applied once"| I
+    G -->|"deploys per environment"| F
+    F --> J
+    H -->|"pipelines run on"| J
+
+    classDef input fill:#e8f1fb,stroke:#0f6cbd,color:#0b3a66
+    classDef engine fill:#eef6ee,stroke:#2e7d32,color:#1b4d1f
+    classDef output fill:#fff6e5,stroke:#b26a00,color:#5c3700
+    classDef azure fill:#f3ecfa,stroke:#6b3fa0,color:#3a1f5c
+    class A,B input
+    class C,D engine
+    class E,F,G,H output
+    class I,J azure
 ```
 
 Deployment flow: inputs file, then render, then bootstrap (once), then infra per environment through the pipelines, then workload pipelines. Phases map to the docs: 0 Planning, 1 Prerequisites, 2 Bootstrap, 3 Run.
