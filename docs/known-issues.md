@@ -72,7 +72,7 @@ The `e2e.yml` workflow applies a scenario, checks the workspace exists, then des
 
 Live runs found and fixed these problems: Terraform zone sets that were unknown at plan time, duplicate storage private endpoint names, compute created before the workspace private endpoint (now explicit `depends_on`), Standard ACR rejecting the default `Deny` network action, storage and Key Vault needing explicit `Allow` ACLs for public scenarios, a Terraform conditional with mismatched object types for the managed network, and the OIDC token expiring during long applies.
 
-Not verified live: the bootstrap apply, private runners and private state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment.
+The GitHub and Terraform bootstrap apply is verified live (46 resources, October 15, 2026). A pipeline run after it failed at `terraform init` with the 403 described below, because the test subscription's policy turns state storage public access off. Not verified live: the Bicep and Azure DevOps bootstraps, private runners and private state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment.
 
 ## Soft-deleted names and managed-network rules
 

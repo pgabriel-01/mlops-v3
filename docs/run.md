@@ -58,9 +58,11 @@ az login --tenant <tenant-id> --use-device-code
 az account set --subscription <subscription-id>
 # Terraform
 terraform -chdir=infra init -backend-config="..."   # see the init step in infra.yml for the values
-terraform -chdir=infra plan -var-file=envs/dev.tfvars -out=dev.tfplan
+terraform -chdir=infra plan '-var-file=envs/dev.tfvars' '-out=dev.tfplan'
 terraform -chdir=infra apply dev.tfplan
 ```
+
+The `-var-file` and `-out` arguments are quoted because PowerShell splits an unquoted `-name=value` argument at the equals sign. Bash accepts either form.
 
 For Bicep use `az deployment group what-if` then `create` with the generated `.bicepparam`. There is no `deploy-local.ps1` yet.
 
