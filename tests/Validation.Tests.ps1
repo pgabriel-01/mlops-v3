@@ -90,3 +90,16 @@ Describe 'Input validation' {
         }
     }
 }
+
+Describe 'workload_type' {
+    It 'rejects a reserved workload name' {
+        { Test-MLOpsAcceleratorInput -InputFile (New-Case 'basic-public' "workloads: [src, fraud]") } | Should -Throw
+    }
+    It 'accepts the deprecated workload alias with a warning' {
+        $f = New-Case 'basic-public' 'workload_type: tabular'
+        (Get-Content -Raw $f) -replace 'workload_type:', 'workload:' | Set-Content $f
+        $w = Test-MLOpsAcceleratorInput -InputFile $f -WarningVariable wv 3>$null
+        $w | Should -BeTrue
+        ($wv -join ' ') | Should -Match 'deprecated'
+    }
+}

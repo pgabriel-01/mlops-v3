@@ -37,5 +37,7 @@ Design rule: **AML only consumes a datastore or data asset.** Getting data from 
 
 The `data_source` input supports `taxi-csv` (default), `taxi-parquet` and `adls`. The accelerator does not generate Snowflake, Azure SQL or OneLake sources.
 
+The two bundled samples are the NYC taxi regression data from the MIT-licensed [azureml-examples](https://github.com/Azure/azureml-examples) repository, with the license kept in `data/NOTICE.md` of the generated project. Both register as MLTable data assets. The `adls` source registers a single file as a `uri_file` asset today; an MLTable for it is tracked in the issue list.
+
 1. For Snowflake or Azure SQL, copy the data to ADLS Parquet with an ADF copy pipeline (option 4). It is Azure-native, needs no extra capacity and produces the Parquet that training needs. Fabric (options 5 and 6) is the alternative. Then set `data_source: adls`.
 2. Use an in-job query (option 8) only for small data.

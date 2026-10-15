@@ -13,6 +13,9 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Changed
 
+- The `workload` input is renamed `workload_type` to stop it being confused with `workloads`. The old name is still accepted and prints a deprecation warning. Workload names that clash with generated folders (`src`, `data`, `tests`, `mlops`, `infra`, `bootstrap`, `docs`, `rag`, `workloads`) are now rejected.
+- The bundled taxi samples now come from the MIT-licensed `azureml-examples` repository, with the license in `data/NOTICE.md`. The schema and data source docs now agree that `taxi-parquet` is supported.
+
 - Resource name suffix is now exactly 5 characters (was 4, with the schema allowing 4 to 6 while Bicep required 4). The generated default is 5 characters and `name_suffix` must be 5 lowercase letters or digits. Regenerating an existing project changes its derived resource names, so set a stable `name_suffix` only on new deployments and plan to redeploy preview environments.
 - Input validation is stricter: properties that do not apply to the scenario are rejected, `use_private_networking` is rejected with Azure DevOps, private networking requires a self-hosted `runner_label`, environments are sorted into dev, test, prod order, registry scenarios need two environments, and CIDR ranges are checked for private space, host bits, size and overlap.
 

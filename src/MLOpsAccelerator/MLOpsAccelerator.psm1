@@ -97,7 +97,12 @@ function Read-MLOpsInput {
 
     if (-not $data.ContainsKey('data_source')) { $data['data_source'] = 'taxi-csv' }
     if (-not $data.ContainsKey('environments')) { $data['environments'] = @('dev', 'test', 'prod') }
-    if (-not $data.ContainsKey('workload')) { $data['workload'] = 'tabular' }
+    if ($data.ContainsKey('workload')) {
+        Write-Warning "The 'workload' input is deprecated; use 'workload_type'."
+        if (-not $data.ContainsKey('workload_type')) { $data['workload_type'] = $data['workload'] }
+        $data.Remove('workload')
+    }
+    if (-not $data.ContainsKey('workload_type')) { $data['workload_type'] = 'tabular' }
     if (-not $data.ContainsKey('vnet_address_space')) { $data['vnet_address_space'] = '10.20.0.0/16' }
     if (-not $data.ContainsKey('allowed_outbound_fqdns')) { $data['allowed_outbound_fqdns'] = @('pypi.org', 'files.pythonhosted.org', '*.anaconda.com', 'conda.anaconda.org') }
     if (-not $data.ContainsKey('compute_vm_size')) { $data['compute_vm_size'] = 'Standard_DS3_v2' }
@@ -203,7 +208,7 @@ tenant_id: 00000000-0000-0000-0000-000000000000
 iac: $Iac
 cicd: $Cicd
 scenario: $($sc.id)
-workload: tabular
+workload_type: tabular
 data_source: taxi-csv        # or: taxi-parquet, adls
 environments: [dev, test, prod]
 tags:
@@ -259,7 +264,7 @@ function New-MLOpsTokenMap {
         scenario               = $Inputs['scenario']
         scenario_number        = [string]$sc.number
         scenario_name          = $sc.name
-        workload               = $Inputs['workload']
+        workload               = $Inputs['workload_type']
         network_mode           = $sc.network_mode
         endpoint_type          = $sc.endpoint_type
         endpoint_online        = (& $lc ($sc.endpoint_type -eq 'online'))
