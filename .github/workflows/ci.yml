@@ -15,8 +15,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: hashicorp/setup-terraform@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
       - shell: pwsh
         run: |
           Install-PSResource Pester, powershell-yaml -TrustRepository
@@ -53,8 +53,8 @@ jobs:
           - { scenario: 10, id: genai-foundry }
           - { scenario: 11, id: existing-platform }
     steps:
-      - uses: actions/checkout@v7
-      - uses: hashicorp/setup-terraform@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
       - shell: pwsh
         run: Install-PSResource powershell-yaml -TrustRepository
       - name: Render and validate (Terraform and Bicep)
@@ -62,7 +62,7 @@ jobs:
         run: |
           New-Item -ItemType Directory results | Out-Null
           ./tests/Invoke-ScenarioMatrix.ps1 -Scenario ${{ matrix.scenario }} -ResultsPath results/${{ matrix.scenario }}.json
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: results-${{ matrix.scenario }}
@@ -75,7 +75,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: results-*
           merge-multiple: true
@@ -91,7 +91,7 @@ jobs:
           if (-not $rows) { $lines += "No results were produced. Check the scenario jobs." }
           $lines -join "`n" | Set-Content report.md
           Get-Content report.md >> $env:GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: matrix-report
           path: report.md
@@ -107,14 +107,14 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: peaceiris/actions-hugo@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: peaceiris/actions-hugo@2752ce1d29631191ea3f27c23495fa06139a5b78 # v3
         with: { hugo-version: '0.168.0', extended: true }
       - name: Build docs (fail on warnings)
         run: |
           hugo --source site --minify --printI18nWarnings --printPathWarnings 2>&1 | tee build.log
           ! grep -E "^(WARN|ERROR)" build.log
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: docs-site
           path: _site
