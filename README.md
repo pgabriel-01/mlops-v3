@@ -86,7 +86,7 @@ Run `Get-MLOpsScenario` to list them with their ids. Details and cost estimates 
 ## Design
 
 - **Security:** OIDC and workload identity federation with no stored secrets, Key Vault with RBAC and purge protection, Terraform state in Azure Storage with Entra authentication, checkov in CI, and per-environment approvals.
-- **Operations:** Log Analytics and Application Insights, promotion from dev to test to prod, and one state file per environment.
+- **Operations:** Log Analytics and Application Insights, promotion from `dev` to `test` to `prod`, and one state file per environment.
 - **MLOps:** a training pipeline (prepare, train, evaluate, register), a model registry and a managed online endpoint with safe rollout.
 - **Azure Verified Modules:** infrastructure and bootstrap use AVM resource and utility modules. No AVM pattern module fits a plain Azure ML workspace, so none is used. Terraform stays on azurerm 4.x because the AVM modules require `< 5.0`. AVM telemetry is on by default; set `enable_telemetry = false` to turn it off.
 - **Versions:** `versions.lock.json` is the single source of truth. Python is pinned to 3.14 because 3.15 is still a release candidate and `pyarrow` has no wheels for it.
