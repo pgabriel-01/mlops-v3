@@ -17,8 +17,8 @@ Builds on [scenario 10](10-genai-foundry.md). Each environment gets an Azure AI 
 
 The generated `rag/` folder holds sample documents (a fictional employee handbook, a benefits program PDF and a company overview from the MIT-licensed Azure-Samples `azure-search-openai-demo` repository, with a `NOTICE.md`), an ingest script that creates a vector index and loads the chunks, and an evaluation script. The `rag-evaluate` pipeline runs the unit tests, builds the index and runs the evaluation questions through retrieval and the chat model. It scores groundedness with the Azure AI evaluation SDK and fails when the average is below `min_groundedness`.
 
-{{% callout style="warning" title="Preview" %}}
-This scenario renders and validates offline but has not been applied live yet, and the sample scripts have not run against real models.
+{{% callout style="note" title="Verified live" %}}
+Applied, verified and destroyed on Terraform and Bicep (e2e run 38788861939, with `rag.search_location: centralus`). The first attempt in `eastus2` failed with `InsufficientResourcesAvailable` because the region had no Azure AI Search capacity. See [Search capacity](#search-capacity).
 {{% /callout %}}
 
 ## Use it

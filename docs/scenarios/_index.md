@@ -58,11 +58,12 @@ Start with scenario 1, prove the pipeline end to end, then change `scenario` and
 | 9 | [`governance`](09-governance.md) | 60.83 | 671.84 |
 | 10 | [`genai-foundry`](10-genai-foundry.md) | 60.83 | 60.83 |
 | 11 | [`existing-platform`](11-existing-platform.md) | 261.58 | 872.59 |
+| 12 | [`rag-llmops`](12-rag-llmops.md) | 282.02 | 282.02 |
 
-Region `westus`, USD, 3 environments, retrieved 2026-10-13.
+Region `westus`, USD, 3 environments, retrieved 2026-10-15.
 
 {{% callout style="note" %}}
-Based on [Azure Retail Prices](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices) list prices, not your negotiated rates. Included: Azure Container Registry, private endpoints (5 per environment) and private DNS zones (6 per environment) for bring-your-own VNet, the managed network Azure Firewall (Standard, scenario 3) and the shared registry (scenario 8). The last column adds one `Standard_DS3_v2` online-endpoint instance per environment. Not included: training compute (clusters scale to zero), Log Analytics and Application Insights ingestion, storage, data transfer, AI model usage, and the managed private endpoints that Azure ML creates for managed VNets. Managed network outbound rules were not priced individually. Treat these as order-of-magnitude figures. Generate your own with `./scripts/Get-ScenarioCostEstimates.ps1 -Region <region> -Currency <code> -Environments <n> -AsMarkdown`.
+Based on [Azure Retail Prices](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices) list prices, not your negotiated rates. Scenario 12 adds one Azure AI Search `basic` unit per environment (0.101 USD per hour, about 73.73 USD per month); model token usage is not included. Included: Azure Container Registry, private endpoints (5 per environment) and private DNS zones (6 per environment) for bring-your-own VNet, the managed network Azure Firewall (Standard, scenario 3) and the shared registry (scenario 8). The last column adds one `Standard_DS3_v2` online-endpoint instance per environment. Not included: training compute (clusters scale to zero), Log Analytics and Application Insights ingestion, storage, data transfer, AI model usage, and the managed private endpoints that Azure ML creates for managed VNets. Managed network outbound rules were not priced individually. Treat these as order-of-magnitude figures. Generate your own with `./scripts/Get-ScenarioCostEstimates.ps1 -Region <region> -Currency <code> -Environments <n> -AsMarkdown`.
 {{% /callout %}}
 
 ## Notes
@@ -70,7 +71,7 @@ Based on [Azure Retail Prices](https://learn.microsoft.com/rest/api/cost-managem
 - Network modes other than `public` disable public access. Run the pipelines on self-hosted agents or runners that can reach the private endpoints.
 - Scenarios 1 and 10 generate no serving workflow (`deploy_mode: none`).
 - The training workload is the tabular taxi pack in every scenario. Scenario 10 (GenAI) provisions the platform only.
-- Scenarios 1 to 11 are applied, verified and destroyed live on Terraform and Bicep by the `e2e.yml` workflow. Not verified live: bootstrap apply, private runners and state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature set pack and endpoint deployment.
+- Scenarios 1 to 12 are applied, verified and destroyed live on Terraform and Bicep by the `e2e.yml` workflow. Not verified live: bootstrap apply, private runners and state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature set pack and endpoint deployment.
 
 ## Alignment with Microsoft guidance
 

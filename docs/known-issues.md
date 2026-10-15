@@ -6,7 +6,7 @@ weight: 3
 Issues you may hit, with workarounds. Each entry says when it was found and when it was fixed. For fixes and changes, see [What's new](whats-new.md).
 
 {{% callout style="warning" title="Live coverage is partial" %}}
-Scenarios 1 to 11 have been applied to a real subscription on Terraform and Bicep. Scenario 12 (`rag-llmops`) renders and validates offline but is not yet applied live, and its sample ingest and evaluation scripts are untested against real models. The sample documents are for a fictional company; replace them with your own. Several other parts have not; see [Live deployment coverage](#live-deployment-coverage).
+Scenarios 1 to 12 have been applied to a real subscription on Terraform and Bicep. Scenario 12 (`rag-llmops`) passed once in `centralus` after `eastus2` ran out of Azure AI Search capacity. The sample documents are for a fictional company; replace them with your own. Several other parts have not; see [Live deployment coverage](#live-deployment-coverage).
 {{% /callout %}}
 
 ## Bootstrap: new role needed for policy guardrails
@@ -68,6 +68,7 @@ The `e2e.yml` workflow applies a scenario, checks the workspace exists, then des
 | 9 governance | Verified | Verified | 38691269136 |
 | 10 genai-foundry | Verified | Verified | 38692709950 |
 | 11 existing-platform | Verified | Verified | 38696125604 |
+| 12 rag-llmops | Verified | Verified | 38788861939 |
 
 Live runs found and fixed these problems: Terraform zone sets that were unknown at plan time, duplicate storage private endpoint names, compute created before the workspace private endpoint (now explicit `depends_on`), Standard ACR rejecting the default `Deny` network action, storage and Key Vault needing explicit `Allow` ACLs for public scenarios, a Terraform conditional with mismatched object types for the managed network, and the OIDC token expiring during long applies.
 
@@ -111,3 +112,7 @@ Set `use_private_networking: true` (GitHub) to deploy self-hosted ACI runners in
 ## ADLS data is not an MLTable
 
 The bundled `taxi-csv`, `taxi-parquet` and `nyc-taxi-open` samples register as MLTable assets. `data_source: adls` registers a single `uri_file`, because `src/prep.py` parses MLTable by hand and reads only local paths. MLTable for ADLS needs `prep.py` support and a live run.
+
+## Ubuntu 26.04 and `ubuntu-latest`
+
+GitHub moves the `ubuntu-latest` label to Ubuntu 26.04 between October 19 and November 19, 2026. Generated workflows use the `runner_label` input (default `ubuntu-latest`), so they move with it. This repository's CI runs the tests on `ubuntu-26.04` in a non-blocking canary job first. If a generated workflow breaks after the move, set `runner_label: ubuntu-24.04` to pin the old image and open an issue.

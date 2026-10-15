@@ -2,7 +2,7 @@
 .SYNOPSIS
   Estimates the fixed monthly infrastructure cost of each Azure Machine Learning scenario from the Azure Retail Prices public API (no sign-in needed).
 .DESCRIPTION
-  Fixed costs only: private endpoints, private DNS zones, ACR, the managed-network firewall (scenario 3), and optionally
+  Fixed costs only: private endpoints, private DNS zones, ACR, the managed-network firewall (scenario 3), Azure AI Search (scenario 12), and optionally
   one online-endpoint instance per environment. Consumption costs (training compute, log ingestion, storage, model
   tokens) are not included. Every environment gets its own copy of the infrastructure, except the shared registry.
 .PARAMETER Region
@@ -50,6 +50,7 @@ $unit = [ordered]@{
     acr_standard     = (Get-RetailPrice "$r and serviceName eq 'Container Registry' and skuName eq 'Standard' and meterName eq 'Standard Registry Unit'") * $days
     acr_premium      = (Get-RetailPrice "$r and serviceName eq 'Container Registry' and skuName eq 'Premium' and meterName eq 'Premium Registry Unit'") * $days
     firewall         = (Get-RetailPrice "$r and serviceName eq 'Azure Firewall' and skuName eq 'Standard' and meterName eq 'Standard Deployment'") * $hours
+    search_basic     = (Get-RetailPrice "$r and serviceName eq 'Azure Cognitive Search' and skuName eq 'Basic' and meterName eq 'Basic Unit'") * $hours
     online_instance  = (Get-RetailPrice "$r and serviceName eq 'Virtual Machines' and armSkuName eq 'Standard_DS3_v2' and productName eq 'Virtual Machines DSv2 Series'") * $hours
 }
 
@@ -63,6 +64,7 @@ $rows = foreach ($sc in Get-MLOpsScenario) {
         $perEnv += 5 * $unit.private_endpoint
         if (-not $sc.existing_platform) { $perEnv += 6 * $unit.dns_zone }
     }
+    if ($sc.id -eq 'rag-llmops') { $perEnv += $unit.search_basic }
     if ($sc.network_mode -eq 'managed_approved') { $perEnv += $unit.firewall }
     $shared = if ($sc.registry) { $unit.acr_premium } else { 0 }
     $fixed = $perEnv * $Environments + $shared

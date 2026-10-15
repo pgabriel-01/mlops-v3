@@ -6,7 +6,7 @@ weight: 40
 Bootstrap has created the repository, identity and environments. Now push the generated project and run its pipelines.
 
 {{% callout style="warning" %}}
-The module is pre-release (v0.2.0). Scenarios 1 to 11 are applied live, but the bootstrap apply, Azure DevOps and endpoint deployment are not verified yet. Run it first in a throwaway subscription.
+The module is pre-release (v0.2.0). Scenarios 1 to 12 are applied live, but the bootstrap apply, Azure DevOps and endpoint deployment are not verified yet. Run it first in a throwaway subscription.
 
 {{% /callout %}}
 
