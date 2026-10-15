@@ -1,0 +1,52 @@
+trigger: none
+
+parameters:
+  - name: environment
+    displayName: Target environment
+    type: string
+    default: dev
+    values: [[environments_yaml_list]]
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: unit
+    jobs:
+      - job: unit
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "[[versions.python]]"
+          - script: |
+              python -m pip install -r rag/requirements-rag.txt pytest
+              python -m pytest src
+            workingDirectory: rag
+            displayName: Unit tests
+  - stage: evaluate
+    dependsOn: unit
+    jobs:
+      - deployment: evaluate
+        environment: ${{ parameters.environment }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: UsePythonVersion@0
+                  inputs:
+                    versionSpec: "[[versions.python]]"
+                - task: AzureCLI@2
+                  displayName: Build the index and evaluate
+                  inputs:
+                    azureSubscription: [[project_name]]-${{ parameters.environment }}
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    workingDirectory: rag
+                    inlineScript: |
+                      python -m pip install -r requirements-rag.txt
+                      RG=rg-[[project_name]]-${{ parameters.environment }}-[[location_short]]
+                      export AI_ENDPOINT=$(az cognitiveservices account show -g $RG -n ais-[[project_name]]-${{ parameters.environment }}-[[suffix]] --query properties.endpoint -o tsv)
+                      export SEARCH_ENDPOINT=https://srch-[[project_name]]-${{ parameters.environment }}-[[suffix]].search.windows.net
+                      python src/ingest.py
+                      python src/evaluate.py

@@ -41,6 +41,8 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Resolve the deployer identity
+        run: echo "DEPLOYER_PRINCIPAL_ID=$(az account get-access-token --query accessToken -o tsv | python3 -c "import sys,base64,json;t=sys.stdin.read().split('.')[1];print(json.loads(base64.urlsafe_b64decode(t+'='*(-len(t)%4)))['oid'])")" >> "$GITHUB_ENV"
       - name: What-if
         run: >-
           az deployment sub what-if --location [[location]]

@@ -1,4 +1,4 @@
-# Local scenario matrix: renders all 11 AML scenarios for Terraform and Bicep (CI/CD alternates
+# Local scenario matrix: renders all 12 AML scenarios for Terraform and Bicep (CI/CD alternates
 # between GitHub and Azure DevOps), then validates the IaC. No Azure calls, no model training.
 #   -Quick         validate only one Terraform and one Bicep scenario (render everything)
 #   -Scenario id   limit to a scenario id or number

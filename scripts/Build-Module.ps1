@@ -42,7 +42,7 @@ Set-Content -Path $psd1 -Value $text -NoNewline -Encoding utf8NoBOM
 
 Test-ModuleManifest $psd1 | Out-Null
 Import-Module $psd1 -Force
-if (@(Get-MLOpsScenario).Count -ne 11) { throw 'Staged module did not find the 11 scenarios.' }
+if (@(Get-MLOpsScenario).Count -ne 12) { throw 'Staged module did not find the 12 scenarios.' }
 Remove-Module MLOpsAccelerator
 Write-Host "Staged $Version at $stage"
 $stage

@@ -7,7 +7,7 @@ tenant_id: 00000000-0000-0000-0000-000000000000
 
 iac: terraform          # terraform or bicep
 cicd: github            # github or azdo
-scenario: basic-public  # see Get-MLOpsScenario (11 AML scenarios)
+scenario: basic-public  # see Get-MLOpsScenario (12 AML scenarios)
 workload: tabular
 # compute_vm_size: Standard_DS3_v2   # training cluster and online endpoint size
 # compute_max_nodes: 4
@@ -41,6 +41,12 @@ github_repo: taxi-mlops
 # allowed_outbound_fqdns: [pypi.org]      # managed-vnet-approved
 # budget_amount: 500                      # governance scenarios
 # alert_emails: [mlops@example.com]       # governance scenarios
+# rag:                                    # rag-llmops: model and search settings (check regional quota first)
+#   chat_model: gpt-5.4-mini
+#   chat_capacity: 10                     # thousands of tokens per minute
+#   embedding_model: text-embedding-3-small
+#   search_sku: basic
+#   min_groundedness: 3.5                 # evaluation quality gate
 # existing_platform:                      # required for existing-platform
 #   subnet_id: /subscriptions/.../subnets/snet-ml
 #   log_analytics_workspace_id: /subscriptions/.../workspaces/law-platform

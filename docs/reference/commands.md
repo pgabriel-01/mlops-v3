@@ -8,6 +8,7 @@ The module exports these commands. Use `Get-Help <command> -Full` for parameters
 | Command | Purpose |
 |---|---|
 | `Test-MLOpsAcceleratorRequirement` | Pre-flight check of tools, `az login`, tokens and network. Also runs before `-Deploy`. |
+| `Test-MLOpsModelQuota` | Checks regional model and Azure AI Search quota for the `rag-llmops` scenario. Also runs before `-Deploy` for that scenario. |
 | `Get-MLOpsScenario` | List the scenarios and their ids. |
 | `New-MLOpsInputFile` | Write an inputs file for a scenario. |
 | `Test-MLOpsAcceleratorInput` | Validate an inputs file against the schema. |

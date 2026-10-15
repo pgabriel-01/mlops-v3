@@ -35,7 +35,7 @@ jobs:
             @{ n = 1; id = 'basic-public' }, @{ n = 2; id = 'managed-vnet-internet' }, @{ n = 3; id = 'managed-vnet-approved' },
             @{ n = 4; id = 'byo-vnet' }, @{ n = 5; id = 'batch-scoring' }, @{ n = 6; id = 'online-bluegreen' },
             @{ n = 7; id = 'feature-store' }, @{ n = 8; id = 'registry-promotion' }, @{ n = 9; id = 'governance' },
-            @{ n = 10; id = 'genai-foundry' }, @{ n = 11; id = 'existing-platform' })
+            @{ n = 10; id = 'genai-foundry' }, @{ n = 11; id = 'existing-platform' }, @{ n = 12; id = 'rag-llmops' })
           $pick = '${{ inputs.scenarios }}'
           if ($pick) { $set = $pick -split ',' | ForEach-Object { [int]$_.Trim() }; $all = $all | Where-Object { $set -contains $_.n } }
           $rows = foreach ($s in $all) { foreach ($iac in 'terraform', 'bicep') { @{ n = $s.n; id = $s.id; iac = $iac } } }

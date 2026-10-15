@@ -58,7 +58,8 @@
         "registry-promotion",
         "governance",
         "genai-foundry",
-        "existing-platform"
+        "existing-platform",
+        "rag-llmops"
       ],
       "description": "Azure Machine Learning platform scenario (see Get-MLOpsScenario)."
     },
@@ -253,6 +254,21 @@
         }
       },
       "description": "existing-platform: resource IDs from the platform landing zone."
+    },
+    "rag": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "chat_model": { "type": "string", "default": "gpt-5.4-mini" },
+        "chat_model_version": { "type": "string", "default": "2026-03-17" },
+        "chat_capacity": { "type": "integer", "minimum": 1, "default": 10, "description": "Thousands of tokens per minute (GlobalStandard)." },
+        "embedding_model": { "type": "string", "default": "text-embedding-3-small" },
+        "embedding_model_version": { "type": "string", "default": "1" },
+        "embedding_capacity": { "type": "integer", "minimum": 1, "default": 10, "description": "Thousands of tokens per minute (GlobalStandard)." },
+        "search_sku": { "type": "string", "enum": ["free", "basic", "standard", "standard2", "standard3"], "default": "basic" },
+        "min_groundedness": { "type": "number", "minimum": 1, "maximum": 5, "default": 3.5, "description": "Evaluation quality gate: the pipeline fails below this average groundedness score." }
+      },
+      "description": "rag-llmops: model deployments, Azure AI Search tier and the evaluation gate. Check regional model quota first."
     },
     "adls": {
       "type": "object",

@@ -19,6 +19,7 @@ Pick one with `scenario:` in the inputs file. List them with `Get-MLOpsScenario`
 | 9 | [`governance`](09-governance.md) | public | online | Diagnostics, budget alerts (`budget_amount`, `alert_emails`), resource lock, policy |
 | 10 | [`genai-foundry`](10-genai-foundry.md) | public | none | AI Foundry hub, AI Services account and project |
 | 11 | [`existing-platform`](11-existing-platform.md) | existing subnet and DNS | online | Reuses `existing_platform` subnet, private DNS zones and Log Analytics; governance on |
+| 12 | [`rag-llmops`](12-rag-llmops.md) | public | none | AI Foundry plus Azure AI Search, model deployments, sample index and an evaluation quality gate |
 
 ## Choosing a scenario
 
@@ -34,6 +35,7 @@ Pick one with `scenario:` in the inputs file. List them with `Get-MLOpsScenario`
 | You need reusable features across models | 7 `feature-store` | Low added cost |
 | Finance or audit needs budgets, policy and diagnostics | 9 `governance` | Low added cost |
 | You are building generative AI apps | 10 `genai-foundry` | Depends on the models you deploy |
+| You are building a chat app over your own documents with an evaluation gate | 12 `rag-llmops` | Adds Azure AI Search (basic tier is roughly 75 USD per month) plus model token use |
 
 Costs are relative and exclude training compute and endpoint instance hours, which dominate once you deploy. The default is three environments (see the [parameter checklist](../planning/parameter-checklist.md)). Set two to cut the fixed cost.
 
@@ -68,7 +70,7 @@ Based on [Azure Retail Prices](https://learn.microsoft.com/rest/api/cost-managem
 - Network modes other than `public` disable public access. Run the pipelines on self-hosted agents or runners that can reach the private endpoints.
 - Scenarios 1 and 10 generate no serving workflow (`deploy_mode: none`).
 - The training workload is the tabular taxi pack in every scenario. Scenario 10 (GenAI) provisions the platform only.
-- All 11 scenarios are applied, verified and destroyed live on Terraform and Bicep by the `e2e.yml` workflow. Not verified live: bootstrap apply, private runners and state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature set pack and endpoint deployment.
+- Scenarios 1 to 11 are applied, verified and destroyed live on Terraform and Bicep by the `e2e.yml` workflow. Not verified live: bootstrap apply, private runners and state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature set pack and endpoint deployment.
 
 ## Alignment with Microsoft guidance
 

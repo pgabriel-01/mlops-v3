@@ -45,6 +45,13 @@
     "scope": "workload"
   },
   {
+    "src": "workload/rag",
+    "dest": "rag",
+    "when": {
+      "rag": "true"
+    }
+  },
+  {
     "src": "root",
     "dest": "."
   },
@@ -128,6 +135,14 @@
     "suffix_files": true
   },
   {
+    "src": "cicd/github/rag",
+    "dest": ".github/workflows",
+    "when": {
+      "cicd": "github",
+      "rag": "true"
+    }
+  },
+  {
     "src": "cicd/azdo/common",
     "dest": "pipelines",
     "when": {
@@ -191,6 +206,14 @@
     },
     "scope": "workload",
     "suffix_files": true
+  },
+  {
+    "src": "cicd/azdo/rag",
+    "dest": "pipelines",
+    "when": {
+      "cicd": "azdo",
+      "rag": "true"
+    }
   },
   {
     "src": "bootstrap/github",

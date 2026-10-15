@@ -18,6 +18,16 @@ param governance bool
 @allowed(['audit', 'deny', 'none'])
 param policyMode string = 'audit'
 param genai bool
+param rag bool = false
+param chatModel string = 'gpt-5.4-mini'
+param chatModelVersion string = '2026-03-17'
+param chatCapacity int = 10
+param embeddingModel string = 'text-embedding-3-small'
+param embeddingModelVersion string = '1'
+param embeddingCapacity int = 10
+param searchSku string = 'basic'
+@description('Object id of the identity that runs the pipelines. Granted data-plane roles on Search and the models when rag is true.')
+param deployerPrincipalId string = ''
 param existingPlatform bool
 param vnetAddressSpace string
 param allowedFqdns array
@@ -45,8 +55,9 @@ var zoneNames = {
   cognitiveservices: 'privatelink.cognitiveservices.azure.com'
   openai: 'privatelink.openai.azure.com'
   aiservices: 'privatelink.services.ai.azure.com'
+  search: 'privatelink.search.windows.net'
 }
-var zoneKeys = genai ? objectKeys(zoneNames) : filter(objectKeys(zoneNames), k => !contains(['cognitiveservices', 'openai', 'aiservices'], k))
+var zoneKeys = filter(objectKeys(zoneNames), k => (genai || !contains(['cognitiveservices', 'openai', 'aiservices'], k)) && (rag || k != 'search'))
 var zoneIds = toObject(objectKeys(zoneNames), k => k, k => createNet
   ? resourceId('Microsoft.Network/privateDnsZones', zoneNames[k])
   : (existingDnsZones[?k] ?? ''))
@@ -336,6 +347,24 @@ module aiServices 'br/public:avm/res/cognitive-services/account:[[versions.avm_b
     publicNetworkAccess: access
     networkAcls: isPublic ? allow : deny
     privateEndpoints: aiServicesPes
+    deployments: rag ? [
+      {
+        name: 'chat'
+        model: { format: 'OpenAI', name: chatModel, version: chatModelVersion }
+        sku: { name: 'GlobalStandard', capacity: chatCapacity }
+      }
+      {
+        name: 'embedding'
+        model: { format: 'OpenAI', name: embeddingModel, version: embeddingModelVersion }
+        sku: { name: 'GlobalStandard', capacity: embeddingCapacity }
+      }
+    ] : []
+    roleAssignments: (rag && !empty(deployerPrincipalId)) ? [
+      {
+        principalId: deployerPrincipalId
+        roleDefinitionIdOrName: 'Cognitive Services OpenAI User'
+      }
+    ] : []
     diagnosticSettings: diagSettings
     tags: tags
     enableTelemetry: enableTelemetry
@@ -394,6 +423,86 @@ module project 'br/public:avm/res/machine-learning-services/workspace:[[versions
   }
 }
 
+var searchPes = (isByo && rag) ? [
+  peFor(peSubnetId, 'searchService', nonEmpty([zoneIds.search]))
+] : []
+
+module search 'br/public:avm/res/search/search-service:[[versions.avm_bicep.res/search/search-service]]' = if (rag) {
+  name: 'srch-${baseName}'
+  dependsOn: [dnsZones]
+  params: {
+    name: 'srch-${projectName}-${environment}-${suffix}'
+    location: location
+    sku: searchSku
+    replicaCount: 1
+    partitionCount: 1
+    disableLocalAuth: true
+    authOptions: null
+    managedIdentities: { systemAssigned: true }
+    publicNetworkAccess: access
+    privateEndpoints: searchPes
+    roleAssignments: concat([
+      {
+        principalId: project!.outputs.systemAssignedMIPrincipalId
+        roleDefinitionIdOrName: 'Search Index Data Reader'
+        principalType: 'ServicePrincipal'
+      }
+      {
+        principalId: project!.outputs.systemAssignedMIPrincipalId
+        roleDefinitionIdOrName: 'Search Service Contributor'
+        principalType: 'ServicePrincipal'
+      }
+    ], empty(deployerPrincipalId) ? [] : [
+      {
+        principalId: deployerPrincipalId
+        roleDefinitionIdOrName: 'Search Index Data Contributor'
+      }
+      {
+        principalId: deployerPrincipalId
+        roleDefinitionIdOrName: 'Search Service Contributor'
+      }
+    ])
+    diagnosticSettings: diagSettings
+    tags: tags
+    enableTelemetry: enableTelemetry
+  }
+}
+
+resource projectRes 'Microsoft.MachineLearningServices/workspaces@2025-06-01' existing = if (rag) {
+  name: 'proj-${baseName}'
+  dependsOn: [project]
+}
+
+resource aiServicesRes 'Microsoft.CognitiveServices/accounts@2025-06-01' existing = if (rag) {
+  name: 'ais-${projectName}-${environment}-${suffix}'
+  dependsOn: [aiServices]
+}
+
+// Outside the AI Services module to avoid a dependency cycle (Search depends on the project, which depends on the account).
+resource searchOpenAiUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (rag) {
+  scope: aiServicesRes
+  name: guid(aiServicesRes.id, 'search-openai-user')
+  properties: {
+    principalId: search!.outputs.systemAssignedMIPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
+  }
+}
+
+resource searchConnection 'Microsoft.MachineLearningServices/workspaces/connections@2025-06-01' = if (rag) {
+  parent: projectRes
+  name: 'aisearch'
+  properties: {
+    category: 'CognitiveSearch'
+    target: 'https://${search!.outputs.name}.search.windows.net'
+    authType: 'AAD'
+    metadata: {
+      ApiType: 'Azure'
+      ResourceId: search!.outputs.resourceId
+    }
+  }
+}
+
 // Built-in policy guardrails on the resource group (policyMode: audit, deny or none).
 // The AVM policy-assignment pattern deploys at management-group scope, so a resource-group assignment is raw.
 var policyEffect = policyMode == 'deny' ? 'Deny' : 'Audit'
@@ -434,3 +543,5 @@ resource guardrails 'Microsoft.Authorization/policyAssignments@2025-03-01' = [fo
 
 output workspaceName string = workspace.outputs.name
 output registryName string = registry ? amlRegistry!.outputs.name : ''
+output searchName string = rag ? search!.outputs.name : ''
+output aiServicesEndpoint string = genai ? aiServices!.outputs.endpoint : ''

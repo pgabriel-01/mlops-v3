@@ -21,3 +21,11 @@ output "project_name" {
 output "vnet_id" {
   value = local.create_vnet ? module.vnet[0].resource_id : null
 }
+
+output "search_name" {
+  value = var.rag ? module.search[0].resource.name : null
+}
+
+output "ai_services_endpoint" {
+  value = var.genai ? module.ai_services[0].endpoint : null
+}
