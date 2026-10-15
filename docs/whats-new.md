@@ -6,14 +6,14 @@ weight: 2
 Newest first. The latest release is `v0.2.0` (2026-10-15); the first was `v0.1.0` (2026-10-14). Releases are tagged `v0.x.y` until the first gold release (`v1.0.0`), which also needs the bootstrap, private runners and Azure DevOps verified live. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Workload applied live; bootstrap not yet" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). All 11 scenarios are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). All 11 scenarios are also verified live for Terraform and Bicep by the `e2e.yml` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
 
 ## Unreleased
 
 ### Added
 
-- `e2e` workflow: the identity needs a lock-management role for governance, and a final job removes any leftover test resource groups and writes a pass or fail summary. Runs are manual and need a scenario list; the weekly schedule was removed, and Bicep deployments are named per scenario so parallel jobs no longer collide.
+- `e2e.yml` workflow: the identity needs a lock-management role for governance, and a final job removes any leftover test resource groups and writes a pass or fail summary. Runs are manual and need a scenario list; the weekly schedule was removed, and Bicep deployments are named per scenario so parallel jobs no longer collide.
 
 ## v0.2.0 (2026-10-15)
 
@@ -23,12 +23,12 @@ All 11 scenarios are now verified live on Terraform and Bicep. The bootstrap, pr
 
 - Terraform and Bicep, feature store: sets `featureStoreSettings`, passes the dependent storage, Key Vault and Application Insights resources, enables the managed network that serverless Spark needs, and drops the container registry because a managed network requires a Premium one.
 - Terraform, governance: the storage account diagnostic setting now sends the `Transaction` metric, so Azure creates it and the apply no longer times out.
-- `e2e` workflow: removes resource locks before deleting the resource group, so the governance scenario can be destroyed.
+- `e2e.yml` workflow: removes resource locks before deleting the resource group, so the governance scenario can be destroyed.
 
 ### Verified
 
 - Scenarios 6 to 11 applied, verified and destroyed live on Terraform and Bicep.
-- `e2e` workflow: scenario 11 runs against a stand-in platform (VNet, Log Analytics and private DNS zones) that the job creates and removes.
+- `e2e.yml` workflow: scenario 11 runs against a stand-in platform (VNet, Log Analytics and private DNS zones) that the job creates and removes.
 
 ## v0.1.0 (2026-10-14)
 
@@ -38,7 +38,7 @@ First tagged pre-release. Scenarios 1 to 5 are verified live on Terraform and Bi
 
 - Terraform: `workspace_managed_network` is now one object with conditional fields, fixing "Inconsistent conditional result types" on managed-network scenarios.
 - Bicep: public scenarios set explicit `Allow` network ACLs on storage, Key Vault and the container registry.
-- `e2e` workflow: re-logs in before verify and destroy because the OIDC token expires after about 5 minutes.
+- `e2e.yml` workflow: re-logs in before verify and destroy because the OIDC token expires after about 5 minutes.
 
 ### Fixed (Terraform, byo-vnet)
 

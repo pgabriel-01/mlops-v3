@@ -18,7 +18,7 @@ git remote add origin <repo url printed by the bootstrap>; git push -u origin ma
 
 ## 2. Add approvals (recommended)
 
-The bootstrap creates one environment per stage (`dev`, `test`, `prod` by default) but does **not** add required reviewers. Add them yourself before the first run: GitHub *Settings > Environments > prod > Required reviewers*, or Azure DevOps *Pipelines > Environments > Approvals and checks*. The approval gates the job that follows it, which here runs `terraform plan` and `apply` together, so reviewers approve before the plan runs.
+The bootstrap creates one environment per stage (`dev`, `test`, `prod` by default) but does **not** add required reviewers. Add them yourself before the first run: in GitHub, open Settings, then Environments, select `prod` and add Required reviewers; in Azure DevOps, open Pipelines, then Environments, and use Approvals and checks. The approval gates the job that follows it, which here runs `terraform plan` and `apply` together, so reviewers approve before the plan runs.
 
 ## 3. Run the pipelines
 
@@ -30,7 +30,7 @@ The bootstrap creates one environment per stage (`dev`, `test`, `prod` by defaul
 4. Run **4 - ml-deploy** to create the endpoint (scenarios 2-4, 6-9, 11 online; 5 batch). Scenario 6 shifts traffic 10% then 100%. Scenario 8 uses **4 - ml-promote** to copy the model through the shared registry first.
 {{% /tab %}}
 {{% tab title="Azure DevOps" %}}
-1. The bootstrap creates the repo, environments, variable groups and service connections, but **not the pipelines**. In **Pipelines > New pipeline > Azure Repos Git** register each YAML under `pipelines/` (`infra.yml`, `ml-train.yml`, `ml-deploy.yml`, plus `ml-promote.yml` for scenario 8).
+1. The bootstrap creates the repo, environments, variable groups and service connections, but **not the pipelines**. Under **Pipelines**, choose **New pipeline**, then **Azure Repos Git**, and register each YAML under `pipelines/` (`infra.yml`, `ml-train.yml`, `ml-deploy.yml`, plus `ml-promote.yml` for scenario 8).
 2. Run `infra` and approve each environment as prompted, then `ml-train`, then `ml-deploy`.
 {{% /tab %}}
 {{< /tabs >}}
@@ -42,7 +42,7 @@ Scenarios with private networking (2-4, 11) need self-hosted agents or runners t
 | After | Check |
 |---|---|
 | infra | Resource group per environment, AML workspace reachable in the portal |
-| ml-train | A job in *Azure ML studio > Jobs* and a registered model |
+| ml-train | A job on the Jobs page of Azure ML studio and a registered model |
 | ml-deploy | Endpoint shows *Succeeded*; send a sample request (see the generated README) |
 
 ## Run locally instead

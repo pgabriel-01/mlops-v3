@@ -53,7 +53,7 @@ Scenario 7 creates the feature store workspace but no feature set, offline store
 
 ## Live deployment coverage
 
-The `e2e` workflow applies a scenario, checks the workspace exists, then destroys everything. Results for the `dev` environment (workload IaC only; the bootstrap is not covered):
+The `e2e.yml` workflow applies a scenario, checks the workspace exists, then destroys everything. Results for the `dev` environment (workload IaC only; the bootstrap is not covered):
 
 | Scenario | Terraform | Bicep | Run |
 |---|---|---|---|

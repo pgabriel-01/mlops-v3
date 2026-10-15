@@ -1,4 +1,4 @@
-name: e2e
+name: End-to-end tests
 # Real Azure tests of the generated IaC. Plan runs for PRs labelled "safe-to-test";
 # apply + destroy runs only on manual dispatch (apply=true), one or a few scenarios at a time.
 # Requires an `e2e` environment with AZURE_CLIENT_ID, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID

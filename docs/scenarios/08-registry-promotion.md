@@ -3,7 +3,7 @@ title: "8 - Multi-environment with shared registry"
 weight: 8
 ---
 
-An AML registry shared across environments; models are registered in dev and promoted to test/prod.
+An AML registry shared across environments; models are registered in `dev` and promoted to `test` and `prod`.
 
 | | |
 |---|---|
