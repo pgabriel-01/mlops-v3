@@ -18,6 +18,7 @@ embedding_model         = "[[embedding_model]]"
 embedding_model_version = "[[embedding_model_version]]"
 embedding_capacity      = [[embedding_capacity]]
 search_sku              = "[[search_sku]]"
+search_location         = "[[search_location]]"
 existing_platform       = [[existing_platform]]
 vnet_address_space      = "[[vnet_address_space]]"
 allowed_fqdns           = [[allowed_fqdns_hcl]]

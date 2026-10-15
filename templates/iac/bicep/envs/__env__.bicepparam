@@ -19,6 +19,7 @@ param embeddingModel = '[[embedding_model]]'
 param embeddingModelVersion = '[[embedding_model_version]]'
 param embeddingCapacity = [[embedding_capacity]]
 param searchSku = '[[search_sku]]'
+param searchLocation = '[[search_location]]'
 param deployerPrincipalId = readEnvironmentVariable('DEPLOYER_PRINCIPAL_ID', '')
 param existingPlatform = [[existing_platform]]
 param vnetAddressSpace = '[[vnet_address_space]]'

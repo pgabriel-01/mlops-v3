@@ -226,6 +226,7 @@ function New-MLOpsTokenMap {
         embedding_model_version = [string](& $ragv 'embedding_model_version' '1')
         embedding_capacity     = [string](& $ragv 'embedding_capacity' 10)
         search_sku             = [string](& $ragv 'search_sku' 'basic')
+        search_location         = [string](& $ragv 'search_location' '')
         min_groundedness       = [string](& $ragv 'min_groundedness' 3.5)
         existing_platform      = (& $lc $sc.existing_platform)
         vnet_address_space     = $Inputs['vnet_address_space']
@@ -521,7 +522,7 @@ function Invoke-MLOpsBootstrap {
     if ($Inputs['scenario'] -eq 'rag-llmops' -and -not $SkipRequirementsCheck) {
         $rg = if ($Inputs['rag']) { $Inputs['rag'] } else { @{} }
         $q = @{ Location = $Inputs['location']; SubscriptionId = $Inputs['subscription_id']; Environments = @($Inputs['environments']).Count }
-        foreach ($k in 'chat_model:ChatModel', 'chat_capacity:ChatCapacity', 'embedding_model:EmbeddingModel', 'embedding_capacity:EmbeddingCapacity', 'search_sku:SearchSku') {
+        foreach ($k in 'chat_model:ChatModel', 'chat_capacity:ChatCapacity', 'embedding_model:EmbeddingModel', 'embedding_capacity:EmbeddingCapacity', 'search_sku:SearchSku', 'search_location:SearchLocation') {
             $in, $par = $k -split ':'
             if ($rg.ContainsKey($in)) { $q[$par] = $rg[$in] }
         }
@@ -638,6 +639,8 @@ function Test-MLOpsModelQuota {
     The embedding capacity in thousands of tokens per minute (GlobalStandard). Default 10.
     .PARAMETER SearchSku
     The Azure AI Search tier. Default basic.
+    .PARAMETER SearchLocation
+    The region for Azure AI Search. Defaults to Location.
     .PARAMETER Environments
     How many environments will deploy. Each one needs its own model capacity and its own search service. Default 1.
     .EXAMPLE
@@ -656,8 +659,10 @@ function Test-MLOpsModelQuota {
         [string] $EmbeddingModel = 'text-embedding-3-small',
         [int] $EmbeddingCapacity = 10,
         [string] $SearchSku = 'basic',
+        [string] $SearchLocation = '',
         [int] $Environments = 1
     )
+    if (-not $SearchLocation) { $SearchLocation = $Location }
     $r = [System.Collections.Generic.List[object]]::new()
     $sub = @(); if ($SubscriptionId) { $sub = @('--subscription', $SubscriptionId) }
     $aiUsage = @()
@@ -683,18 +688,18 @@ function Test-MLOpsModelQuota {
     $searchUsage = @()
     try {
         $subId = $SubscriptionId; if (-not $subId) { $subId = (az account show --query id -o tsv --only-show-errors) }
-        $uri = "https://management.azure.com/subscriptions/$subId/providers/Microsoft.Search/locations/$Location/usages?api-version=2025-05-01"
+        $uri = "https://management.azure.com/subscriptions/$subId/providers/Microsoft.Search/locations/$SearchLocation/usages?api-version=2025-05-01"
         $raw = az rest -m get -u $uri -o json --only-show-errors
         if ($LASTEXITCODE -eq 0 -and $raw) { $searchUsage = @(($raw | ConvertFrom-Json).value) }
     }
     catch { $searchUsage = @() }
     $su = $searchUsage | Where-Object { $_.name.value -eq $SearchSku } | Select-Object -First 1
     if (-not $su) {
-        $r.Add([pscustomobject]@{ Name = "search $SearchSku"; Passed = $false; Detail = "no Azure AI Search usage entry for the $SearchSku tier in $Location; the tier is not offered there or the usage query failed." })
+        $r.Add([pscustomobject]@{ Name = "search $SearchSku"; Passed = $false; Detail = "no Azure AI Search usage entry for the $SearchSku tier in $SearchLocation; the tier is not offered there or the usage query failed." })
     }
     else {
         $free = [double]$su.limit - [double]$su.currentValue
-        $r.Add([pscustomobject]@{ Name = "search $SearchSku"; Passed = ($free -ge $Environments); Detail = "need $Environments, available $free of $($su.limit) services in $Location" })
+        $r.Add([pscustomobject]@{ Name = "search $SearchSku"; Passed = ($free -ge $Environments); Detail = "need $Environments, available $free of $($su.limit) services in $SearchLocation. Quota does not guarantee regional capacity: if provisioning fails with InsufficientResourcesAvailable, set rag.search_location to another region." })
     }
     $r
 }

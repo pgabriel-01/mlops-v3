@@ -266,6 +266,7 @@
         "embedding_model_version": { "type": "string", "default": "1" },
         "embedding_capacity": { "type": "integer", "minimum": 1, "default": 10, "description": "Thousands of tokens per minute (GlobalStandard)." },
         "search_sku": { "type": "string", "enum": ["free", "basic", "standard", "standard2", "standard3"], "default": "basic" },
+        "search_location": { "type": "string", "description": "Azure region for Azure AI Search. Defaults to the main location. Set it when the main region is out of Search capacity." },
         "min_groundedness": { "type": "number", "minimum": 1, "maximum": 5, "default": 3.5, "description": "Evaluation quality gate: the pipeline fails below this average groundedness score." }
       },
       "description": "rag-llmops: model deployments, Azure AI Search tier and the evaluation gate. Check regional model quota first."
