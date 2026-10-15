@@ -13,7 +13,7 @@ Yes. Set `workloads: [taxi, churn]`. All workloads share the one platform, and e
 
 ## Can I use separate subscriptions per environment?
 
-Not as an input yet. One subscription hosts all environments. Customise the generated parameter files if you need more.
+Not as an input yet. One subscription hosts all environments. Customize the generated parameter files if you need more.
 
 ## Can I add policies?
 

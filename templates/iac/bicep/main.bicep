@@ -13,7 +13,7 @@ param suffix string
 @allowed(['public', 'managed_internet', 'managed_approved', 'byo_vnet'])
 param networkMode string = 'public'
 param featureStore bool = false
-@description('Create the shared AML registry in this environment.')
+@description('Create the shared Azure ML registry in this environment.')
 param registry bool = false
 param governance bool = false
 @allowed(['audit', 'deny', 'none'])

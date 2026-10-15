@@ -11,9 +11,9 @@ Compute cluster plus a batch endpoint and deployment with a scheduled scoring jo
 | Network | public |
 | Serving | batch |
 | Adds | Batch endpoint and deployment, nightly scoring workflow |
-| IaC / CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
+| IaC and CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
 
-Scoring runs as a scheduled batch job (nightly workflow) instead of a real-time endpoint.
+Scoring runs as a scheduled batch job (a nightly workflow) instead of a real-time endpoint.
 
 ## Use it
 

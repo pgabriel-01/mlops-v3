@@ -3,11 +3,11 @@ title: "Azure DevOps"
 weight: 4
 ---
 
-The bootstrap creates a Git repository, an environment per stage, a variable group per environment, and an Azure Resource Manager service connection per environment that uses workload identity federation. The Azure DevOps **project** must already exist.
+The bootstrap creates a git repository, an environment per stage, a variable group per environment, and an Azure Resource Manager service connection per environment that uses workload identity federation. The Azure DevOps **project** must already exist.
 
 ## Organization and project
 
-- Know your organization URL (`azdo_org_url`, e.g. `https://dev.azure.com/my-org`) and an existing project (`azdo_project`).
+- Know your organization URL (`azdo_org_url`, for example `https://dev.azure.com/my-org`) and an existing project (`azdo_project`).
 - The organization must be connected to the same Microsoft Entra tenant as the Azure subscription.
 - Enable the Git repos, Pipelines and Environments features in the project.
 
@@ -34,4 +34,4 @@ Approvals and checks on the environments are not configured by the bootstrap. Ad
 
 ## Pipelines
 
-The bootstrap does not register the pipelines. After pushing the generated repo, create pipelines from the YAML files in `pipelines/` (names are up to you; the generated README lists the order: infra, ml-train, ml-deploy, ml-promote).
+The bootstrap does not register the pipelines. After pushing the generated repository, create pipelines from the YAML files in `pipelines/` (you choose the names; the generated README lists the order: `infra`, `ml-train`, `ml-deploy`, `ml-promote`).

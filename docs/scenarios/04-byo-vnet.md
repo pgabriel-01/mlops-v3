@@ -11,9 +11,9 @@ Spoke VNet, subnets, private DNS zones and private endpoints for all workspace d
 | Network | your VNet (created) |
 | Serving | online |
 | Adds | Spoke VNet, subnets, private DNS zones, private endpoints (`vnet_address_space`) |
-| IaC / CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
+| IaC and CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
 
-You own the network: the accelerator creates a spoke VNet, subnets, private DNS zones and private endpoints. No NSGs are created on the subnets; add them to match your standards.
+You own the network. The accelerator creates a spoke VNet, subnets, private DNS zones and private endpoints. It creates no network security groups on the subnets, so add them to match your standards.
 
 ## Use it
 
@@ -28,6 +28,7 @@ New-MLOpsInputFile -Scenario byo-vnet -Path inputs.yaml -Iac terraform -Cicd git
 {{% callout style="note" %}}
 Pipelines that touch the workspace need self-hosted agents or runners with network access to it.
 {{% /callout %}}
+
 See the [cost estimates](_index.md#estimated-fixed-monthly-cost) and the [prerequisites](../prerequisites/_index.md).
 
 ## Microsoft documentation

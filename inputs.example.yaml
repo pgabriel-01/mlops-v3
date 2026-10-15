@@ -1,23 +1,23 @@
 # Example inputs for the MLOps v3 accelerator.
-# Generate a scenario-specific file with:  New-MLOpsInputFile -Scenario managed-vnet-approved -Path inputs.yaml
+# Generate a scenario-specific file with: New-MLOpsInputFile -Scenario managed-vnet-approved -Path inputs.yaml
 project_name: taxi
 location: eastus2
 subscription_id: 00000000-0000-0000-0000-000000000000
 tenant_id: 00000000-0000-0000-0000-000000000000
 
-iac: terraform          # terraform | bicep
-cicd: github            # github | azdo
+iac: terraform          # terraform or bicep
+cicd: github            # github or azdo
 scenario: basic-public  # see Get-MLOpsScenario (11 AML scenarios)
 workload: tabular
 # compute_vm_size: Standard_DS3_v2   # training cluster and online endpoint size
 # compute_max_nodes: 4
-# workloads: [taxi, churn]   # several workloads on the one platform; default is a single workload at the repo root
-# use_private_networking: false   # GitHub: self-hosted ACI runners + private state storage
+# workloads: [taxi, churn]   # several workloads on one platform; the default is a single workload at the repo root
+# use_private_networking: false   # GitHub: self-hosted Azure Container Instances runners and private state storage
 # runners_vnet_address_space: 10.250.0.0/24
 # runner_label: ubuntu-latest   # or a private self-hosted runner label
 # approvers: [octocat]   # required reviewers for non-dev environments (GitHub)
-# name_suffix: a1b2   # override the generated suffix, e.g. to redeploy after a destroy
-# keyvault_retention_days: 7   # 7-90, fixed at creation
+# name_suffix: a1b2   # override the generated suffix, for example, to redeploy after a destroy
+# keyvault_retention_days: 7   # 7 to 90, fixed at creation
 data_source: taxi-csv        # or: adls
 # adls:                      # required when data_source: adls
 #   account_name: mystorageacct
@@ -39,8 +39,8 @@ github_repo: taxi-mlops
 # Scenario-specific (optional unless stated):
 # vnet_address_space: 10.20.0.0/16        # byo-vnet
 # allowed_outbound_fqdns: [pypi.org]      # managed-vnet-approved
-# budget_amount: 500                      # governance
-# alert_emails: [mlops@example.com]       # governance
+# budget_amount: 500                      # governance scenarios
+# alert_emails: [mlops@example.com]       # governance scenarios
 # existing_platform:                      # required for existing-platform
 #   subnet_id: /subscriptions/.../subnets/snet-ml
 #   log_analytics_workspace_id: /subscriptions/.../workspaces/law-platform

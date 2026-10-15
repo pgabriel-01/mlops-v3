@@ -1,5 +1,4 @@
-# Governance: budget. Diagnostic settings and the workspace
-# lock are set through the AVM module interfaces in main.tf (var.governance).
+# Governance: budget. Diagnostic settings and the workspace lock are set through the AVM module interfaces in main.tf (var.governance).
 
 resource "azurerm_consumption_budget_resource_group" "this" {
   count             = var.governance && var.budget_amount > 0 ? 1 : 0

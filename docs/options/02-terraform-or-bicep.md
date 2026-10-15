@@ -7,6 +7,6 @@ weight: 2
 iac: bicep        # or terraform
 ```
 
-Both build on Azure Verified Modules and produce the same resources. The bootstrap (repo, identity, state) is always Terraform regardless of this setting.
+Both build on Azure Verified Modules and produce the same resources. The bootstrap (repository, identity and state storage) is always Terraform regardless of this setting.
 
 Back to [Options](_index.md).

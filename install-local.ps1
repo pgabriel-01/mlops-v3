@@ -1,9 +1,18 @@
 <#
 .SYNOPSIS
   Installs MLOpsAccelerator from this checkout into your user module path (no PowerShell Gallery needed).
+.DESCRIPTION
+  Copies the module, templates, schema and version lock file into your user module folder and imports the module.
+.PARAMETER Uninstall
+  Remove the installed module instead of installing it.
 .EXAMPLE
-  ./install-local.ps1            # install or update
+  ./install-local.ps1
+
+  Installs or updates the module.
+.EXAMPLE
   ./install-local.ps1 -Uninstall
+
+  Removes the installed module.
 #>
 [CmdletBinding()]
 param([switch] $Uninstall)
@@ -25,4 +34,4 @@ Copy-Item (Join-Path $PSScriptRoot 'schema') $target -Recurse
 Copy-Item (Join-Path $PSScriptRoot 'versions.lock.json') $target
 Import-Module $target -Force
 Write-Host "Installed $((Get-Module MLOpsAccelerator).Version) to $target"
-Write-Host 'Next: New-MLOpsInputFile -Scenario <id> -Path inputs.yaml ; Deploy-MLOpsAccelerator -InputFile inputs.yaml'
+Write-Host 'Next: New-MLOpsInputFile -Scenario <id> -Path inputs.yaml; Deploy-MLOpsAccelerator -InputFile inputs.yaml'

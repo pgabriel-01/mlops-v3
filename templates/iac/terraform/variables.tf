@@ -26,7 +26,7 @@ variable "suffix" {
 variable "network_mode" {
   type        = string
   default     = "public"
-  description = "public | managed_internet | managed_approved | byo_vnet"
+  description = "One of public, managed_internet, managed_approved or byo_vnet."
 
   validation {
     condition     = contains(["public", "managed_internet", "managed_approved", "byo_vnet"], var.network_mode)
@@ -42,7 +42,7 @@ variable "feature_store" {
 variable "registry" {
   type        = bool
   default     = false
-  description = "Create the shared AML registry (first environment only)."
+  description = "Create the shared Azure ML registry (first environment only)."
 }
 
 variable "governance" {
@@ -120,7 +120,7 @@ variable "existing_law_id" {
 variable "existing_dns_zones" {
   type        = map(string)
   default     = {}
-  description = "Optional keys: blob, file, vault, acr, aml_api, aml_notebooks (plus cognitiveservices, openai, aiservices for genai)."
+  description = "Optional keys: blob, file, vault, acr, aml_api, aml_notebooks (and cognitiveservices, openai, aiservices for genai)."
 }
 
 variable "tags" {

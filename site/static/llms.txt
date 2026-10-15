@@ -1,6 +1,6 @@
 # MLOps v3
 
-MLOps v3 Accelerator - a PowerShell module (Deploy-MLOpsAccelerator) that turns one inputs file into bootstrap, IaC (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub or Azure DevOps) and an Azure Machine Learning workload across 11 scenarios.
+MLOps v3 Accelerator is a PowerShell module (`Deploy-MLOpsAccelerator`) that turns one inputs file into bootstrap, infrastructure as code (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub or Azure DevOps) and an Azure Machine Learning workload across 11 scenarios. The module is pre-release `v0.2.0` and is not yet on the PowerShell Gallery. Documentation site: https://pgabriel-01.github.io/mlops-v3/
 
 ## Start here
 - [MLOps v3 Documentation](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/_index.md)
@@ -10,7 +10,7 @@ MLOps v3 Accelerator - a PowerShell module (Deploy-MLOpsAccelerator) that turns 
 
 ## Phase 0 - Planning
 - [Phase 0 - Planning](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/planning/_index.md)
-- [External data sources (Snowflake, Azure SQL Database)](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/planning/data-sources.md)
+- [External data sources (Snowflake and Azure SQL Database)](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/planning/data-sources.md)
 - [Decision flow](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/planning/decision-flow.md)
 - [Parameter checklist](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/planning/parameter-checklist.md)
 
@@ -20,7 +20,7 @@ MLOps v3 Accelerator - a PowerShell module (Deploy-MLOpsAccelerator) that turns 
 - [Azure subscriptions and permissions](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/prerequisites/azure.md)
 - [GitHub](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/prerequisites/github.md)
 
-## Phase 2 and 3 - Bootstrap and run
+## Phases 2 and 3 - Bootstrap and run
 - [Phase 2 - Bootstrap](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/bootstrap.md)
 - [Advanced](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/advanced.md)
 - [Phase 3 - Run](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/run.md)
@@ -64,7 +64,7 @@ MLOps v3 Accelerator - a PowerShell module (Deploy-MLOpsAccelerator) that turns 
 
 ## Reference
 - [Reference](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/reference/_index.md)
-- [Gap analysis vs the ALZ PowerShell accelerator](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/reference/alz-gap-analysis.md)
+- [Comparison with the ALZ PowerShell accelerator](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/reference/alz-gap-analysis.md)
 - [Azure Verified Modules](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/reference/azure-verified-modules.md)
 - [Configuration files](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/reference/configuration-files.md)
 - [Resource providers](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/reference/resource-providers.md)

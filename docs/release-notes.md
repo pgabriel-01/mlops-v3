@@ -25,6 +25,6 @@ Compute clusters are generated with local auth off (`local_auth_enabled = false`
 
 ### Governance policy assignment moved
 
-The single governance-only policy assignment was replaced by the `policy.tf` / `policyMode` guardrails. They apply to every scenario, not only governance ones. The `governance` flag still controls budget, locks and diagnostics.
+The single governance-only policy assignment was replaced by the `policy.tf` (Terraform) and `policyMode` (Bicep) guardrails. They apply to every scenario, not only governance ones. The `governance` flag still controls budget, locks and diagnostics.
 
 **Action:** check the Terraform plan. The old assignment is destroyed and the new ones are created.

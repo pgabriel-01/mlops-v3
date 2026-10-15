@@ -6,7 +6,7 @@ weight: 65
 This section documents the Azure Policy guardrails the accelerator assigns to each environment.
 
 {{% callout style="note" %}}
-Policy is a guardrail layer, not the main purpose of the accelerator. It uses **built-in** policy definitions only, at **resource group** scope. It does not create custom definitions, initiatives or management-group assignments.
+Policy is a guardrail layer, not the main purpose of the accelerator. It uses built-in policy definitions only, at resource group scope. It does not create custom definitions, initiatives or management-group assignments.
 {{% /callout %}}
 
 ## Policy mode
@@ -36,4 +36,4 @@ ALZ creates managed identities for `deployIfNotExists` remediation. The accelera
 
 ## Prerequisites
 
-Assigning policy needs *Resource Policy Contributor* (Contributor cannot write policy assignments). The bootstrap grants it to the deploy identity at subscription scope. See [Azure prerequisites](../prerequisites/azure.md).
+Assigning policy needs the Resource Policy Contributor role. Contributor cannot write policy assignments. The bootstrap grants it to the deploy identity at subscription scope. See [Azure prerequisites](../prerequisites/azure.md).

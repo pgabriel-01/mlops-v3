@@ -5,7 +5,7 @@ weight: 50
 
 ## 1. Prerequisites
 
-Install these tools, then `az login` and create a GitHub token or Azure DevOps PAT. See the [parameter checklist](planning/parameter-checklist.md) and [prerequisites](prerequisites/_index.md) for details.
+Install these tools, sign in with `az login`, and create a GitHub token or Azure DevOps PAT. See the [parameter checklist](planning/parameter-checklist.md) and [prerequisites](prerequisites/_index.md) for details.
 
 | Tool | Version | Direct download |
 |---|---|---|
@@ -41,7 +41,14 @@ Test-MLOpsAcceleratorVersion      # compare pins with latest releases
 Update-MLOpsAcceleratorVersion
 ```
 
-Terraform stays on azurerm 4.x because Azure Verified Modules require `< 5.0`; see `versions.lock.json`.
+Terraform stays on `azurerm` 4.x because Azure Verified Modules require a version below 5.0; see `versions.lock.json`.
 
 ## Phases of the generated project
-0. Platform prerequisites (outside the repo; private scenarios only) · 1. Bootstrap (`terraform apply` in `bootstrap/`) · 2. Infrastructure (`infra` pipeline, one environment at a time with approvals) · 3. Workload (`ml-train`) · 4. Serve (`ml-deploy`, `ml-promote`). The generated README has the full table with a "stop and check" for each phase.
+
+- Phase 0: platform prerequisites (outside the repository; private scenarios only).
+- Phase 1: bootstrap (`terraform apply` in `bootstrap/`).
+- Phase 2: infrastructure (`infra` pipeline, one environment at a time, with approvals).
+- Phase 3: workload (`ml-train`).
+- Phase 4: serve (`ml-deploy` and `ml-promote`).
+
+The generated README has the full table with a stop-and-check step for each phase.

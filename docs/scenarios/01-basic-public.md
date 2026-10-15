@@ -3,15 +3,15 @@ title: "1 - Basic, public endpoints"
 weight: 1
 ---
 
-Workspace, storage, Key Vault, ACR, App Insights, compute cluster. Training pipeline only; public endpoints.
+Workspace, storage, Key Vault, Azure Container Registry, Application Insights and a compute cluster. Training pipeline only, with public endpoints.
 
 | | |
 |---|---|
 | Id | `basic-public` |
 | Network | public |
 | Serving | none |
-| Adds | Workspace, storage, Key Vault, ACR, App Insights, CPU cluster, training pipeline |
-| IaC / CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
+| Adds | Workspace, storage, Key Vault, Azure Container Registry, Application Insights, CPU cluster, training pipeline |
+| IaC and CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
 
 ## Use it
 

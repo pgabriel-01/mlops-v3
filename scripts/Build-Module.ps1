@@ -1,9 +1,20 @@
 <#
 .SYNOPSIS
-Stages a self-contained MLOpsAccelerator module (module, templates, schema, version lock) for PowerShell Gallery.
+Stages a self-contained MLOpsAccelerator module for the PowerShell Gallery.
+.DESCRIPTION
+Copies the module, templates, schema, version lock file, example inputs and license into a staging folder.
+.PARAMETER Version
+The module version, for example 1.2.3 or 1.2.3-preview1.
+.PARAMETER OutputPath
+The folder that receives the staged module. Defaults to build in the repository root.
 .EXAMPLE
 ./scripts/Build-Module.ps1 -Version 0.2.0
-./scripts/Build-Module.ps1 -Version 0.2.0-preview1   # prerelease
+
+Stages version 0.2.0.
+.EXAMPLE
+./scripts/Build-Module.ps1 -Version 0.2.0-preview1
+
+Stages a prerelease version.
 #>
 [CmdletBinding()]
 param(

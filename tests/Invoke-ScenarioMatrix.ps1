@@ -2,7 +2,7 @@
 # between GitHub and Azure DevOps), then validates the IaC. No Azure calls, no model training.
 #   -Quick         validate only one Terraform and one Bicep scenario (render everything)
 #   -Scenario id   limit to a scenario id or number
-#   -Iac terraform|bicep   limit to one IaC flavour
+#   -Iac terraform or bicep   limit to one IaC language
 #   -ResultsPath file.json  also write machine-readable results (used by CI for the report)
 param([switch]$Quick, [string] $Scenario, [ValidateSet('terraform', 'bicep')][string] $Iac, [string] $ResultsPath)
 Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1 -Force

@@ -74,7 +74,22 @@ function Read-MLOpsInput {
 function Get-MLOpsScenario {
     <#
     .SYNOPSIS
-    Lists the AML platform scenarios (or returns one by id or number).
+    Lists the Azure Machine Learning platform scenarios, or returns one by id or number.
+    .DESCRIPTION
+    Reads the scenario catalog shipped with the module. Each scenario defines the network mode, governance
+    options and platform shape that the generator renders.
+    .PARAMETER Scenario
+    The scenario id (for example basic-public) or number (for example 1). When omitted, all scenarios are returned.
+    .EXAMPLE
+    Get-MLOpsScenario
+
+    Lists all scenarios.
+    .EXAMPLE
+    Get-MLOpsScenario -Scenario basic-public
+
+    Returns the basic-public scenario.
+    .OUTPUTS
+    System.Management.Automation.PSCustomObject
     #>
     [CmdletBinding()]
     param([string] $Scenario)
@@ -89,6 +104,29 @@ function New-MLOpsInputFile {
     <#
     .SYNOPSIS
     Writes a starter inputs file for a scenario, with the parameters that scenario needs.
+    .DESCRIPTION
+    Creates a YAML inputs file with placeholder values. Replace the placeholders, then pass the file to
+    Deploy-MLOpsAccelerator.
+    .PARAMETER Scenario
+    The scenario id or number. Use Get-MLOpsScenario to list the options.
+    .PARAMETER Path
+    Where to write the inputs file.
+    .PARAMETER Iac
+    The infrastructure as code language: terraform (default) or bicep.
+    .PARAMETER Cicd
+    The CI/CD platform: github (default) or azdo.
+    .PARAMETER Force
+    Overwrite the file if it already exists.
+    .EXAMPLE
+    New-MLOpsInputFile -Scenario basic-public -Path ./inputs.yaml
+
+    Writes a Terraform and GitHub starter file for the basic-public scenario.
+    .EXAMPLE
+    New-MLOpsInputFile -Scenario 3 -Path ./inputs.yaml -Iac bicep -Cicd azdo -Force
+
+    Writes a Bicep and Azure DevOps starter file for scenario 3, replacing any existing file.
+    .OUTPUTS
+    System.String. The path of the file that was written.
     #>
     [CmdletBinding()]
     param(
@@ -286,6 +324,17 @@ function Test-MLOpsAcceleratorInput {
     <#
     .SYNOPSIS
     Validates an inputs file (YAML or JSON) against the accelerator schema.
+    .DESCRIPTION
+    Applies defaults and validates the file against the JSON schema. Throws with the schema errors when the
+    file is invalid.
+    .PARAMETER InputFile
+    Path to the YAML or JSON inputs file.
+    .EXAMPLE
+    Test-MLOpsAcceleratorInput -InputFile ./inputs.yaml
+
+    Returns True when the file is valid.
+    .OUTPUTS
+    System.Boolean
     #>
     [CmdletBinding()]
     param([Parameter(Mandatory)][string] $InputFile)
@@ -297,10 +346,15 @@ function Deploy-MLOpsAccelerator {
     <#
     .SYNOPSIS
     Generates an MLOps repository from an inputs file and optionally runs the bootstrap.
+    .DESCRIPTION
+    Renders the bootstrap, infrastructure as code (Terraform or Bicep on Azure Verified Modules), CI/CD
+    pipelines (GitHub Actions or Azure DevOps) and an Azure Machine Learning workload from one inputs file.
+    With -Deploy, it also applies the Terraform bootstrap. With -Destroy, it destroys the bootstrap resources
+    instead of generating.
     .PARAMETER InputFile
-    YAML or JSON inputs (alias -Inputs; see inputs.example.yaml). Defaults to ./inputs.yaml; when that is missing you are prompted and the file is written.
+    YAML or JSON inputs (alias -Inputs). See inputs.example.yaml. Defaults to ./inputs.yaml. When that file is missing, you are prompted for the key values and the file is written.
     .PARAMETER OutputPath
-    Folder that receives the generated repository (alias -Output, default ./output). Must be empty unless -Force is used.
+    Folder that receives the generated repository (alias -Output, default ./output). Must be empty unless -Force or -Upgrade is used.
     .PARAMETER Deploy
     After generating, run the Terraform bootstrap (state, identity, repository wiring).
     .PARAMETER Destroy
@@ -315,6 +369,24 @@ function Deploy-MLOpsAccelerator {
     Skip the pre-flight requirements check used by -Deploy and -Destroy.
     .PARAMETER Interactive
     Prompt for the key inputs and write the inputs file (InputFile, default ./inputs.yaml) before generating.
+    .PARAMETER Force
+    Generate into OutputPath even when it is not empty, overwriting existing files.
+    .EXAMPLE
+    Deploy-MLOpsAccelerator -InputFile ./inputs.yaml -OutputPath ./output
+
+    Generates the repository without running the bootstrap.
+    .EXAMPLE
+    Deploy-MLOpsAccelerator -Interactive
+
+    Prompts for the key inputs, writes ./inputs.yaml and generates the repository.
+    .EXAMPLE
+    Deploy-MLOpsAccelerator -InputFile ./inputs.yaml -OutputPath ./output -Deploy
+
+    Generates the repository and applies the bootstrap after you confirm the plan.
+    .EXAMPLE
+    Deploy-MLOpsAccelerator -InputFile ./inputs.yaml -OutputPath ./output -Upgrade
+
+    Regenerates into an existing project. Commit first so you can review the diff.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -455,9 +527,24 @@ function Invoke-MLOpsBootstrap {
 function Test-MLOpsAcceleratorRequirement {
     <#
     .SYNOPSIS
-    Pre-flight check of the tools, sign-ins and tokens that -Deploy / -Destroy need.
+    Checks the tools, sign-ins and tokens that the -Deploy and -Destroy options of Deploy-MLOpsAccelerator need.
+    .DESCRIPTION
+    Runs a set of pre-flight checks and returns one result per check. Checks marked Required must pass
+    before the bootstrap can run.
+    .PARAMETER Cicd
+    The CI/CD platform, which determines the token check: github (default) or azdo.
+    .PARAMETER Iac
+    The infrastructure as code language: terraform (default) or bicep. Bicep adds a check for the Bicep CLI.
+    .EXAMPLE
+    Test-MLOpsAcceleratorRequirement | Where-Object { -not $_.Passed }
+
+    Shows only the checks that failed.
+    .EXAMPLE
+    Test-MLOpsAcceleratorRequirement -Cicd azdo -Iac bicep
+
+    Checks the requirements for Azure DevOps with Bicep.
     .OUTPUTS
-    One object per check: Name, Required, Passed, Detail.
+    System.Management.Automation.PSCustomObject. One object per check with the properties Name, Required, Passed and Detail.
     #>
     [CmdletBinding()]
     param(
@@ -508,8 +595,27 @@ function Remove-MLOpsAccelerator {
     .SYNOPSIS
     Destroys the bootstrap resources of a generated project and optionally deletes the local folder.
     .DESCRIPTION
-    Workload infrastructure (per-environment AML resources) is owned by the generated pipelines; destroy those first
-    (run the infra pipeline with the destroy option, or delete the resource groups) before removing the bootstrap.
+    Workload infrastructure (the Azure Machine Learning resources of each environment) is owned by the generated
+    pipelines. Destroy it first, either by running the infrastructure pipeline with the destroy option or by
+    deleting the resource groups, and then remove the bootstrap.
+    .PARAMETER InputFile
+    The inputs file that was used to generate the project.
+    .PARAMETER ProjectPath
+    The generated project folder. It must contain .mlops-v3/generation.json.
+    .PARAMETER AutoApprove
+    Destroy without the interactive confirmation after the plan.
+    .PARAMETER DeleteLocalFolder
+    Delete the local project folder after a successful destroy. The folder is kept if local Terraform state remains.
+    .PARAMETER SkipRequirementsCheck
+    Skip the pre-flight requirements check.
+    .EXAMPLE
+    Remove-MLOpsAccelerator -InputFile ./inputs.yaml -ProjectPath ./output
+
+    Plans the destroy of the bootstrap resources and asks for confirmation.
+    .EXAMPLE
+    Remove-MLOpsAccelerator -InputFile ./inputs.yaml -ProjectPath ./output -AutoApprove -DeleteLocalFolder
+
+    Destroys the bootstrap without prompting and deletes the local folder.
     #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param(
@@ -532,7 +638,23 @@ function Remove-MLOpsAccelerator {
 function Grant-MLOpsStorageAccess {
     <#
     .SYNOPSIS
-    Grants the AML workspace identity Storage Blob Data Reader on the ADLS account used by data_source: adls.
+    Grants the Azure Machine Learning workspace identity Storage Blob Data Reader on the ADLS account used when data_source is adls.
+    .DESCRIPTION
+    Reads the managed identity of the workspace and assigns it the Storage Blob Data Reader role on the
+    storage account. Requires the Azure CLI with the ml extension and a signed-in account that can create
+    role assignments.
+    .PARAMETER StorageAccountName
+    Name of the ADLS storage account.
+    .PARAMETER StorageResourceGroup
+    Resource group of the storage account.
+    .PARAMETER WorkspaceName
+    Name of the Azure Machine Learning workspace.
+    .PARAMETER WorkspaceResourceGroup
+    Resource group of the workspace.
+    .EXAMPLE
+    Grant-MLOpsStorageAccess -StorageAccountName stdata01 -StorageResourceGroup rg-data -WorkspaceName mlw-myml-dev -WorkspaceResourceGroup rg-myml-dev
+
+    Grants the workspace identity read access to the storage account.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -642,7 +764,7 @@ function Read-MLOpsInteractiveInput {
     if ($ctx.Regions.Count) { Write-Host "Found $($ctx.Subscriptions.Count) subscriptions and $($ctx.Regions.Count) regions" }
     else { Write-Host 'Could not query Azure (az not installed or not signed in); enter values manually.' -ForegroundColor Yellow }
     $project = & $ask 'Project name' 'myml'
-    $location = Read-MLOpsMenuSelection -Title 'Azure region' -OptionsTitle 'Available regions ([AZ] = availability zone support; zone-redundant resources need it):' -Options $ctx.Regions -DefaultValue 'eastus2' -AllowManualEntry -ManualEntryPrompt 'Enter region name (e.g. uksouth, eastus2)'
+    $location = Read-MLOpsMenuSelection -Title 'Azure region' -OptionsTitle 'Available regions ([AZ] = availability zone support; zone-redundant resources need it):' -Options $ctx.Regions -DefaultValue 'eastus2' -AllowManualEntry -ManualEntryPrompt 'Enter region name (for example, uksouth or eastus2)'
     $picked = $ctx.Regions | Where-Object { $_.value -eq $location }
     if ($picked -and $picked.zones -eq 0) { Write-Warning "$location has no availability zones; zone-redundant options will not apply." }
     $guid = { param($v) $v -match '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$' }
@@ -651,7 +773,7 @@ function Read-MLOpsInteractiveInput {
         project_name = $project
         location = $location
         subscription_id = (Read-MLOpsMenuSelection -Title 'Azure subscription' -OptionsTitle 'Available subscriptions:' -Options $ctx.Subscriptions -DefaultValue $subDefault -AllowManualEntry -ManualEntryPrompt 'Enter subscription ID' -ManualEntryValidator $guid -ManualEntryError 'Invalid GUID format (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).')
-        tenant_id = (& $ask 'Tenant id' $(if ($ctx.TenantId) { $ctx.TenantId } else { '00000000-0000-0000-0000-000000000000' }))
+        tenant_id = (& $ask 'Tenant ID' $(if ($ctx.TenantId) { $ctx.TenantId } else { '00000000-0000-0000-0000-000000000000' }))
     }
     if ($cicd -eq 'github') { $set['github_org'] = (& $ask 'GitHub org' 'my-org'); $set['github_repo'] = (& $ask 'GitHub repo' "$($set['project_name'])-mlops") }
     else { $set['azdo_org_url'] = (& $ask 'Azure DevOps org URL' 'https://dev.azure.com/my-org'); $set['azdo_project'] = (& $ask 'Azure DevOps project' 'my-project') }
@@ -730,6 +852,20 @@ function Test-MLOpsAcceleratorVersion {
     Compares pinned versions with the latest releases and warns about outdated components.
     .PARAMETER Path
     A generated project (reads .mlops-v3/versions.lock.json) or a lock file. Defaults to the accelerator's own lock.
+    .DESCRIPTION
+    Looks up the latest release of each pinned component (Terraform, providers, modules, Python packages and
+    GitHub Actions) and reports whether the pin is current. Components held to a major version are compared
+    within that series. Requires internet access.
+    .EXAMPLE
+    Test-MLOpsAcceleratorVersion | Where-Object Status -eq 'Outdated'
+
+    Lists the outdated components of the accelerator's own lock file.
+    .EXAMPLE
+    Test-MLOpsAcceleratorVersion -Path ./output
+
+    Checks the versions recorded in a generated project.
+    .OUTPUTS
+    System.Management.Automation.PSCustomObject. One object per component with the properties Component, Pinned, Latest and Status (Current, Outdated or Unknown).
     #>
     [CmdletBinding()]
     param([string] $Path)
@@ -758,6 +894,20 @@ function Update-MLOpsAcceleratorVersion {
     <#
     .SYNOPSIS
     Moves the lock file to the latest releases, but only if the Python packages still resolve together.
+    .DESCRIPTION
+    Finds outdated components with Test-MLOpsAcceleratorVersion. If any Python packages changed, it checks
+    with pip that the new set resolves on the Python version the lock targets. The lock file is written only
+    when that check passes. Regenerate your project afterward to apply the new versions.
+    .PARAMETER LockFile
+    Path to the lock file to update. Defaults to the accelerator's own versions.lock.json.
+    .EXAMPLE
+    Update-MLOpsAcceleratorVersion -WhatIf
+
+    Shows what would change without writing the lock file.
+    .EXAMPLE
+    Update-MLOpsAcceleratorVersion
+
+    Updates the lock file to the latest releases.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param([string] $LockFile = $script:LockPath)

@@ -6,8 +6,10 @@ weight: 40
 Bootstrap has created the repository, identity and environments. Now push the generated project and run its pipelines.
 
 {{% callout style="warning" %}}
-Nothing in this accelerator has been applied to a real subscription yet. Run it first in a throwaway subscription.
+The module is pre-release (v0.2.0). All 11 scenarios are applied live, but the bootstrap apply, Azure DevOps and endpoint deployment are not verified yet. Run it first in a throwaway subscription.
+
 {{% /callout %}}
+
 ## 1. Push the generated project
 
 ```powershell
@@ -25,18 +27,20 @@ The bootstrap creates one environment per stage (`dev`, `test`, `prod` by defaul
 {{< tabs >}}
 {{% tab title="GitHub" %}}
 1. Open the repository, then **Actions**.
-2. **2 - infra** runs on every push to `main` that touches `infra/`. To run it by hand choose **Run workflow** on `main`. It validates (fmt, validate, Checkov), then deploys `dev`, then `test`, then `prod`, each waiting for its environment approval.
+2. **2 - infra** runs on every push to `main` that touches `infra/`. To run it by hand choose **Run workflow** on `main`. It validates (format check, validate and Checkov), then deploys `dev`, then `test`, then `prod`, each waiting for its environment approval.
 3. When infra is green, run **3 - ml-train** (**Run workflow**, pick an environment). It runs unit tests, submits the AML training pipeline and registers the model.
-4. Run **4 - ml-deploy** to create the endpoint (scenarios 2-4, 6-9, 11 online; 5 batch). Scenario 6 shifts traffic 10% then 100%. Scenario 8 uses **4 - ml-promote** to copy the model through the shared registry first.
+4. Run **4 - ml-deploy** to create the endpoint (scenarios 2 to 4, 6 to 9 and 11 online; scenario 5 batch). Scenario 6 shifts traffic 10% then 100%. Scenario 8 uses **4 - ml-promote** to copy the model through the shared registry first.
 {{% /tab %}}
 {{% tab title="Azure DevOps" %}}
 1. The bootstrap creates the repo, environments, variable groups and service connections, but **not the pipelines**. Under **Pipelines**, choose **New pipeline**, then **Azure Repos Git**, and register each YAML under `pipelines/` (`infra.yml`, `ml-train.yml`, `ml-deploy.yml`, plus `ml-promote.yml` for scenario 8).
 2. Run `infra` and approve each environment as prompted, then `ml-train`, then `ml-deploy`.
 {{% /tab %}}
 {{< /tabs >}}
+
 {{% callout style="note" %}}
-Scenarios with private networking (2-4, 11) need self-hosted agents or runners that can reach the workspace; hosted agents will fail at the AML steps.
+Scenarios with private networking (2 to 4 and 11) need self-hosted agents or runners that can reach the workspace; hosted agents will fail at the AML steps.
 {{% /callout %}}
+
 ## 4. Verify each phase
 
 | After | Check |

@@ -1,4 +1,4 @@
-"""End-to-end smoke test of prep -> train -> evaluate on a data sample."""
+"""End-to-end smoke test of prep, train and evaluate on a data sample."""
 
 import json
 import os
