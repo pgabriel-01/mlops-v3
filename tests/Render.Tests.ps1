@@ -76,7 +76,7 @@ Describe 'Generator' {
             Get-Content -Raw (Join-Path $o 'mlops/azureml/datastore.yml') | Should -Match 'account_name: stdatalake01'
             Get-Content -Raw (Join-Path $o 'mlops/azureml/data.yml') | Should -Match 'azureml://datastores/adls_raw/paths/taxi/taxi-data.csv'
         }
-        It 'registers the bundled sample as an MLTable data asset' -ForEach @('taxi-csv', 'taxi-parquet') {
+        It 'registers the bundled sample as an MLTable data asset' -ForEach @('taxi-csv', 'taxi-parquet', 'nyc-taxi-open') {
             $f = Join-Path $TestDrive "$_.yaml"
             New-MLOpsInputFile -Scenario basic-public -Path $f | Out-Null
             Set-Content $f ((Get-Content -Raw $f) -replace 'data_source: taxi-csv', "data_source: $_")

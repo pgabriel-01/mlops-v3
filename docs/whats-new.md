@@ -21,6 +21,7 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Added
 
+- `data_source: nyc-taxi-open`: a 2,000-row sample of the public Azure Open Datasets yellow taxi parquet with its original column names. `prep.py` cleans and maps it to the model features, so you can see a real parquet schema end to end.
 - A [CSV or parquet](options/13-csv-or-parquet.md) options page that explains why parquet is worth learning and how to convert a CSV.
 - **[Preview]** Scenario 12, `rag-llmops`: Azure AI Search, a chat and an embedding model deployment, an index of sample documents, and an evaluation step with a groundedness quality gate in the pipeline, on Terraform and Bicep. The new `rag` input section sets the models, capacity, search tier and gate threshold. The new `Test-MLOpsModelQuota` function, which `-Deploy` also runs, checks regional model and search quota first. Not yet applied live.
 - `rag.search_location` input to place Azure AI Search in a different region than the rest of the workload, for when the main region is out of Search capacity. The quota check now reads Search usage for that region and warns that quota does not guarantee capacity.

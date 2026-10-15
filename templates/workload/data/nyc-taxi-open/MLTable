@@ -1,0 +1,7 @@
+$schema: https://azuremlschemas.azureedge.net/data/latest/MLTable.schema.json
+type: mltable
+paths:
+  - file: ./taxi-data.parquet
+transformations:
+  - read_parquet:
+      include_path_column: false

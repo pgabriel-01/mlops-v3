@@ -16,7 +16,7 @@ def run(script, *args, env):
     subprocess.run([sys.executable, str(SRC / script), *map(str, args)], check=True, env=env, cwd=SRC)
 
 
-@pytest.mark.parametrize("asset", ["taxi-csv", "taxi-parquet"])
+@pytest.mark.parametrize("asset", ["taxi-csv", "taxi-parquet", "nyc-taxi-open"])
 def test_pipeline_steps(tmp_path, asset):
     sample = ROOT / "data" / asset
     dirs = {n: tmp_path / n for n in ("train", "val", "test", "model", "eval")}

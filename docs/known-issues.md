@@ -110,4 +110,4 @@ Set `use_private_networking: true` (GitHub) to deploy self-hosted ACI runners in
 
 ## ADLS data is not an MLTable
 
-The bundled `taxi-csv` and `taxi-parquet` samples register as MLTable assets. `data_source: adls` registers a single `uri_file`, because `src/prep.py` parses MLTable by hand and reads only local paths. MLTable for ADLS needs `prep.py` support and a live run.
+The bundled `taxi-csv`, `taxi-parquet` and `nyc-taxi-open` samples register as MLTable assets. `data_source: adls` registers a single `uri_file`, because `src/prep.py` parses MLTable by hand and reads only local paths. MLTable for ADLS needs `prep.py` support and a live run.

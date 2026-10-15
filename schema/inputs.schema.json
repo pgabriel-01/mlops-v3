@@ -68,10 +68,11 @@
       "enum": [
         "taxi-csv",
         "taxi-parquet",
+        "nyc-taxi-open",
         "adls"
       ],
       "default": "taxi-csv",
-      "description": "taxi-csv and taxi-parquet use the bundled NYC taxi sample (derived from the MIT-licensed azureml-examples repository, see data/NOTICE.md in the generated project), registered as an MLTable data asset. adls reads a CSV from an ADLS Gen2 container through an identity-based Azure Machine Learning datastore. Other sources are not generated; land the data in ADLS first (see docs/planning/data-sources.md)."
+      "description": "nyc-taxi-open is a bundled 2,000-row sample of the Azure Open Datasets yellow taxi parquet (January 2015, original column names, cleaned and mapped by prep). taxi-csv and taxi-parquet use the bundled NYC taxi sample (derived from the MIT-licensed azureml-examples repository, see data/NOTICE.md in the generated project), registered as an MLTable data asset. adls reads a CSV from an ADLS Gen2 container through an identity-based Azure Machine Learning datastore. Other sources are not generated; land the data in ADLS first (see docs/planning/data-sources.md)."
     },
     "environments": {
       "type": "array",

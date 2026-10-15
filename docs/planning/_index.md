@@ -58,7 +58,7 @@ Each decision maps to a key in `inputs.yaml`. The [parameter checklist](paramete
 
 ### Decision 8 - Data source
 
-`data_source`: `taxi-csv` or `taxi-parquet` (bundled MLTable samples) or `adls` (your CSV in ADLS Gen2). See [data sources](data-sources.md).
+`data_source`: `taxi-csv`, `taxi-parquet` or `nyc-taxi-open` (bundled MLTable samples) or `adls` (your CSV in ADLS Gen2). See [data sources](data-sources.md).
 
 ### Decision 9 - Networking inputs
 

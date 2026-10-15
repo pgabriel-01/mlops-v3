@@ -44,8 +44,47 @@ def read_raw(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+def normalize_open_dataset(raw: pd.DataFrame) -> pd.DataFrame:
+    """Map Azure Open Datasets NYC yellow taxi columns (2015 and earlier) to the sample schema."""
+    pickup = pd.to_datetime(raw["tpepPickupDateTime"])
+    dropoff = pd.to_datetime(raw["tpepDropoffDateTime"])
+    out = pd.DataFrame(
+        {
+            "cost": raw["fareAmount"],
+            "distance": raw["tripDistance"],
+            "dropoff_latitude": raw["endLat"],
+            "dropoff_longitude": raw["endLon"],
+            "passengers": raw["passengerCount"],
+            "pickup_latitude": raw["startLat"],
+            "pickup_longitude": raw["startLon"],
+            "store_forward": (raw["storeAndFwdFlag"] == "Y").astype(int),
+            "vendor": pd.to_numeric(raw["vendorID"], errors="coerce").fillna(0).astype(int),
+        }
+    )
+    for prefix, ts in (("pickup", pickup), ("dropoff", dropoff)):
+        out[f"{prefix}_weekday"] = ts.dt.weekday
+        out[f"{prefix}_month"] = ts.dt.month
+        out[f"{prefix}_monthday"] = ts.dt.day
+        out[f"{prefix}_hour"] = ts.dt.hour
+        out[f"{prefix}_minute"] = ts.dt.minute
+        out[f"{prefix}_second"] = ts.dt.second
+    valid = (
+        (out["cost"] > 0)
+        & (out["distance"] > 0)
+        & (out["passengers"] > 0)
+        & out["pickup_latitude"].between(40, 41)
+        & out["dropoff_latitude"].between(40, 41)
+        & out["pickup_longitude"].between(-75, -73)
+        & out["dropoff_longitude"].between(-75, -73)
+    )
+    return out[valid].reset_index(drop=True)
+
+
 def main(args):
-    data = read_raw(Path(args.raw_data))[FEATURE_COLS + [TARGET_COL]]
+    raw = read_raw(Path(args.raw_data))
+    if "tpepPickupDateTime" in raw.columns:
+        raw = normalize_open_dataset(raw)
+    data = raw[FEATURE_COLS + [TARGET_COL]]
 
     rng = np.random.default_rng(args.seed)
     draw = rng.random(len(data))
