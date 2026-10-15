@@ -16,7 +16,6 @@ on:
         description: Comma-separated scenario numbers, for example 4 or 4,5
         required: true
 permissions:
-  id-token: write
   contents: read
 concurrency:
   group: e2e-${{ github.ref }}
@@ -50,6 +49,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: e2e
     timeout-minutes: 120
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -61,11 +63,11 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: hashicorp/setup-terraform@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
         with:
           terraform_wrapper: false
-      - uses: azure/login@v3
+      - uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -115,7 +117,7 @@ jobs:
         run: az deployment sub create --name e2e-${{ github.run_number }}-${{ matrix.n }} --location eastus2 --template-file out/infra/main.bicep --parameters out/infra/envs/dev.bicepparam
       - name: Sign in again (token expires during long deployments)
         if: always() && needs.matrix.outputs.apply == 'true'
-        uses: azure/login@v3
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -149,7 +151,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: azure/login@v3
+      - uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
