@@ -1,4 +1,4 @@
-name: pages
+name: Docs site
 on:
   push:
     branches: [main]

@@ -1,23 +1,18 @@
 # MLOps v3 Accelerator
 
-A PowerShell module that turns one inputs file into a ready-to-run Azure Machine Learning MLOps repository: bootstrap (state, identity, repo wiring), infrastructure, CI/CD and a tabular training workload. Modeled on the ALZ Accelerator.
+[![CI](https://github.com/pgabriel-01/mlops-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/pgabriel-01/mlops-v3/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+A PowerShell module that turns one inputs file into a ready-to-run Azure Machine Learning MLOps repository: bootstrap (state, identity and repository wiring), infrastructure, CI/CD and a tabular training workload. It is modeled on the [Azure Landing Zones (ALZ) Accelerator](https://github.com/Azure/ALZ-PowerShell-Module).
+
+**Status:** pre-release (`v0.2.0`). All 11 scenarios are applied, verified and destroyed live on Terraform and Bicep. The bootstrap apply, private runners and Azure DevOps are not yet verified live; see [Known issues](https://pgabriel-01.github.io/mlops-v3/known-issues/).
 
 | Choice | Options |
 |---|---|
-| IaC | Terraform, Bicep |
-| CI/CD | GitHub Actions, Azure DevOps |
-| Scenario | 11 AML scenarios (see below) |
-| Data | bundled taxi CSV, or your own CSV in ADLS Gen2 (`data_source: adls`) |
-
-## How it works (phases)
-
-| Phase | What you do | Details |
-|---|---|---|
-| 0. Planning | Pick a scenario, IaC, CI/CD and data source | [planning](docs/planning.md), [scenarios](docs/scenarios/index.md), [data sources](docs/data-sources.md), [checklist](docs/parameter-checklist.md) |
-| 1. Prerequisites | Install PowerShell 7.4+, `powershell-yaml`, `az` (logged in), Terraform; set `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN` | [prerequisites](docs/prerequisites/index.md) |
-| 2. Bootstrap | Generate an inputs file (`New-MLOpsInputFile`), then render and bootstrap | [bootstrap](docs/bootstrap.md) |
-| 3. Run | Push the generated repo and run the CI/CD pipelines (infra, train, deploy) | [run](docs/run.md) |
-| 5. Maintain | Check and bump pins | `Test-MLOpsAcceleratorVersion`, `Update-MLOpsAcceleratorVersion` |
+| Infrastructure as code | Terraform or Bicep, both on Azure Verified Modules |
+| CI/CD | GitHub Actions or Azure DevOps |
+| Scenario | 11 Azure ML scenarios (see [Scenarios](#scenarios)) |
+| Data | Bundled taxi CSV, or your own CSV in ADLS Gen2 (`data_source: adls`) |
 
 ## Required tools
 
@@ -33,65 +28,85 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 
 The Azure ML CLI extension (`ml` 2.45.1) is installed by the generated pipelines, so you do not install it yourself. Python 3.14 and the package versions are pinned in `versions.lock.json` and are used only by the pipelines.
 
-Full details are in [prerequisites](docs/prerequisites/_index.md).
+Full details are in the [prerequisites](https://pgabriel-01.github.io/mlops-v3/prerequisites/).
 
 ## Quick start
+
 ```powershell
-Install-PSResource -Name MLOpsAccelerator
-Deploy-MLOpsAccelerator -Inputs "inputs.yaml"
+Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1   # or ./install-local.ps1
+Test-MLOpsAcceleratorRequirement                              # checks tools, sign-in and tokens
+New-MLOpsInputFile -Scenario managed-vnet-approved -Path inputs.yaml -Iac terraform -Cicd github
+Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./out            # generate only
+Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./out -Deploy    # generate and bootstrap
 ```
-No `inputs.yaml` yet? Run `Deploy-MLOpsAccelerator` on its own and answer the prompts; it writes the file, then generates into `./output` (use `-Output` to change). Add `-Deploy` to also run the bootstrap. Until the first Gallery publish, import the module with `./install-local.ps1`.
 
-Check the requirements first:
-```powershell
-Test-MLOpsAcceleratorRequirement
-```
-For `-Deploy` you need `az` (logged in), `terraform`, plus `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN`.
+Run `Deploy-MLOpsAccelerator` with no arguments to answer prompts instead; it writes the inputs file for you. For `-Deploy` you need `az login`, Terraform, and either `GITHUB_TOKEN` or `AZDO_PERSONAL_ACCESS_TOKEN`. The module is not yet on the PowerShell Gallery ([issue 35](https://github.com/pgabriel-01/mlops-v3/issues/35)); each release attaches a zip on the [releases page](https://github.com/pgabriel-01/mlops-v3/releases).
 
-## Commands
-| Command | Purpose |
-|---|---|
-| `Test-MLOpsAcceleratorRequirement` | Pre-flight check (tools, `az login`, tokens, network); also runs before `-Deploy` |
-| `New-MLOpsInputFile` / `Deploy-MLOpsAccelerator -Interactive` | Write the inputs file, optionally via prompts |
-| `Deploy-MLOpsAccelerator` | Generate; `-Deploy` plans, asks for approval, applies (`-AutoApprove` to skip); `-Upgrade` regenerates an existing project; `-Destroy` tears down the bootstrap |
-| `Remove-MLOpsAccelerator` | Destroy the bootstrap and optionally delete the local folder |
-| `Grant-MLOpsStorageAccess` | Give the AML workspace identity Storage Blob Data Reader for `data_source: adls` |
-| `Test-/Update-MLOpsAcceleratorVersion` | Check and bump pins |
+## How it works
 
-## Versions
-`versions.lock.json` is the single source of truth. Python is pinned to **3.14**, not 3.15: 3.15 is still a release candidate and `pyarrow` has no wheels for it. The whole stack was checked with `pip check` on 3.14 and the training pipeline run end to end. Bump `python` in the lock once 3.15 wheels exist. `azureml-featurestore` supports only Python <= 3.12 (relevant to the planned Phase 2, which runs on Spark).
-
-## Design notes / best-practice mapping
-- Security (WAF/CAF): OIDC/workload identity federation, no secrets; Key Vault with RBAC and purge protection; Terraform state in Azure Storage with Entra auth; checkov in CI; per-environment approvals through GitHub environments / ADO environments.
-- Operations: Log Analytics + App Insights; dev -> test -> prod promotion, one state file per environment.
-- MLOps: pipeline (prep, train, evaluate, register), model registry, managed online endpoint with safe rollout.
+| Phase | What you do | Docs |
+|---|---|---|
+| 0. Plan | Pick a scenario, IaC, CI/CD and data source | [Planning](https://pgabriel-01.github.io/mlops-v3/planning/), [Scenarios](https://pgabriel-01.github.io/mlops-v3/scenarios/), [Parameter checklist](https://pgabriel-01.github.io/mlops-v3/planning/parameter-checklist/) |
+| 1. Prerequisites | Install the tools, sign in to Azure, create a token | [Prerequisites](https://pgabriel-01.github.io/mlops-v3/prerequisites/) |
+| 2. Bootstrap | Generate the inputs file, then render and bootstrap | [Bootstrap](https://pgabriel-01.github.io/mlops-v3/bootstrap/) |
+| 3. Run | Push the generated repository and run the pipelines (infra, train, deploy) | [Run](https://pgabriel-01.github.io/mlops-v3/run/) |
+| 4. Maintain | Check and update pinned versions, upgrade a generated project | [Upgrade guide](https://pgabriel-01.github.io/mlops-v3/upgrade-guide/) |
 
 ## Scenarios
 
-Eleven AML scenarios (public, managed VNet, BYO VNet, batch, blue/green, feature store, registry, governance, GenAI, existing platform) are described in [docs/scenarios/index.md](docs/scenarios/index.md); the input checklist is in [docs/parameter-checklist.md](docs/parameter-checklist.md).
+| Id | Scenario |
+|---|---|
+| 1 | Basic, public endpoints |
+| 2 | Secure: managed VNet, internet outbound |
+| 3 | Secure: managed VNet, approved outbound only |
+| 4 | Secure: bring-your-own VNet |
+| 5 | Batch training and batch inference |
+| 6 | Online endpoint with blue/green rollout |
+| 7 | Managed feature store |
+| 8 | Multi-environment with shared registry |
+| 9 | Monitoring and governance |
+| 10 | GenAI: AI Foundry hub and project |
+| 11 | Integrate with an existing platform landing zone |
 
-```powershell
-Get-MLOpsScenario
-New-MLOpsInputFile -Scenario managed-vnet-approved -Path inputs.yaml -Iac bicep -Cicd github
-Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./out
-```
+Run `Get-MLOpsScenario` to list them with their ids. Details and cost estimates are in the [scenario guide](https://pgabriel-01.github.io/mlops-v3/scenarios/).
 
-## Azure Verified Modules
+## Commands
 
-Infra and bootstrap use AVM resource modules (Terraform registry `Azure/avm-res-*`, Bicep `br/public:avm/res/*`) and utility modules (`avm-utl-regions`, `Azure/naming`). No AVM pattern module fits a plain Azure ML workspace (existing ones target Foundry/landing zones/azd), so none is used. Terraform is held on azurerm 4.x because AVM modules require `< 5.0`; the version checker honours this via `holds` in `versions.lock.json`. AVM telemetry is on by default; set `enable_telemetry = false` to disable.
+| Command | Purpose |
+|---|---|
+| `Test-MLOpsAcceleratorRequirement` | Pre-flight check of tools, `az login`, tokens and network; also runs before `-Deploy` |
+| `Get-MLOpsScenario` | List the scenarios |
+| `New-MLOpsInputFile` | Write an inputs file for a scenario |
+| `Test-MLOpsAcceleratorInput` | Validate an inputs file against the schema |
+| `Deploy-MLOpsAccelerator` | Generate the project. `-Deploy` plans, asks for approval and applies (`-AutoApprove` skips the prompt). `-Upgrade` regenerates an existing project. `-Destroy` tears down the bootstrap. |
+| `Remove-MLOpsAccelerator` | Destroy the bootstrap and optionally delete the local folder |
+| `Grant-MLOpsStorageAccess` | Give the workspace identity Storage Blob Data Reader for `data_source: adls` |
+| `Test-MLOpsAcceleratorVersion` and `Update-MLOpsAcceleratorVersion` | Check and update the pinned versions |
+
+## Design
+
+- **Security:** OIDC and workload identity federation with no stored secrets, Key Vault with RBAC and purge protection, Terraform state in Azure Storage with Entra authentication, checkov in CI, and per-environment approvals.
+- **Operations:** Log Analytics and Application Insights, promotion from dev to test to prod, and one state file per environment.
+- **MLOps:** a training pipeline (prepare, train, evaluate, register), a model registry and a managed online endpoint with safe rollout.
+- **Azure Verified Modules:** infrastructure and bootstrap use AVM resource and utility modules. No AVM pattern module fits a plain Azure ML workspace, so none is used. Terraform stays on azurerm 4.x because the AVM modules require `< 5.0`. AVM telemetry is on by default; set `enable_telemetry = false` to turn it off.
+- **Versions:** `versions.lock.json` is the single source of truth. Python is pinned to 3.14 because 3.15 is still a release candidate and `pyarrow` has no wheels for it.
 
 ## Known limitations
-- Bootstrap is always Terraform (like ALZ), even when IaC is Bicep.
-- Deploy identity gets Contributor + RBAC Administrator at subscription scope; scope it down for production.
-- Not verified against a live Azure subscription: bootstrap apply, AML runtime with Python 3.14 conda image, endpoint deployment.
-- Phase 2 (Parquet transactions data + managed feature store) is not implemented beyond an optional feature store resource.
 
-## Docs site
-`docs/` is the source; `site/hugo.toml` builds it with Hugo and the vendored Relearn theme (the same stack as the ALZ docs). Preview with `hugo server --source site`; build with `hugo --source site --minify` (output in `_site/`). `.github/workflows/pages.yml` publishes to GitHub Pages on push to `main` once Pages is enabled.
+- The bootstrap is always Terraform, like ALZ, even when the workload IaC is Bicep.
+- The deploy identity gets Contributor and RBAC Administrator at subscription scope. Scope it down for production.
+- Not yet verified live: the bootstrap apply, private runners, Azure DevOps, endpoint deployment, and the `rai` option.
 
-## Develop
-`Invoke-Pester ./tests`. Rendered output is additionally validated with `terraform validate`, `az bicep build` and the generated pytest (see `.github/workflows/ci.yml`).
+The full list is in [Known issues](https://pgabriel-01.github.io/mlops-v3/known-issues/).
+
+## Documentation
+
+The docs live in `docs/` and are published at <https://pgabriel-01.github.io/mlops-v3/>. Preview them with `hugo server --source site`; build with `hugo --source site --minify`.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [DEVELOPER.md](DEVELOPER.md). Report security issues through [SECURITY.md](SECURITY.md); get help through [SUPPORT.md](SUPPORT.md).
 
 ## License
 
-[MIT](LICENSE). Contributions follow [CONTRIBUTING.md](CONTRIBUTING.md); security reports go through [SECURITY.md](SECURITY.md).
+[MIT](LICENSE)

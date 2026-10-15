@@ -13,4 +13,4 @@ Common questions about the policy guardrails.
 
 ## Live status
 
-The assignments in the default `audit` mode are applied to a real subscription by the `e2e` workflow in every scenario except `existing-platform` (which defaults to `none`). `deny` mode has not been tested live.
+The assignments in the default `audit` mode are applied to a real subscription by the `e2e.yml` workflow in every scenario except `existing-platform` (which defaults to `none`). `deny` mode has not been tested live.
