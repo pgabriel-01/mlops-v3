@@ -23,13 +23,34 @@ module "ai_services" {
     }
   } : {}
 
-  role_assignments = {
-    hub = {
-      role_definition_id_or_name = "Cognitive Services User"
-      principal_id               = module.hub[0].system_assigned_mi_principal_id
-      principal_type             = "ServicePrincipal"
+  role_assignments = merge(
+    {
+      hub = {
+        role_definition_id_or_name = "Cognitive Services User"
+        principal_id               = module.hub[0].system_assigned_mi_principal_id
+        principal_type             = "ServicePrincipal"
+      }
+    },
+    var.rag ? {
+      deployer = {
+        role_definition_id_or_name = "Cognitive Services OpenAI User"
+        principal_id               = data.azurerm_client_config.current.object_id
+      }
+    } : {}
+  )
+
+  cognitive_deployments = var.rag ? {
+    chat = {
+      name  = "chat"
+      model = { format = "OpenAI", name = var.chat_model, version = var.chat_model_version }
+      scale = { type = "GlobalStandard", capacity = var.chat_capacity }
     }
-  }
+    embedding = {
+      name  = "embedding"
+      model = { format = "OpenAI", name = var.embedding_model, version = var.embedding_model_version }
+      scale = { type = "GlobalStandard", capacity = var.embedding_capacity }
+    }
+  } : {}
 
   diagnostic_settings = local.diag_settings
 }
@@ -97,4 +118,79 @@ module "project" {
   enable_telemetry              = var.enable_telemetry
 
   depends_on = [azapi_resource.hub_ai_services_connection]
+}
+
+# Azure AI Search for retrieval-augmented generation (scenario rag-llmops).
+module "search" {
+  count               = var.rag ? 1 : 0
+  source              = "Azure/avm-res-search-searchservice/azurerm"
+  version             = "[[versions.avm_tf.res-search-searchservice]]"
+  name                = "srch-${var.project_name}-${var.environment}-${var.suffix}"
+  location            = module.rg.location
+  resource_group_name = element(split("/", module.rg.resource_id), 4)
+  sku                 = var.search_sku
+
+  local_authentication_enabled  = false
+  public_network_access_enabled = !local.private
+  managed_identities            = { system_assigned = true }
+  tags                          = local.tags
+  enable_telemetry              = var.enable_telemetry
+
+  private_endpoints = local.byo_vnet ? {
+    search = {
+      subnet_resource_id            = local.pe_subnet_id
+      private_dns_zone_resource_ids = local.zone_sets.search
+    }
+  } : {}
+
+  role_assignments = {
+    project_reader = {
+      role_definition_id_or_name = "Search Index Data Reader"
+      principal_id               = module.project[0].system_assigned_mi_principal_id
+      principal_type             = "ServicePrincipal"
+    }
+    project_contributor = {
+      role_definition_id_or_name = "Search Service Contributor"
+      principal_id               = module.project[0].system_assigned_mi_principal_id
+      principal_type             = "ServicePrincipal"
+    }
+    deployer_data = {
+      role_definition_id_or_name = "Search Index Data Contributor"
+      principal_id               = data.azurerm_client_config.current.object_id
+    }
+    deployer_service = {
+      role_definition_id_or_name = "Search Service Contributor"
+      principal_id               = data.azurerm_client_config.current.object_id
+    }
+  }
+
+  diagnostic_settings = local.diag_settings
+}
+
+resource "azapi_resource" "project_search_connection" {
+  count     = var.rag ? 1 : 0
+  type      = "Microsoft.MachineLearningServices/workspaces/connections@2025-06-01"
+  name      = "aisearch"
+  parent_id = module.project[0].resource_id
+
+  body = {
+    properties = {
+      category = "CognitiveSearch"
+      target   = "https://${module.search[0].resource.name}.search.windows.net"
+      authType = "AAD"
+      metadata = {
+        ApiType    = "Azure"
+        ResourceId = module.search[0].resource_id
+      }
+    }
+  }
+}
+
+# Outside the AI Services module to avoid a dependency cycle (Search depends on the project, which depends on the account).
+resource "azurerm_role_assignment" "search_openai_user" {
+  count                = var.rag ? 1 : 0
+  scope                = module.ai_services[0].resource_id
+  role_definition_name = "Cognitive Services OpenAI User"
+  principal_id         = module.search[0].resource.identity[0].principal_id
+  principal_type       = "ServicePrincipal"
 }

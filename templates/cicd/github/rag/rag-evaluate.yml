@@ -1,0 +1,60 @@
+name: "5 - rag-evaluate"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: dev
+        type: choice
+        options: [[environments_yaml_list]]
+  pull_request:
+    paths: ["rag/**"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  unit:
+    runs-on: [[runner_label]]
+    steps:
+      - uses: actions/checkout@[[versions.actions.checkout]]
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "[[versions.python]]"
+      - run: python -m pip install -r rag/requirements-rag.txt pytest
+      - run: python -m pytest src
+        working-directory: rag
+
+  evaluate:
+    needs: unit
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: [[runner_label]]
+    environment: ${{ inputs.environment }}
+    env:
+      RG: rg-[[project_name]]-${{ inputs.environment }}-[[location_short]]
+      AI_NAME: ais-[[project_name]]-${{ inputs.environment }}-[[suffix]]
+      SEARCH_NAME: srch-[[project_name]]-${{ inputs.environment }}-[[suffix]]
+    steps:
+      - uses: actions/checkout@[[versions.actions.checkout]]
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "[[versions.python]]"
+      - uses: azure/login@[[versions.actions.login]]
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: python -m pip install -r rag/requirements-rag.txt
+      - name: Resolve endpoints
+        run: |
+          echo "AI_ENDPOINT=$(az cognitiveservices account show -g $RG -n $AI_NAME --query properties.endpoint -o tsv)" >> "$GITHUB_ENV"
+          echo "SEARCH_ENDPOINT=https://$SEARCH_NAME.search.windows.net" >> "$GITHUB_ENV"
+      - name: Build the index
+        run: python src/ingest.py
+        working-directory: rag
+      - name: Evaluate and apply the quality gate
+        run: python src/evaluate.py
+        working-directory: rag

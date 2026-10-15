@@ -1,6 +1,6 @@
 # MLOps v3
 
-MLOps v3 Accelerator is a PowerShell module (`Deploy-MLOpsAccelerator`) that turns one inputs file into bootstrap, infrastructure as code (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub or Azure DevOps) and an Azure Machine Learning workload across 11 scenarios. The module is pre-release `v0.2.0` and is not yet on the PowerShell Gallery. Documentation site: https://pgabriel-01.github.io/mlops-v3/
+MLOps v3 Accelerator is a PowerShell module (`Deploy-MLOpsAccelerator`) that turns one inputs file into bootstrap, infrastructure as code (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub or Azure DevOps) and an Azure Machine Learning workload across 12 scenarios. The module is pre-release `v0.2.0` and is not yet on the PowerShell Gallery. Documentation site: https://pgabriel-01.github.io/mlops-v3/
 
 ## Start here
 - [MLOps v3 Documentation](https://raw.githubusercontent.com/pgabriel-01/mlops-v3/refs/heads/main/docs/_index.md)

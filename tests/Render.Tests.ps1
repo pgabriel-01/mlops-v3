@@ -50,10 +50,10 @@ Describe 'Generator' {
         $txt | Should -Match "br/public:avm/res/"
     }
     Context 'Scenarios' {
-        It 'has 11 scenarios with unique ids' {
+        It 'has 12 scenarios with unique ids' {
             $all = Get-MLOpsScenario
-            $all.Count | Should -Be 11
-            ($all.id | Select-Object -Unique).Count | Should -Be 11
+            $all.Count | Should -Be 12
+            ($all.id | Select-Object -Unique).Count | Should -Be 12
         }
         It 'renders scenario <id> for <iac> with the expected files' -ForEach $Cases {
             $f = Join-Path $TestDrive "$id-$iac.yaml"
@@ -150,6 +150,29 @@ Describe 'Generator' {
             Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
             Get-Content -Raw (Join-Path $o 'bootstrap/bootstrap.tfvars') | Should -Match 'use_private_networking\s+= true'
             Get-Content -Raw (Join-Path $o '.github/workflows/infra.yml') | Should -Match 'runs-on: self-hosted'
+        }
+        It 'renders the RAG workload, model settings and pipeline for rag-llmops only' {
+            $f = Join-Path $TestDrive 'rag.yaml'
+            New-MLOpsInputFile -Scenario rag-llmops -Path $f | Out-Null
+            Set-Content $f ((Get-Content -Raw $f) + "rag:`n  chat_capacity: 25`n  search_sku: standard`n")
+            $o = Join-Path $TestDrive 'rag-out'
+            Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
+            $tfvars = Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars')
+            $tfvars | Should -Match 'rag\s+= true'
+            $tfvars | Should -Match 'chat_capacity\s+= 25'
+            $tfvars | Should -Match 'search_sku\s+= "standard"'
+            $tfvars | Should -Match 'chat_model\s+= "gpt-5.4-mini"'
+            foreach ($p in 'rag/src/ingest.py', 'rag/src/evaluate.py', 'rag/eval-questions.jsonl', 'rag/docs/rag-pattern.md', '.github/workflows/rag-evaluate.yml') {
+                Test-Path (Join-Path $o $p) | Should -BeTrue -Because $p
+            }
+            Get-Content -Raw (Join-Path $o 'rag/requirements-rag.txt') | Should -Match 'azure-ai-evaluation==\d'
+            Test-Path (Join-Path $o 'rag/requirements-rag.txt.tpl') | Should -BeFalse
+            Get-Content -Raw (Join-Path $o 'rag/src/evaluate.py') | Should -Match '"3\.5"'
+            $plain = Join-Path $TestDrive 'rag-off'
+            New-MLOpsInputFile -Scenario genai-foundry -Path (Join-Path $TestDrive 'g.yaml') | Out-Null
+            Deploy-MLOpsAccelerator -InputFile (Join-Path $TestDrive 'g.yaml') -OutputPath $plain -SkipVersionCheck *>$null
+            Test-Path (Join-Path $plain 'rag') | Should -BeFalse
+            Get-Content -Raw (Join-Path $plain 'infra/envs/dev.tfvars') | Should -Match 'rag\s+= false'
         }
         It 'rejects an invalid policy_mode' {
             $f = Join-Path $TestDrive 'pol-bad.yaml'

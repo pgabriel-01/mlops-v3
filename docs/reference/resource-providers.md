@@ -19,7 +19,8 @@ Azure only lets you deploy a resource type if the subscription is registered for
 | `Microsoft.Authorization` | Role assignments, policy assignments (registered by default) | All |
 | `Microsoft.PolicyInsights` | Policy compliance results | All unless `policy_mode: none` |
 | `Microsoft.Network` | VNets, private endpoints, private DNS | 2, 3, 4, 9 and any private scenario |
-| `Microsoft.CognitiveServices` | AI Foundry, model deployments | 10 |
+| `Microsoft.CognitiveServices` | AI Foundry, model deployments | 10, 12 |
+| `Microsoft.Search` | Azure AI Search | 12 |
 | `Microsoft.Consumption` | Budget alerts | 9, or when `budget_amount` is set |
 
 Providers marked "registered by default" need no action. See the [Azure list of providers by service](https://learn.microsoft.com/azure/azure-resource-manager/management/azure-services-resource-providers).
@@ -29,7 +30,7 @@ Providers marked "registered by default" need no action. See the [Azure list of 
 ```powershell
 'Microsoft.MachineLearningServices','Microsoft.Storage','Microsoft.KeyVault','Microsoft.ContainerRegistry',
 'Microsoft.OperationalInsights','Microsoft.Insights','Microsoft.ManagedIdentity','Microsoft.PolicyInsights',
-'Microsoft.Network','Microsoft.CognitiveServices','Microsoft.Consumption' |
+'Microsoft.Network','Microsoft.CognitiveServices','Microsoft.Search','Microsoft.Consumption' |
   ForEach-Object { az provider register --namespace $_ }
 ```
 

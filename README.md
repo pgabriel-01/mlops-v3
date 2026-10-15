@@ -11,13 +11,13 @@
 
 This repository contains the PowerShell module and documentation for the MLOps v3 Accelerator. It turns one inputs file into a ready-to-run Azure Machine Learning MLOps repository: bootstrap (state, identity and repository wiring), infrastructure, CI/CD and a training workload. It is an opinionated implementation modeled on the [Azure Landing Zones (ALZ) Accelerator](https://github.com/Azure/ALZ-PowerShell-Module), with GitHub or Azure DevOps bootstrapping.
 
-The module is a pre-release (`v0.2.0`). All 11 scenarios are applied, verified and destroyed live on Terraform and Bicep. The bootstrap apply, private runners and Azure DevOps are not yet verified live. See [Known issues](https://pgabriel-01.github.io/mlops-v3/known-issues/).
+The module is a pre-release (`v0.2.0`). Scenarios 1 to 11 are applied, verified and destroyed live on Terraform and Bicep. The bootstrap apply, private runners and Azure DevOps are not yet verified live. See [Known issues](https://pgabriel-01.github.io/mlops-v3/known-issues/).
 
 ## Supported options
 
 - **Infrastructure as code:** Terraform or Bicep, both built on Azure Verified Modules.
 - **CI/CD:** GitHub Actions or Azure DevOps.
-- **Scenarios:** 11 Azure ML scenarios, from a basic public workspace to GenAI and integration with an existing platform landing zone. Run `Get-MLOpsScenario` to list them, or see the [scenario guide](https://pgabriel-01.github.io/mlops-v3/scenarios/).
+- **Scenarios:** 12 Azure ML scenarios, from a basic public workspace to GenAI with retrieval-augmented generation and integration with an existing platform landing zone. Run `Get-MLOpsScenario` to list them, or see the [scenario guide](https://pgabriel-01.github.io/mlops-v3/scenarios/).
 - **Data:** the bundled taxi CSV, or your own CSV in ADLS Gen2.
 
 Please refer to the [documentation](https://pgabriel-01.github.io/mlops-v3/) for detailed features and usage instructions.

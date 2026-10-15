@@ -38,6 +38,7 @@ stages:
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
+                      export DEPLOYER_PRINCIPAL_ID=$(az account get-access-token --query accessToken -o tsv | python3 -c "import sys,base64,json;t=sys.stdin.read().split('.')[1];print(json.loads(base64.urlsafe_b64decode(t+'='*(-len(t)%4)))['oid'])")
                       az deployment sub what-if --location [[location]] --name infra-[[env]] \
                         --template-file infra/main.bicep --parameters infra/envs/[[env]].bicepparam
                       az deployment sub create --location [[location]] --name infra-[[env]] \

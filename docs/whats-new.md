@@ -6,13 +6,14 @@ weight: 2
 Newest first. The latest release is `v0.2.0` (2026-10-15); the first was `v0.1.0` (2026-10-14). Releases are tagged `v0.x.y` until the first gold release (`v1.0.0`), which also needs the bootstrap, private runners and Azure DevOps verified live. The module is pre-release and is not on the PowerShell Gallery yet. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Workload applied live, bootstrap not yet" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). All 11 scenarios are also verified live for Terraform and Bicep by the `e2e.yml` workflow. The bootstrap apply, private runners and private state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment are not verified live; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 11 are also verified live for Terraform and Bicep by the `e2e.yml` workflow; scenario 12 is not yet. The bootstrap apply, private runners and private state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment are not verified live; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
 
 ## Unreleased
 
 ### Added
 
+- **[Preview]** Scenario 12, `rag-llmops`: Azure AI Search, a chat and an embedding model deployment, an index of sample documents, and an evaluation step with a groundedness quality gate in the pipeline, on Terraform and Bicep. The new `rag` input section sets the models, capacity, search tier and gate threshold. The new `Test-MLOpsModelQuota` function, which `-Deploy` also runs, checks regional model and search quota first. Not yet applied live.
 - `e2e.yml` workflow: the identity needs a lock-management role for governance, and a final job removes any leftover test resource groups and writes a pass or fail summary. Runs are manual and need a scenario list; the weekly schedule was removed, and Bicep deployments are named per scenario so parallel jobs no longer collide.
 
 ## v0.2.0 (2026-10-15)
@@ -59,7 +60,7 @@ First tagged pre-release. Scenarios 1 to 5 are verified live on Terraform and Bi
 - The interactive prompt now mirrors ALZ: numbered menus for scenario, IaC, CI/CD, region and subscription, `[0]` for manual entry, a `(current)` default marker, `[AZ]` on zone-enabled regions (from `az account list-locations`, limited to regions where Azure ML workspaces are available), subscriptions from the current tenant, and a warning when the chosen region has no zones. Without `az` it falls back to free text.
 
 - **[Preview]** `policy_mode` (`audit`, `deny` or `none`): built-in Azure Policy guardrails on every environment resource group, documented under [Azure Policy](policy/_index.md). **[Important]** the bootstrap now grants the deploy identity *Resource Policy Contributor*; re-run the bootstrap for existing projects. The generated compute cluster now disables local authentication.
-- 11 AML scenarios on Terraform and Bicep, built on Azure Verified Modules: [Scenarios](scenarios/_index.md).
+- 11 AML scenarios (now 12) on Terraform and Bicep, built on Azure Verified Modules: [Scenarios](scenarios/_index.md).
 - One page per [scenario](scenarios/_index.md) and per [option](options/_index.md).
 - Estimated fixed monthly cost per scenario, from the Azure Retail Prices API (`scripts/Get-ScenarioCostEstimates.ps1`).
 - `data_source: adls`: read your own CSV from ADLS Gen2 with an identity-based datastore. **[Important]** the workspace identity needs *Storage Blob Data Reader*; see [Data sources](planning/data-sources.md).

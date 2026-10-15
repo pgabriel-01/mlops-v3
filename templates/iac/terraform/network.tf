@@ -15,7 +15,8 @@ locals {
       cognitiveservices = "privatelink.cognitiveservices.azure.com"
       openai            = "privatelink.openai.azure.com"
       aiservices        = "privatelink.services.ai.azure.com"
-    } : {}
+    } : {},
+    var.rag ? { search = "privatelink.search.windows.net" } : {}
   )
 
   # Whether a zone exists is decided from known values only, so the private endpoint modules can

@@ -186,6 +186,8 @@ function New-MLOpsTokenMap {
 
     $sc = Get-MLOpsScenario -Scenario $Inputs['scenario']
     $ep = $Inputs['existing_platform']
+    $ragIn = $Inputs['rag']
+    $ragv = { param($k, $d) if ($ragIn -and $ragIn.ContainsKey($k)) { $ragIn[$k] } else { $d } }.GetNewClosure()
     $dnsKeys = 'blob', 'file', 'vault', 'acr', 'aml_api', 'aml_notebooks'
     $dns = @{}; if ($ep -and $ep.ContainsKey('private_dns_zone_ids')) { $dns = $ep['private_dns_zone_ids'] }
     $fqdn = @($Inputs['allowed_outbound_fqdns']); $mails = @($Inputs['alert_emails'])
@@ -216,6 +218,15 @@ function New-MLOpsTokenMap {
         deploy_mode            = $(if ($sc.endpoint_type -eq 'online' -and $sc.id -eq 'online-bluegreen') { 'bluegreen' } else { $sc.endpoint_type })
         governance             = (& $lc $sc.governance)
         genai                  = (& $lc $sc.genai)
+        rag                    = (& $lc $sc.rag)
+        chat_model             = [string](& $ragv 'chat_model' 'gpt-5.4-mini')
+        chat_model_version     = [string](& $ragv 'chat_model_version' '2026-03-17')
+        chat_capacity          = [string](& $ragv 'chat_capacity' 10)
+        embedding_model        = [string](& $ragv 'embedding_model' 'text-embedding-3-small')
+        embedding_model_version = [string](& $ragv 'embedding_model_version' '1')
+        embedding_capacity     = [string](& $ragv 'embedding_capacity' 10)
+        search_sku             = [string](& $ragv 'search_sku' 'basic')
+        min_groundedness       = [string](& $ragv 'min_groundedness' 3.5)
         existing_platform      = (& $lc $sc.existing_platform)
         vnet_address_space     = $Inputs['vnet_address_space']
         compute_vm_size        = [string]$Inputs['compute_vm_size']
@@ -507,6 +518,19 @@ function Invoke-MLOpsBootstrap {
 
     $dir = Join-Path $ProjectPath 'bootstrap'
     if ($Inputs['use_private_networking'] -and -not $env:TF_VAR_github_runners_token) { $env:TF_VAR_github_runners_token = $env:GITHUB_TOKEN }
+    if ($Inputs['scenario'] -eq 'rag-llmops' -and -not $SkipRequirementsCheck) {
+        $rg = if ($Inputs['rag']) { $Inputs['rag'] } else { @{} }
+        $q = @{ Location = $Inputs['location']; SubscriptionId = $Inputs['subscription_id']; Environments = @($Inputs['environments']).Count }
+        foreach ($k in 'chat_model:ChatModel', 'chat_capacity:ChatCapacity', 'embedding_model:EmbeddingModel', 'embedding_capacity:EmbeddingCapacity', 'search_sku:SearchSku') {
+            $in, $par = $k -split ':'
+            if ($rg.ContainsKey($in)) { $q[$par] = $rg[$in] }
+        }
+        $badQuota = @(Test-MLOpsModelQuota @q | Where-Object { -not $_.Passed })
+        if ($badQuota.Count -gt 0) {
+            $badQuota | ForEach-Object { Write-Warning ("{0}: {1}" -f $_.Name, $_.Detail) }
+            throw 'Model or search quota check failed. Request quota, pick another region or model in the rag section of the inputs, or use -SkipRequirementsCheck.'
+        }
+    }
     $env:ARM_SUBSCRIPTION_ID = $Inputs['subscription_id']
     terraform "-chdir=$dir" init -input=false
     if ($LASTEXITCODE -ne 0) { throw 'terraform init failed' }
@@ -588,6 +612,90 @@ function Test-MLOpsAcceleratorRequirement {
     $net = $false
     try { $net = (Invoke-WebRequest -Uri 'https://registry.terraform.io' -Method Head -TimeoutSec 10 -SkipHttpErrorCheck).StatusCode -lt 500 } catch { $net = $false }
     & $add 'Network: registry.terraform.io' $false $net 'needed for terraform init unless you use a mirror'
+    $r
+}
+
+function Test-MLOpsModelQuota {
+    <#
+    .SYNOPSIS
+    Checks that the models and the Azure AI Search tier of the rag-llmops scenario have quota in a region.
+    .DESCRIPTION
+    Model quota is per subscription, per region and per model, and varies by subscription type. This reads the
+    Azure OpenAI usage and the Azure AI Search usage for the region and reports, for each model and for the
+    search tier, whether the requested capacity is available. Run it before deploying, because a model deployment
+    that lacks quota fails late in the infrastructure pipeline.
+    .PARAMETER Location
+    The Azure region, for example eastus2.
+    .PARAMETER SubscriptionId
+    The subscription to check. Defaults to the current az account.
+    .PARAMETER ChatModel
+    The chat model name. Default gpt-5.4-mini.
+    .PARAMETER ChatCapacity
+    The chat capacity in thousands of tokens per minute (GlobalStandard). Default 10.
+    .PARAMETER EmbeddingModel
+    The embedding model name. Default text-embedding-3-small.
+    .PARAMETER EmbeddingCapacity
+    The embedding capacity in thousands of tokens per minute (GlobalStandard). Default 10.
+    .PARAMETER SearchSku
+    The Azure AI Search tier. Default basic.
+    .PARAMETER Environments
+    How many environments will deploy. Each one needs its own model capacity and its own search service. Default 1.
+    .EXAMPLE
+    Test-MLOpsModelQuota -Location swedencentral -Environments 3 | Where-Object { -not $_.Passed }
+
+    Shows only the quota checks that failed for a three environment deployment in Sweden Central.
+    .OUTPUTS
+    System.Management.Automation.PSCustomObject. One object per check with the properties Name, Passed and Detail.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string] $Location,
+        [string] $SubscriptionId,
+        [string] $ChatModel = 'gpt-5.4-mini',
+        [int] $ChatCapacity = 10,
+        [string] $EmbeddingModel = 'text-embedding-3-small',
+        [int] $EmbeddingCapacity = 10,
+        [string] $SearchSku = 'basic',
+        [int] $Environments = 1
+    )
+    $r = [System.Collections.Generic.List[object]]::new()
+    $sub = @(); if ($SubscriptionId) { $sub = @('--subscription', $SubscriptionId) }
+    $aiUsage = @()
+    try {
+        $raw = az cognitiveservices usage list -l $Location @sub -o json --only-show-errors
+        if ($LASTEXITCODE -eq 0 -and $raw) { $aiUsage = @($raw | ConvertFrom-Json) }
+    }
+    catch { $aiUsage = @() }
+
+    foreach ($m in @(@{ Label = 'chat'; Model = $ChatModel; Cap = $ChatCapacity }, @{ Label = 'embedding'; Model = $EmbeddingModel; Cap = $EmbeddingCapacity })) {
+        $key = "OpenAI.GlobalStandard.$($m.Model)"
+        $u = $aiUsage | Where-Object { $_.name.value -eq $key } | Select-Object -First 1
+        $need = $m.Cap * $Environments
+        if (-not $u) {
+            $r.Add([pscustomobject]@{ Name = "$($m.Label) model $($m.Model)"; Passed = $false; Detail = "no GlobalStandard quota entry for $($m.Model) in $Location; the model is not offered there or the usage query failed. Pick another region or model." })
+        }
+        else {
+            $free = [double]$u.limit - [double]$u.currentValue
+            $r.Add([pscustomobject]@{ Name = "$($m.Label) model $($m.Model)"; Passed = ($free -ge $need); Detail = "need $need, available $free of $($u.limit) (thousands of tokens per minute) in $Location" })
+        }
+    }
+
+    $searchUsage = @()
+    try {
+        $subId = $SubscriptionId; if (-not $subId) { $subId = (az account show --query id -o tsv --only-show-errors) }
+        $uri = "https://management.azure.com/subscriptions/$subId/providers/Microsoft.Search/locations/$Location/usages?api-version=2025-05-01"
+        $raw = az rest -m get -u $uri -o json --only-show-errors
+        if ($LASTEXITCODE -eq 0 -and $raw) { $searchUsage = @(($raw | ConvertFrom-Json).value) }
+    }
+    catch { $searchUsage = @() }
+    $su = $searchUsage | Where-Object { $_.name.value -eq $SearchSku } | Select-Object -First 1
+    if (-not $su) {
+        $r.Add([pscustomobject]@{ Name = "search $SearchSku"; Passed = $false; Detail = "no Azure AI Search usage entry for the $SearchSku tier in $Location; the tier is not offered there or the usage query failed." })
+    }
+    else {
+        $free = [double]$su.limit - [double]$su.currentValue
+        $r.Add([pscustomobject]@{ Name = "search $SearchSku"; Passed = ($free -ge $Environments); Detail = "need $Environments, available $free of $($su.limit) services in $Location" })
+    }
     $r
 }
 
@@ -950,4 +1058,4 @@ function Update-MLOpsAcceleratorVersion {
     }
 }
 
-Export-ModuleMember -Function Test-MLOpsAcceleratorRequirement, Remove-MLOpsAccelerator, Grant-MLOpsStorageAccess, Get-MLOpsScenario, New-MLOpsInputFile, Deploy-MLOpsAccelerator, Test-MLOpsAcceleratorInput, Test-MLOpsAcceleratorVersion, Update-MLOpsAcceleratorVersion
+Export-ModuleMember -Function Test-MLOpsModelQuota, Test-MLOpsAcceleratorRequirement, Remove-MLOpsAccelerator, Grant-MLOpsStorageAccess, Get-MLOpsScenario, New-MLOpsInputFile, Deploy-MLOpsAccelerator, Test-MLOpsAcceleratorInput, Test-MLOpsAcceleratorVersion, Update-MLOpsAcceleratorVersion

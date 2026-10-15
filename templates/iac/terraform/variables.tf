@@ -66,6 +66,50 @@ variable "genai" {
   default = false
 }
 
+variable "rag" {
+  type        = bool
+  default     = false
+  description = "Add Azure AI Search and chat and embedding model deployments to the AI Foundry resources (requires genai)."
+}
+
+variable "chat_model" {
+  type    = string
+  default = "gpt-5.4-mini"
+}
+
+variable "chat_model_version" {
+  type    = string
+  default = "2026-03-17"
+}
+
+variable "chat_capacity" {
+  type        = number
+  default     = 10
+  description = "Chat model capacity in thousands of tokens per minute (GlobalStandard)."
+}
+
+variable "embedding_model" {
+  type    = string
+  default = "text-embedding-3-small"
+}
+
+variable "embedding_model_version" {
+  type    = string
+  default = "1"
+}
+
+variable "embedding_capacity" {
+  type        = number
+  default     = 10
+  description = "Embedding model capacity in thousands of tokens per minute (GlobalStandard)."
+}
+
+variable "search_sku" {
+  type        = string
+  default     = "basic"
+  description = "Azure AI Search tier. free is limited to one service per subscription and has no private endpoint support."
+}
+
 variable "existing_platform" {
   type        = bool
   default     = false
