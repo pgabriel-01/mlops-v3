@@ -309,7 +309,7 @@ function Write-MLOpsFile {
 
     $dir = Split-Path -Parent $Destination
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-    $isText = $script:TextExtensions -contains [IO.Path]::GetExtension($SourceFile).ToLower()
+    $isText = $script:TextExtensions -contains [IO.Path]::GetExtension($Destination).ToLower()
     if ($Render -and $isText) {
         $text = (Get-Content -Raw -Path $SourceFile) -replace "`r`n", "`n"
         $out = Expand-MLOpsTemplate -Text $text -Map $Map -Environments $Environments -Source $SourceFile
@@ -463,6 +463,7 @@ function Deploy-MLOpsAccelerator {
             }
             foreach ($file in Get-ChildItem -Recurse -File -Force -Path $srcRoot) {
                 $relative = [IO.Path]::GetRelativePath($srcRoot, $file.FullName)
+                if ($relative.EndsWith('.tpl')) { $relative = $relative.Substring(0, $relative.Length - 4) }
                 if ($suffix) { $relative = [IO.Path]::ChangeExtension($relative, $null).TrimEnd('.') + $suffix + [IO.Path]::GetExtension($relative) }
                 if ($relative -like '*__env__*') {
                     foreach ($e in $envs) {
