@@ -140,3 +140,41 @@ jobs:
           done
           for rg in $(az group list --query "[?starts_with(name,'rg-${E2E_PROJECT}-')].name" -o tsv); do az group delete -n "$rg" --yes --no-wait; done
           for kv in $(az keyvault list-deleted --query "[?starts_with(name,'kv-${E2E_PROJECT}-')].name" -o tsv); do az keyvault purge --name "$kv" --no-wait || true; done
+
+  finish:
+    needs: [matrix, e2e]
+    if: always() && needs.matrix.outputs.apply == 'true'
+    name: Summary and cleanup
+    runs-on: ubuntu-latest
+    environment: e2e
+    permissions:
+      id-token: write
+      contents: read
+      issues: write
+    steps:
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Remove leftover test resource groups
+        run: |
+          # Runs are serialized by the concurrency group, so anything still named rg-e2e* is left over from a failed job.
+          for rg in $(az group list --query "[?starts_with(name,'rg-e2e')].name" -o tsv); do
+            for id in $(az lock list -g "$rg" --query "[].id" -o tsv); do az lock delete --ids "$id" || true; done
+            echo "Deleting leftover $rg"
+            az group delete -n "$rg" --yes --no-wait
+          done
+      - name: Report
+        env:
+          RESULT: ${{ needs.e2e.result }}
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          echo "Matrix result: $RESULT" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$RESULT" != success ]; then
+            if [ "${{ github.event_name }}" = schedule ]; then
+              gh issue create -R "$GITHUB_REPOSITORY" -l bug -t "Scheduled e2e run failed" -b "The weekly live test did not pass: $RUN_URL"
+            fi
+            exit 1
+          fi
