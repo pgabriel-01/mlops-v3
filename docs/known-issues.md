@@ -6,7 +6,7 @@ weight: 3
 Issues you may hit, with workarounds. Each entry says when it was found and when it was fixed. For fixes and changes, see [What's new](whats-new.md).
 
 {{% callout style="warning" title="Live coverage is partial" %}}
-Scenarios 1 to 11 have been applied to a real subscription on Terraform and Bicep. Scenario 12 (`rag-llmops`) renders and validates offline but is not yet applied live, and its sample ingest and evaluation scripts are untested against real models. Several other parts have not; see [Live deployment coverage](#live-deployment-coverage).
+Scenarios 1 to 11 have been applied to a real subscription on Terraform and Bicep. Scenario 12 (`rag-llmops`) renders and validates offline but is not yet applied live, and its sample ingest and evaluation scripts are untested against real models. The sample documents are for a fictional company; replace them with your own. Several other parts have not; see [Live deployment coverage](#live-deployment-coverage).
 {{% /callout %}}
 
 ## Bootstrap: new role needed for policy guardrails

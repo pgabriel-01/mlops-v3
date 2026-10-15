@@ -162,7 +162,7 @@ Describe 'Generator' {
             $tfvars | Should -Match 'chat_capacity\s+= 25'
             $tfvars | Should -Match 'search_sku\s+= "standard"'
             $tfvars | Should -Match 'chat_model\s+= "gpt-5.4-mini"'
-            foreach ($p in 'rag/src/ingest.py', 'rag/src/evaluate.py', 'rag/eval-questions.jsonl', 'rag/docs/rag-pattern.md', '.github/workflows/rag-evaluate.yml') {
+            foreach ($p in 'rag/src/ingest.py', 'rag/src/evaluate.py', 'rag/eval-questions.jsonl', 'rag/docs/employee_handbook.pdf', 'rag/docs/NOTICE.md', '.github/workflows/rag-evaluate.yml') {
                 Test-Path (Join-Path $o $p) | Should -BeTrue -Because $p
             }
             Get-Content -Raw (Join-Path $o 'rag/requirements-rag.txt') | Should -Match 'azure-ai-evaluation==\d'
