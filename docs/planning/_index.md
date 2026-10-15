@@ -8,6 +8,7 @@ Plan your deployment by working through the decisions below.
 {{% callout style="note" %}}
 This phase is optional. If you already know what you want, skip to [Phase 1](../prerequisites/_index.md).
 {{% /callout %}}
+
 ## Terms
 
 - **Accelerator module**: the `MLOpsAccelerator` PowerShell module (`Deploy-MLOpsAccelerator`).
@@ -20,7 +21,7 @@ This phase is optional. If you already know what you want, skip to [Phase 1](../
 ## Skills that help
 
 - Terraform or Bicep workflow: [Terraform fundamentals](https://aka.ms/tf/fundamentals), [Bicep learning path](https://learn.microsoft.com/training/paths/fundamentals-bicep/)
-- Azure Machine Learning: [AML learning path](https://learn.microsoft.com/training/paths/build-ai-solutions-with-azure-ml-service/)
+- Azure Machine Learning: [Azure ML learning path](https://learn.microsoft.com/training/paths/build-ai-solutions-with-azure-ml-service/)
 - CI/CD and git: [Introduction to DevOps](https://learn.microsoft.com/training/modules/introduction-to-devops/), [Introduction to git](https://learn.microsoft.com/training/modules/intro-to-git/)
 
 ## Decisions
@@ -33,7 +34,7 @@ Each decision maps to a key in `inputs.yaml`. The [parameter checklist](paramete
 
 ### Decision 2 - Version control system
 
-`cicd`: `github` (GitHub Actions) or `azdo` (Azure DevOps Pipelines). Other systems: use the generated files and wire your own pipeline.
+`cicd`: `github` (GitHub Actions) or `azdo` (Azure DevOps Pipelines). For other systems, use the generated files and wire your own pipeline.
 
 ### Decision 3 - Scenario
 
@@ -53,7 +54,7 @@ Each decision maps to a key in `inputs.yaml`. The [parameter checklist](paramete
 
 ### Decision 7 - Naming and tags
 
-`project_name` (3-10 lowercase alphanumerics) seeds resource names. `tags` are applied to everything.
+`project_name` (3 to 10 lowercase alphanumerics) seeds resource names. `tags` are applied to everything.
 
 ### Decision 8 - Data source
 
@@ -61,9 +62,9 @@ Each decision maps to a key in `inputs.yaml`. The [parameter checklist](paramete
 
 ### Decision 9 - Networking inputs
 
-Only for some scenarios: `vnet_address_space` (BYO VNet), `allowed_outbound_fqdns` (managed approved outbound), and `existing_platform` (existing platform). Pick address space that does not overlap your corporate or Azure ranges.
+Only for some scenarios: `vnet_address_space` (your own VNet), `allowed_outbound_fqdns` (managed approved outbound), and `existing_platform` (existing platform). Pick address space that does not overlap your corporate or Azure ranges.
 
-### Decision 10 - Choose the bootstrap networking
+### Decision 10 - Bootstrap networking
 
 The bootstrap creates the Terraform state storage account, and your pipelines need to reach it. Choose how:
 
@@ -79,7 +80,7 @@ Fill in `use_private_networking`, `runners_vnet_address_space` and `runner_label
 
 ### Decision 11 - Governance
 
-`budget_amount` and `alert_emails` for the governance scenarios.
+`budget_amount` and `alert_emails` for the governance scenarios, and `policy_mode` for the policy guardrails.
 
 ### Decision 12 - Workloads
 

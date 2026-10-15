@@ -1,9 +1,9 @@
 ---
-title: Resource providers
+title: "Resource providers"
 weight: 75
 ---
 
-Azure only lets you deploy a resource type if the subscription is registered for its resource provider. Azure often registers providers on first use, but that needs permission and can fail mid-deployment, so register them up front in **every subscription** you deploy to (one per environment if you use separate subscriptions).
+Azure only lets you deploy a resource type if the subscription is registered for its resource provider. Azure often registers providers on first use, but that needs permission and can fail mid-deployment, so register them up front in every subscription you deploy to (one per environment if you use separate subscriptions).
 
 ## Required providers
 
@@ -11,16 +11,16 @@ Azure only lets you deploy a resource type if the subscription is registered for
 |---|---|---|
 | `Microsoft.MachineLearningServices` | Workspace, compute, registry | All |
 | `Microsoft.Storage` | Workspace storage, Terraform state, ADLS data | All |
-| `Microsoft.KeyVault` | Workspace key vault | All |
+| `Microsoft.KeyVault` | Workspace Key Vault | All |
 | `Microsoft.ContainerRegistry` | Workspace container registry | All |
 | `Microsoft.OperationalInsights` | Log Analytics | All |
 | `Microsoft.Insights` | Application Insights, diagnostics | All |
 | `Microsoft.ManagedIdentity` | Deploy identity, workspace identities | All |
 | `Microsoft.Authorization` | Role assignments, policy assignments (registered by default) | All |
 | `Microsoft.PolicyInsights` | Policy compliance results | All unless `policy_mode: none` |
-| `Microsoft.Network` | VNets, private endpoints, private DNS | 2-4, 9 and any private scenario |
+| `Microsoft.Network` | VNets, private endpoints, private DNS | 2, 3, 4, 9 and any private scenario |
 | `Microsoft.CognitiveServices` | AI Foundry, model deployments | 10 |
-| `Microsoft.Consumption` | Budget alerts | 9, or `budget` set |
+| `Microsoft.Consumption` | Budget alerts | 9, or when `budget_amount` is set |
 
 Providers marked "registered by default" need no action. See the [Azure list of providers by service](https://learn.microsoft.com/azure/azure-resource-manager/management/azure-services-resource-providers).
 
@@ -35,10 +35,10 @@ Providers marked "registered by default" need no action. See the [Azure list of 
 
 Registration takes a few minutes. Check progress with `az provider show -n Microsoft.MachineLearningServices --query registrationState`.
 
-Registering needs the `*/register/action` permission, which Contributor includes. `Test-MLOpsAcceleratorRequirement` reports the unregistered ones it checks.
+Registering needs the `*/register/action` permission, which the Contributor role includes. `Test-MLOpsAcceleratorRequirement` reports the unregistered ones it checks.
 
 ## Troubleshooting
 
-- `MissingSubscriptionRegistration` or `The subscription is not registered to use namespace ...`: register that namespace and re-run.
+- `MissingSubscriptionRegistration` or `The subscription is not registered to use namespace ...`: register that namespace and run the deployment again.
 - Deployment fails with `Conflict` right after registering: wait until the state is `Registered`.
 - Extra resources you add yourself may need more providers. Check the resource's provider namespace.

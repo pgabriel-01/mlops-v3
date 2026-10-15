@@ -7,7 +7,7 @@ parameters:
     default: [[first_env]]
     values: [[environments_yaml_list]]
   - name: model_version
-    displayName: Model version to share (blank = latest)
+    displayName: Model version to share (leave blank for the latest)
     type: string
     default: ""
 

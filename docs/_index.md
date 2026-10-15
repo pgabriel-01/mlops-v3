@@ -1,17 +1,15 @@
 ---
-title: "MLOps v3 Documentation"
+title: "MLOps v3 documentation"
 weight: 1
 ---
 
-Welcome to the MLOps v3 technical documentation site. It explains how to deploy and manage Azure Machine Learning MLOps using the accelerator we provide: a PowerShell module that turns one inputs file into a ready-to-run repository with bootstrap, infrastructure (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub Actions or Azure DevOps) and a training workload.
+This site explains how to deploy and manage Azure Machine Learning MLOps with the MLOps v3 Accelerator, a PowerShell module that turns one inputs file into a ready-to-run repository with bootstrap, infrastructure (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub Actions or Azure DevOps) and a training workload.
 
-Use the navigation links on the left to explore the documentation.
-
-Please see the [MLOps v2 guidance on Learn](https://learn.microsoft.com/azure/machine-learning/concept-model-management-and-deployment) for an introduction to the concepts this accelerator builds on.
+Use the navigation on the left to explore the documentation. For an introduction to the concepts this accelerator builds on, see the [MLOps v2 guidance on Learn](https://learn.microsoft.com/azure/machine-learning/concept-model-management-and-deployment).
 
 ## The MLOps journey
 
-The MLOps journey is a multi-step process. It starts with planning and bootstrapping your environment and ends with workloads training and serving models.
+The journey has several steps. It starts with planning and bootstrapping your environment and ends with workloads that train and serve models.
 
 ### Plan your deployment
 
@@ -21,7 +19,7 @@ See the [planning](planning/_index.md) section and the [prerequisites](prerequis
 
 ### Bootstrap your environment
 
-The bootstrap is the first step of the journey. It sets up the foundational components used to deploy and manage the platform: the repository or project, a managed identity with federated credentials, environments, and a remote state store. In this step we make sure you have the correct access and a subscription to work with.
+The bootstrap is the first step of the journey. It sets up the foundational components used to deploy and manage the platform: the repository or project, a managed identity with federated credentials, environments, and a remote state store. This step needs the correct access and a subscription to work with.
 
 See the [bootstrap](bootstrap.md) section for more information.
 
@@ -31,7 +29,7 @@ The platform is the core of the journey. It provides the governance, networking 
 
 Included in the platform are:
 
-- **Azure Machine Learning workspace** - one per environment (`dev`, `test`, `prod`), with storage, key vault, container registry and monitoring.
+- **Azure Machine Learning workspace** - one per environment (`dev`, `test`, `prod`), with storage, Key Vault, container registry and monitoring.
 - **Policy** - guardrail policy assignments that audit or enforce secure settings. See [policy](policy/_index.md).
 - **Role-based access control (RBAC)** - least-privilege roles for the pipeline identity and the workspace.
 - **Networking** - public, managed virtual network or bring-your-own virtual network, depending on the [scenario](scenarios/_index.md).
@@ -39,7 +37,7 @@ Included in the platform are:
 
 ### Workloads
 
-Workloads are the models and pipelines that run on the platform. Each workload gets its own folder, Azure ML assets and train and deploy pipelines. Several workloads can share the one platform with the `workloads` input.
+Workloads are the models and pipelines that run on the platform. Each workload gets its own folder, Azure ML assets and train and deploy pipelines. Several workloads can share one platform through the `workloads` input.
 
 See [run](run.md) and the [customization options](options/_index.md) for more information.
 
@@ -67,8 +65,9 @@ To get started, look at the [quick start](getting-started.md) or the [bootstrap 
 - The generated project is written to disk; wire your own VCS and pipelines
 {{% /tab %}}
 {{< /tabs >}}
-Each environment then deploys an Azure ML workspace with storage, key vault, container registry and monitoring. Private scenarios add networking.
+
+Each environment then deploys an Azure ML workspace with storage, Key Vault, container registry and monitoring. Private scenarios add networking.
 
 {{% callout style="warning" title="Status" %}}
-Generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). All 11 scenarios are also verified live (Terraform and Bicep); see [Known issues](known-issues.md#live-deployment-coverage).
+This module is pre-release (v0.2.0) and is not on the PowerShell Gallery yet. Generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). All 11 scenarios are also applied, verified and destroyed live on Terraform and Bicep. Other parts are not verified live; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}

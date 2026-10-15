@@ -1,8 +1,8 @@
 name: End-to-end tests
 # Real Azure tests of the generated IaC. Plan runs for PRs labelled "safe-to-test";
-# apply + destroy runs only on manual dispatch (apply=true), one or a few scenarios at a time.
+# apply and destroy run only on manual dispatch (apply=true), one or a few scenarios at a time.
 # Requires an `e2e` environment with AZURE_CLIENT_ID, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID
-# (a federated identity with Contributor + RBAC Administrator on a dedicated test subscription).
+# (a federated identity with Contributor and Role Based Access Control Administrator on a dedicated test subscription).
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
@@ -113,7 +113,7 @@ jobs:
       - name: Apply (Bicep)
         if: needs.matrix.outputs.apply == 'true' && matrix.iac == 'bicep'
         run: az deployment sub create --name e2e-${{ github.run_number }}-${{ matrix.n }} --location eastus2 --template-file out/infra/main.bicep --parameters out/infra/envs/dev.bicepparam
-      - name: Re-login (token expires during long deployments)
+      - name: Sign in again (token expires during long deployments)
         if: always() && needs.matrix.outputs.apply == 'true'
         uses: azure/login@v3
         with:

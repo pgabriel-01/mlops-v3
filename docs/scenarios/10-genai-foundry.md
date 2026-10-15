@@ -3,7 +3,7 @@ title: "10 - GenAI: AI Foundry hub and project"
 weight: 10
 ---
 
-Hub workspace, AI Services account and a project for prompt flow / GenAIOps.
+Hub workspace, AI Services account and a project for prompt flow and GenAIOps.
 
 | | |
 |---|---|
@@ -11,7 +11,7 @@ Hub workspace, AI Services account and a project for prompt flow / GenAIOps.
 | Network | public |
 | Serving | none |
 | Adds | AI Foundry hub, AI Services account and project |
-| IaC / CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
+| IaC and CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
 
 Provisions an AI Foundry hub, an AI Services account and a project. The sample training workload is not used for GenAI; this scenario is platform only.
 

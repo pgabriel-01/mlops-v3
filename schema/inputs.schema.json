@@ -21,7 +21,7 @@
     "location": {
       "type": "string",
       "pattern": "^[a-z0-9]+$",
-      "description": "Azure region, e.g. eastus2."
+      "description": "Azure region, for example eastus2."
     },
     "subscription_id": {
       "type": "string",
@@ -60,7 +60,7 @@
         "genai-foundry",
         "existing-platform"
       ],
-      "description": "AML platform scenario (see Get-MLOpsScenario)."
+      "description": "Azure Machine Learning platform scenario (see Get-MLOpsScenario)."
     },
     "data_source": {
       "type": "string",
@@ -70,7 +70,7 @@
         "adls"
       ],
       "default": "taxi-csv",
-      "description": "taxi-csv and taxi-parquet use the bundled 2,000-row sample, registered as an MLTable data asset. adls reads a CSV from an ADLS Gen2 container through an identity-based AML datastore. Parquet and other sources are planned (see docs/data-sources.md)."
+      "description": "taxi-csv and taxi-parquet use the bundled 2,000-row sample, registered as an MLTable data asset. adls reads a CSV from an ADLS Gen2 container through an identity-based Azure Machine Learning datastore. Parquet and other sources are planned (see docs/data-sources.md)."
     },
     "environments": {
       "type": "array",
@@ -119,7 +119,7 @@
         "tabular"
       ],
       "default": "tabular",
-      "description": "ML workload pack. nlp and vision are planned."
+      "description": "Machine learning workload pack. nlp and vision are planned."
     },
     "vnet_address_space": {
       "type": "string",
@@ -161,7 +161,7 @@
     "name_suffix": {
       "type": "string",
       "pattern": "^[a-z0-9]{4,6}$",
-      "description": "Optional override for the unique 4-char resource name suffix (default: derived from subscription and project). Change it to redeploy after a destroy, because soft-deleted Key Vaults and workspaces keep their names reserved."
+      "description": "Optional override for the unique 4-character resource name suffix (default: derived from subscription and project). Change it to redeploy after a destroy, because soft-deleted Key Vaults and workspaces keep their names reserved."
     },
     "keyvault_retention_days": {
       "type": "integer",
@@ -180,12 +180,12 @@
       "type": "array",
       "uniqueItems": true,
       "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,14}[a-z0-9]$" },
-      "description": "Optional list of workload names sharing the one platform (one workspace per environment). Each gets workloads/<name>/ (src, mlops, data, tests) and its own ml-train/ml-deploy pipelines. Omit for a single workload at the repo root."
+      "description": "Optional list of workload names sharing the one platform (one workspace per environment). Each gets workloads/<name>/ (src, mlops, data, tests) and its own ml-train and ml-deploy pipelines. Omit for a single workload at the repo root."
     },
     "use_private_networking": {
       "type": "boolean",
       "default": false,
-      "description": "GitHub only. Deploy self-hosted ACI runners in a VNet (AVM cicd-agents-and-runners) and put the Terraform state storage behind a private endpoint with public access disabled. runner_label then defaults to self-hosted."
+      "description": "GitHub only. Deploy self-hosted Azure Container Instances runners in a VNet (AVM cicd-agents-and-runners) and put the Terraform state storage behind a private endpoint with public access disabled. runner_label then defaults to self-hosted."
     },
     "runners_vnet_address_space": {
       "type": "string",

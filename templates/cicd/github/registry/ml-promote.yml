@@ -10,7 +10,7 @@ on:
         type: choice
         options: [[environments_yaml_list]]
       model_version:
-        description: Model version to share (blank = latest)
+        description: Model version to share (leave blank for the latest)
         required: false
 
 permissions:

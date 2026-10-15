@@ -1,10 +1,18 @@
 <#
 .SYNOPSIS
-  Estimates the fixed monthly infrastructure cost of each AML scenario from Azure Retail Prices (public API, no login).
+  Estimates the fixed monthly infrastructure cost of each Azure Machine Learning scenario from the Azure Retail Prices public API (no sign-in needed).
 .DESCRIPTION
   Fixed costs only: private endpoints, private DNS zones, ACR, the managed-network firewall (scenario 3), and optionally
   one online-endpoint instance per environment. Consumption costs (training compute, log ingestion, storage, model
-  tokens) are NOT included. Every environment gets its own copy of the infrastructure, except the shared registry.
+  tokens) are not included. Every environment gets its own copy of the infrastructure, except the shared registry.
+.PARAMETER Region
+  Azure region used for pricing. Defaults to westus.
+.PARAMETER Currency
+  Currency code for prices. Defaults to USD.
+.PARAMETER Environments
+  Number of environments, from 1 to 10. Defaults to 3.
+.PARAMETER AsMarkdown
+  Output a Markdown table instead of objects.
 .EXAMPLE
   ./scripts/Get-ScenarioCostEstimates.ps1 -Region westus -Environments 3 -AsMarkdown
 #>

@@ -1,4 +1,4 @@
-# Shared AML registry; the generator enables it only in the first environment.
+# Shared Azure ML registry; the generator enables it only in the first environment.
 # No AVM module exists for Microsoft.MachineLearningServices/registries, so azapi is used.
 resource "azapi_resource" "registry" {
   count     = var.registry ? 1 : 0

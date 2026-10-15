@@ -4,7 +4,7 @@ weight: 12
 ---
 
 ```yaml
-policy_mode: audit   # audit | deny | none
+policy_mode: audit   # audit, deny or none
 ```
 
 Built-in Azure Policy guardrails on each environment resource group.

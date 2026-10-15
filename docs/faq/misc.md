@@ -5,7 +5,7 @@ weight: 4
 
 ## Has this been applied to live Azure?
 
-Partly. See [known issues](../known-issues.md) for what has and has not been deployed.
+Partly. All 11 scenarios are applied live on Terraform and Bicep. The bootstrap apply, private runners, Azure DevOps and endpoint deployment are not verified live. See [known issues](../known-issues.md#live-deployment-coverage).
 
 ## Can I train a model in the tests?
 

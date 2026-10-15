@@ -3,17 +3,17 @@ title: "8 - Multi-environment with shared registry"
 weight: 8
 ---
 
-An AML registry shared across environments; models are registered in `dev` and promoted to `test` and `prod`.
+An Azure ML registry shared across environments. Models are registered in `dev` and promoted to `test` and `prod`.
 
 | | |
 |---|---|
 | Id | `registry-promotion` |
 | Network | public |
 | Serving | online |
-| Adds | Shared AML registry in the first environment, `ml-promote` workflow, deploy from the registry |
-| IaC / CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
+| Adds | Shared Azure ML registry in the first environment, `ml-promote` workflow, deploy from the registry |
+| IaC and CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
 
-A shared AML registry is created in the first environment. `ml-promote` copies the model through it and deployments pull from the registry.
+A shared Azure ML registry is created in the first environment. `ml-promote` copies the model through it and deployments pull from the registry.
 
 ## Use it
 

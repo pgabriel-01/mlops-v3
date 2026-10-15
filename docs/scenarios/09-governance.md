@@ -10,8 +10,8 @@ Diagnostic settings, budget alerts, resource locks and Azure Policy assignments 
 | Id | `governance` |
 | Network | public |
 | Serving | online |
-| Adds | Diagnostics, budget alerts (`budget_amount`, `alert_emails`), lock, policy |
-| IaC / CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
+| Adds | Diagnostics, budget alerts (`budget_amount`, `alert_emails`), resource lock, policy |
+| IaC and CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
 
 Adds diagnostics to Log Analytics, a monthly budget with email alerts, a resource lock and a policy assignment per environment.
 

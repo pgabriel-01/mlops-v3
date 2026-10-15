@@ -3,7 +3,7 @@ title: "6 - Online endpoint with blue/green rollout"
 weight: 6
 ---
 
-Managed online endpoint; the deploy workflow ships a new deployment and shifts traffic gradually.
+Managed online endpoint. The deploy workflow ships a new deployment and shifts traffic gradually.
 
 | | |
 |---|---|
@@ -11,7 +11,7 @@ Managed online endpoint; the deploy workflow ships a new deployment and shifts t
 | Network | public |
 | Serving | online (blue/green) |
 | Adds | Deploy workflow shifts 10% then 100% of traffic and retires the old deployment |
-| IaC / CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
+| IaC and CI/CD | Terraform or Bicep; GitHub or Azure DevOps |
 
 The deploy workflow creates a new deployment, shifts 10% then 100% of traffic, and retires the old one.
 

@@ -228,7 +228,7 @@ var managedNetwork = isManaged ? {
   outboundRules: fqdnRules
 } : null
 
-// Inbound private endpoint to the workspace/hub when a subnet and AML DNS zones are available.
+// Inbound private endpoint to the workspace or hub when a subnet and Azure ML DNS zones are available.
 var amlZones = nonEmpty([zoneIds.aml_api, zoneIds.aml_notebooks])
 var workspacePe = (isByo || (isManaged && !empty(existingSubnetId))) ? [
   peFor(peSubnetId, 'amlworkspace', amlZones)
@@ -394,7 +394,7 @@ module project 'br/public:avm/res/machine-learning-services/workspace:[[versions
   }
 }
 
-// Built-in policy guardrails on the resource group (policyMode: audit | deny | none).
+// Built-in policy guardrails on the resource group (policyMode: audit, deny or none).
 // The AVM policy-assignment pattern deploys at management-group scope, so a resource-group assignment is raw.
 var policyEffect = policyMode == 'deny' ? 'Deny' : 'Audit'
 var policies = concat([

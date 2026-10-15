@@ -1,4 +1,4 @@
-"""Split raw tabular data into train/val/test parquet datasets."""
+"""Split raw tabular data into train, validation and test Parquet datasets."""
 
 import argparse
 from pathlib import Path

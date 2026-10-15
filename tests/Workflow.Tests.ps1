@@ -74,7 +74,7 @@ Describe 'Interactive input' {
         $y | Should -Match 'azdo_project: proj'
     }
     It 'takes defaults on Enter and supports manual entry with validation' {
-        # defaults for scenario/iac/cicd, project, region 0 -> manual, subscription 0 -> bad then good guid
+        # defaults for scenario, IaC and CI/CD, project, region 0 (manual entry), subscription 0 (manual entry) with a bad then a good GUID
         $script:answers = [System.Collections.Queue]::new(@('', '', '', 'demo', '0', 'uksouth', '0', 'nope', '33333333-3333-3333-3333-333333333333', '', 'my-org', 'my-repo'))
         Mock Read-Host { $script:answers.Dequeue() } -ModuleName MLOpsAccelerator
         $f = Join-Path $TestDrive 'ix2.yaml'

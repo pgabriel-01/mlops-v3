@@ -3,7 +3,7 @@
     ModuleVersion        = '0.2.0'
     GUID                 = '5d0c2f6e-8a49-4b5e-9f0e-3a7e2c1b6d41'
     Author               = 'MLOps v3 contributors'
-    Description          = 'Generates a complete, parameter-driven MLOps repository (bootstrap, IaC, CI/CD and workload) for Azure Machine Learning.'
+    Description          = 'Generates a complete MLOps repository for Azure Machine Learning from one inputs file: bootstrap, infrastructure as code (Terraform or Bicep on Azure Verified Modules), CI/CD (GitHub Actions or Azure DevOps) and a workload. Pre-release.'
     PowerShellVersion    = '7.4'
     RequiredModules      = @(@{ ModuleName = 'powershell-yaml'; ModuleVersion = '0.4.7' })
     FunctionsToExport    = @('Test-MLOpsAcceleratorRequirement', 'Remove-MLOpsAccelerator', 'Grant-MLOpsStorageAccess', 'Get-MLOpsScenario', 'New-MLOpsInputFile', 'Deploy-MLOpsAccelerator', 'Test-MLOpsAcceleratorInput', 'Test-MLOpsAcceleratorVersion', 'Update-MLOpsAcceleratorVersion')

@@ -3,23 +3,23 @@ title: "Comparison with the ALZ PowerShell accelerator"
 weight: 3
 ---
 
-Compared against `Azure/ALZ-PowerShell-Module` (`Deploy-Accelerator`). ALZ keeps bootstrap and starter modules in separate repos and downloads them by version. This accelerator ships its templates inside the module.
+This page compares the accelerator with `Azure/ALZ-PowerShell-Module` (`Deploy-Accelerator`). ALZ keeps bootstrap and starter modules in separate repositories and downloads them by version. This accelerator ships its templates inside the module.
 
 | ALZ capability | Here | Status |
 |---|---|---|
 | Interactive prompts for missing inputs | `Deploy-MLOpsAccelerator` with no inputs file, or `-Interactive` | Done |
-| Requirements check (PowerShell, az, git, gh, yaml module, tokens, network) | `Test-MLOpsAcceleratorRequirement`, run before `-Deploy` unless skipped | Done |
+| Requirements check (PowerShell, Azure CLI, Git, GitHub CLI, the YAML module, tokens and network) | `Test-MLOpsAcceleratorRequirement`, run before `-Deploy` unless skipped | Done |
 | Destroy and cleanup commands | `-Destroy` and `Remove-MLOpsAccelerator` | Done |
 | Upgrade of a generated project | `-Upgrade`, with Git as the merge tool (see the [upgrade guide](../upgrade-guide.md)) | Done |
 | Plan then approve for the bootstrap | `-Deploy` plans first; `-AutoApprove` skips the prompt | Done |
 | Grant roles helper | `Grant-MLOpsStorageAccess`; other role prerequisites are documented in [Azure subscriptions and permissions](../prerequisites/azure.md) | Partly done |
 | Community files and release packaging | README, CONTRIBUTING, SECURITY, SUPPORT, code of conduct and a `release.yml` that builds a zip on each `v*` tag | Done |
 | Pin checks | `Test-MLOpsAcceleratorVersion` and `Update-MLOpsAcceleratorVersion` | Done |
-| Publish to the PowerShell Gallery | Waiting on the `PSGALLERY_API_KEY` secret ([issue 35](https://github.com/pgabriel-01/mlops-v3/issues/35)) | Open |
-| End-to-end tests against real Azure | The `e2e.yml` workflow applies, verifies and destroys all 11 scenarios on Terraform and Bicep. The bootstrap, private runners and Azure DevOps are not yet tested live ([issue 31](https://github.com/pgabriel-01/mlops-v3/issues/31)) | Partly done |
+| Publish to the PowerShell Gallery | The module is pre-release `v0.2.0`, tagged but not yet published. Waiting on the `PSGALLERY_API_KEY` secret ([issue 35](https://github.com/pgabriel-01/mlops-v3/issues/35)) | Open |
+| End-to-end tests against real Azure | The `e2e.yml` workflow applies, verifies and destroys all 11 scenarios on Terraform and Bicep. Not yet tested live: bootstrap apply, private runners and state storage, Azure DevOps, endpoint deployment and the `rai` option ([issue 31](https://github.com/pgabriel-01/mlops-v3/issues/31)) | Partly done |
 | Azure DevOps Managed DevOps Pools | Not generated ([issue 33](https://github.com/pgabriel-01/mlops-v3/issues/33)) | Open |
 | Separate plan and apply identities | One deploy identity today ([issue 32](https://github.com/pgabriel-01/mlops-v3/issues/32)) | Open |
-| Wiki | Deferred; `docs/` is the doc set | Not planned |
+| Wiki | Deferred. `docs/` is the documentation set | Not planned |
 
 ## Deliberately not done
 

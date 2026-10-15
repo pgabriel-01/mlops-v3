@@ -34,7 +34,7 @@ Describe 'Generator' {
         $out = Join-Path $TestDrive 'busy'; New-Item -ItemType Directory $out | Out-Null; Set-Content (Join-Path $out 'x') 'x'
         { Deploy-MLOpsAccelerator -InputFile (New-Inputs terraform github) -OutputPath $out -SkipVersionCheck } | Should -Throw '*not empty*'
     }
-    It 'uses only AVM/utility module sources in Terraform infra' {
+    It 'uses only AVM or utility module sources in Terraform infra' {
         $out = Join-Path $TestDrive 'avm-tf'
         Deploy-MLOpsAccelerator -InputFile (New-Inputs terraform github) -OutputPath $out -SkipVersionCheck
         $src = Select-String -Path (Join-Path $out 'infra/main.tf') -Pattern '^\s*source\s*=\s*"([^"]+)"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
