@@ -6,18 +6,8 @@ weight: 2
 Newest first. The first release is `v0.1.0` (2026-10-14); entries older than that are listed by date. Releases will be tagged `v0.x.y` until the first gold release (`v1.0.0`), which requires all 11 scenarios to be verified live. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Partly applied to live Azure" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 7 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 5 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
-## Unreleased
-
-### Fixed
-
-- Feature store (scenario 7): sets `featureStoreSettings` (Spark runtime 3.4.0), a managed network in `AllowInternetOutbound` mode (the only mode feature stores support), and no container registry (a managed network needs a Premium one). Terraform now passes storage, Key Vault and App Insights, and depends on those modules.
-
-### Verified
-
-- Scenarios 6 and 7 applied, verified and destroyed live on Terraform and Bicep.
-
 ## v0.1.0 (2026-10-14)
 
 First tagged pre-release. Scenarios 1 to 5 are verified live on Terraform and Bicep; scenarios 6 to 11 are validated offline and by plan or what-if only.
@@ -34,7 +24,7 @@ First tagged pre-release. Scenarios 1 to 5 are verified live on Terraform and Bi
 
 ### Verified
 
-- Scenarios 1 to 7 applied, verified and destroyed live on Terraform and Bicep.
+- Scenarios 1 to 5 applied, verified and destroyed live on Terraform and Bicep.
 
 ## 2026-10-13
 

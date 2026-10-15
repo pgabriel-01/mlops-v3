@@ -123,5 +123,8 @@ jobs:
           if [ "${{ matrix.iac }}" = terraform ]; then
             terraform -chdir=out/infra destroy -auto-approve -input=false -var-file=envs/dev.tfvars || true
           fi
+          for rg in $(az group list --query "[?starts_with(name,'rg-${E2E_PROJECT}-')].name" -o tsv); do
+            for id in $(az lock list -g "$rg" --query "[].id" -o tsv); do az lock delete --ids "$id" || true; done
+          done
           for rg in $(az group list --query "[?starts_with(name,'rg-${E2E_PROJECT}-')].name" -o tsv); do az group delete -n "$rg" --yes --no-wait; done
           for kv in $(az keyvault list-deleted --query "[?starts_with(name,'kv-${E2E_PROJECT}-')].name" -o tsv); do az keyvault purge --name "$kv" --no-wait || true; done

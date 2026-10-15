@@ -40,6 +40,15 @@ locals {
       workspace_resource_id = local.law_id
     }
   } : {}
+
+  # The storage module has no default categories, and an account-level setting has no log categories.
+  storage_diag_settings = var.governance ? {
+    to_law = {
+      name                  = "diag-to-law"
+      workspace_resource_id = local.law_id
+      metrics               = [{ category = "Transaction" }]
+    }
+  } : {}
 }
 
 module "vnet" {
