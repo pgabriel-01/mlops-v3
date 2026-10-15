@@ -97,6 +97,7 @@ jobs:
               az network private-dns link vnet create -g $rg -z $z -n "link-$($z.Split('.')[1])" -v vnet-platform -e false -o none
             }
           }
+          if (${{ matrix.n }} -eq 12) { $y += "`nrag:`n  search_location: centralus`n" }   # eastus2 has run out of Search capacity before
           Set-Content in.yaml ($y + "`nname_suffix: $suffix`nkeyvault_retention_days: 7`n")
           Deploy-MLOpsAccelerator -InputFile in.yaml -OutputPath out -SkipVersionCheck
       - name: Terraform plan

@@ -46,6 +46,7 @@ github_repo: taxi-mlops
 #   chat_capacity: 10                     # thousands of tokens per minute
 #   embedding_model: text-embedding-3-small
 #   search_sku: basic
+#   search_location: centralus            # optional, when the main region is out of Search capacity
 #   min_groundedness: 3.5                 # evaluation quality gate
 # existing_platform:                      # required for existing-platform
 #   subnet_id: /subscriptions/.../subnets/snet-ml

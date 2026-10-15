@@ -31,6 +31,7 @@ param embeddingModelVersion string = '1'
 param embeddingCapacity int = 10
 @description('Azure AI Search tier. free allows one per subscription and has no private endpoints.')
 param searchSku string = 'basic'
+param searchLocation string = ''
 @description('Object id of the pipeline identity, granted data-plane roles when rag is true.')
 param deployerPrincipalId string = ''
 @description('Reuse an existing platform landing zone (subnet, private DNS zones, Log Analytics) instead of creating them.')
@@ -111,6 +112,7 @@ module workload 'workload.bicep' = {
     embeddingModelVersion: embeddingModelVersion
     embeddingCapacity: embeddingCapacity
     searchSku: searchSku
+    searchLocation: searchLocation
     deployerPrincipalId: deployerPrincipalId
     existingPlatform: existingPlatform
     vnetAddressSpace: vnetAddressSpace

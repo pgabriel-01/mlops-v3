@@ -126,7 +126,7 @@ module "search" {
   source              = "Azure/avm-res-search-searchservice/azurerm"
   version             = "[[versions.avm_tf.res-search-searchservice]]"
   name                = "srch-${var.project_name}-${var.environment}-${var.suffix}"
-  location            = module.rg.location
+  location            = var.search_location != "" ? var.search_location : module.rg.location
   resource_group_name = element(split("/", module.rg.resource_id), 4)
   sku                 = var.search_sku
 

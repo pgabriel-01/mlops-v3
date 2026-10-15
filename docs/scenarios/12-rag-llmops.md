@@ -38,6 +38,7 @@ rag:
   embedding_model_version: "1"
   embedding_capacity: 10
   search_sku: basic           # free allows one service per subscription
+  search_location: centralus  # optional, defaults to the main location
   min_groundedness: 3.5       # evaluation gate, 1 to 5
 ```
 
@@ -52,6 +53,10 @@ Test-MLOpsModelQuota -Location swedencentral -Environments 3
 ```
 
 `Deploy-MLOpsAccelerator -Deploy` runs the same check and stops with the model and region named if quota is short. Request more quota in the Azure portal, choose another region or model, or pass `-SkipRequirementsCheck`. Avoid models that are retiring, such as `gpt-4o-mini` and `gpt-4.1-mini`.
+
+### Search capacity
+
+Quota is not capacity. A region can have quota left and still be out of physical resources for new Azure AI Search services. Azure has no API that reports this ahead of time, so the check cannot catch it. Provisioning then fails with `InsufficientResourcesAvailable`. Search can live in a different region than the models, so set `rag.search_location` to another region, such as `centralus`, and apply again. The quota check then reads Search usage for that region.
 
 ## Limits
 

@@ -26,6 +26,8 @@ param embeddingModel string = 'text-embedding-3-small'
 param embeddingModelVersion string = '1'
 param embeddingCapacity int = 10
 param searchSku string = 'basic'
+@description('Azure region for Azure AI Search. Empty uses the main location.')
+param searchLocation string = ''
 @description('Object id of the identity that runs the pipelines. Granted data-plane roles on Search and the models when rag is true.')
 param deployerPrincipalId string = ''
 param existingPlatform bool
@@ -432,7 +434,7 @@ module search 'br/public:avm/res/search/search-service:[[versions.avm_bicep.res/
   dependsOn: [dnsZones]
   params: {
     name: 'srch-${projectName}-${environment}-${suffix}'
-    location: location
+    location: empty(searchLocation) ? location : searchLocation
     sku: searchSku
     replicaCount: 1
     partitionCount: 1

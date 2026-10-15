@@ -110,6 +110,12 @@ variable "search_sku" {
   description = "Azure AI Search tier. free is limited to one service per subscription and has no private endpoint support."
 }
 
+variable "search_location" {
+  type        = string
+  default     = ""
+  description = "Azure region for Azure AI Search. Empty uses the main location."
+}
+
 variable "existing_platform" {
   type        = bool
   default     = false

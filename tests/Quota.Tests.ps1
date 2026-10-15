@@ -34,6 +34,10 @@ Describe 'Test-MLOpsModelQuota' {
         $bad[0].Name | Should -Match 'text-embedding-3-small'
         $bad[0].Detail | Should -Match 'eastus2'
     }
+    It 'reads search usage for the search location and names it' {
+        $r = @(Test-MLOpsModelQuota -Location eastus2 -SearchLocation centralus -SubscriptionId 00000000-0000-0000-0000-000000000000 -SearchSku standard3)
+        ($r | Where-Object Name -Match 'search standard3').Detail | Should -Match 'centralus'
+    }
     It 'multiplies the need by the number of environments' {
         $r = @(Test-MLOpsModelQuota -Location eastus2 -SubscriptionId 00000000-0000-0000-0000-000000000000 -ChatCapacity 400 -Environments 3)
         ($r | Where-Object Name -Match 'gpt-5.4-mini').Passed | Should -BeFalse

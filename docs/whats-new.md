@@ -14,6 +14,7 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 ### Added
 
 - **[Preview]** Scenario 12, `rag-llmops`: Azure AI Search, a chat and an embedding model deployment, an index of sample documents, and an evaluation step with a groundedness quality gate in the pipeline, on Terraform and Bicep. The new `rag` input section sets the models, capacity, search tier and gate threshold. The new `Test-MLOpsModelQuota` function, which `-Deploy` also runs, checks regional model and search quota first. Not yet applied live.
+- `rag.search_location` input to place Azure AI Search in a different region than the rest of the workload, for when the main region is out of Search capacity. The quota check now reads Search usage for that region and warns that quota does not guarantee capacity.
 - `e2e.yml` workflow: the identity needs a lock-management role for governance, and a final job removes any leftover test resource groups and writes a pass or fail summary. Runs are manual and need a scenario list; the weekly schedule was removed, and Bicep deployments are named per scenario so parallel jobs no longer collide.
 
 ## v0.2.0 (2026-10-15)
