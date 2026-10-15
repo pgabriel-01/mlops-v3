@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       scenarios:
-        description: Comma-separated scenario numbers (default all except existing-platform)
+        description: Comma-separated scenario numbers (default all)
         default: ''
   schedule:
     - cron: '0 3 * * 1'
@@ -38,7 +38,7 @@ jobs:
             @{ n = 1; id = 'basic-public' }, @{ n = 2; id = 'managed-vnet-internet' }, @{ n = 3; id = 'managed-vnet-approved' },
             @{ n = 4; id = 'byo-vnet' }, @{ n = 5; id = 'batch-scoring' }, @{ n = 6; id = 'online-bluegreen' },
             @{ n = 7; id = 'feature-store' }, @{ n = 8; id = 'registry-promotion' }, @{ n = 9; id = 'governance' },
-            @{ n = 10; id = 'genai-foundry' })
+            @{ n = 10; id = 'genai-foundry' }, @{ n = 11; id = 'existing-platform' })
           $pick = '${{ inputs.scenarios }}'
           if ($pick) { $set = $pick -split ',' | ForEach-Object { [int]$_.Trim() }; $all = $all | Where-Object { $set -contains $_.n } }
           $rows = foreach ($s in $all) { foreach ($iac in 'terraform', 'bicep') { @{ n = $s.n; id = $s.id; iac = $iac } } }
@@ -85,6 +85,18 @@ jobs:
           "E2E_PROJECT=$proj" >> $env:GITHUB_ENV
           $y = Get-Content -Raw in.yaml
           $y = $y -replace '(?m)^subscription_id:.*', 'subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}' -replace '(?m)^tenant_id:.*', 'tenant_id: ${{ secrets.AZURE_TENANT_ID }}' -replace '(?m)^project_name:.*', "project_name: $proj" -replace '(?m)^environments:.*', 'environments: [dev]'
+          if (${{ matrix.n }} -eq 11) {
+            # Stand-in for the platform team's landing zone: VNet and subnet, Log Analytics and private DNS zones.
+            $y = $y -replace '00000000-0000-0000-0000-000000000000', '${{ secrets.AZURE_SUBSCRIPTION_ID }}' -replace 'rg-platform', "rg-$proj-plat" -replace 'rg-dns', "rg-$proj-plat"
+            $rg = "rg-$proj-plat"
+            az group create -n $rg -l eastus2 -o none
+            az network vnet create -g $rg -n vnet-platform --address-prefixes 10.50.0.0/16 --subnet-name snet-ml --subnet-prefixes 10.50.0.0/24 -o none
+            az monitor log-analytics workspace create -g $rg -n law-platform -l eastus2 -o none
+            foreach ($z in 'privatelink.blob.core.windows.net', 'privatelink.file.core.windows.net', 'privatelink.vaultcore.azure.net', 'privatelink.azurecr.io', 'privatelink.api.azureml.ms', 'privatelink.notebooks.azure.net') {
+              az network private-dns zone create -g $rg -n $z -o none
+              az network private-dns link vnet create -g $rg -z $z -n "link-$($z.Split('.')[1])" -v vnet-platform -e false -o none
+            }
+          }
           Set-Content in.yaml ($y + "`nname_suffix: $suffix`nkeyvault_retention_days: 7`n")
           Deploy-MLOpsAccelerator -InputFile in.yaml -OutputPath out -SkipVersionCheck
       - name: Terraform plan
@@ -113,7 +125,7 @@ jobs:
       - name: Verify workspace
         if: needs.matrix.outputs.apply == 'true'
         run: |
-          rg=$(az group list --query "[?starts_with(name,'rg-${E2E_PROJECT}-')].name | [0]" -o tsv)
+          rg=$(az group list --query "[?starts_with(name,'rg-${E2E_PROJECT}-dev-')].name | [0]" -o tsv)
           test -n "$rg"
           az extension add -n ml -y -o none
           az ml workspace list -g "$rg" --query "[].name" -o tsv | grep -q .
