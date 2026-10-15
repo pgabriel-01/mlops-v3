@@ -9,6 +9,12 @@ Newest first. The first release is `v0.1.0` (2026-10-14); entries older than tha
 All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). All 11 scenarios are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
 
+## Unreleased
+
+### Added
+
+- `e2e` workflow: a final job removes any leftover test resource groups, writes a pass or fail summary, and opens an issue when the weekly scheduled run fails.
+
 ## v0.2.0 (2026-10-15)
 
 All 11 scenarios are now verified live on Terraform and Bicep. The bootstrap, private runners and Azure DevOps are still not applied live.
