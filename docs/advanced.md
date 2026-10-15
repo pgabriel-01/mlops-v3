@@ -11,7 +11,7 @@ Set `use_private_networking: true` (GitHub) to deploy self-hosted Azure Containe
 
 - Runner registration uses a GitHub PAT with repo admin rights. `-Deploy` reuses `GITHUB_TOKEN` (or `gh auth token`); set `TF_VAR_github_runners_token` to override.
 - Review `runners_vnet_address_space` (default `10.250.0.0/24`) so it does not overlap your ranges.
-- Not yet verified live. Azure DevOps Managed DevOps Pools are not generated yet.
+- Not yet verified live (tracked in [issue 31](https://github.com/pgabriel-01/mlops-v3/issues/31)). Azure DevOps Managed DevOps Pools are not generated yet ([issue 33](https://github.com/pgabriel-01/mlops-v3/issues/33)).
 
 ## Bring your own runners
 

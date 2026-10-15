@@ -11,6 +11,6 @@ Common questions about the policy guardrails.
 - **Can I add more?** Add an entry to the `policies` map in `infra/policy.tf` (Terraform) or the `policies` array in `infra/workload.bicep` (Bicep). Browse built-ins in [AzAdvertizer](https://www.azadvertizer.net/azpolicyadvertizer_all.html) or the [Learn built-in list](https://learn.microsoft.com/azure/machine-learning/policy-reference).
 - **Preview policies.** The accelerator does not assign preview policies.
 
-## Not applied to live Azure yet
+## Live status
 
-The assignments are validated offline (render, `terraform validate`, `az bicep build`). They have not been applied to a subscription.
+The assignments in the default `audit` mode are applied to a real subscription by the `e2e` workflow in every scenario except `existing-platform` (which defaults to `none`). `deny` mode has not been tested live.

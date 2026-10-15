@@ -17,7 +17,7 @@ Compared against `Azure/ALZ-PowerShell-Module` (`Deploy-Accelerator`). ALZ keeps
 | Retry and timeout options for HTTP, terraform version management | None | Low |
 | Grant roles helper (`Grant-SubscriptionCreatorRole`) | Role prerequisites are documented only | Medium |
 | Wiki docs, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, SUPPORT, release packaging | README and `docs/` only | Medium before publishing |
-| End-to-end tests against real Azure | Offline render, validate and Pester only | High |
+| End-to-end tests against real Azure | Workload `e2e` workflow covers all 11 scenarios; the bootstrap is not yet tested live | Medium |
 
 ## Suggested next steps
 1. `Test-MLOpsAcceleratorRequirement` (new public command, called by `Deploy-MLOpsAccelerator` unless skipped).
@@ -26,6 +26,6 @@ Compared against `Azure/ALZ-PowerShell-Module` (`Deploy-Accelerator`). ALZ keeps
 4. Community files and release packaging before the first push.
 
 ## Status
-Done locally: requirements check, plan-then-approve and `-AutoApprove`, `-Destroy` / `Remove-MLOpsAccelerator`, `-Upgrade`, `-Interactive`, `Grant-MLOpsStorageAccess`, community files, release workflow, a manual E2E script (`tests/Invoke-E2E.ps1`, not yet run against Azure).
+Done locally: requirements check, plan-then-approve and `-AutoApprove`, `-Destroy` / `Remove-MLOpsAccelerator`, `-Upgrade`, `-Interactive`, `Grant-MLOpsStorageAccess`, community files, release workflow, the `e2e` GitHub workflow, which applies, verifies and destroys all 11 scenarios on Terraform and Bicep (see [Known issues](../known-issues.md#live-deployment-coverage)), and a manual script for the bootstrap (`tests/Invoke-E2E.ps1`, not yet run against Azure).
 
 Deliberately not done: versioned downloadable template packs, tfvars-to-JSON conversion, HTTP retry options, Terraform version management (templates ship inside the module, so these add no value yet). A wiki is deferred; `docs/` is the doc set.

@@ -5,7 +5,7 @@ weight: 4
 
 This page lists only **breaking changes**, the ones that need action when you [upgrade](upgrade-guide.md). Everything else is in [What's new](whats-new.md).
 
-There is no tagged release yet, so the entries below are changes to the pre-release that affect projects you generated earlier. After the first tag, each entry will link to its GitHub release.
+The releases so far (`v0.1.0`, `v0.2.0`) are pre-releases. The entries below are changes that affect projects you generated earlier. Each tagged release is on the [GitHub releases page](https://github.com/pgabriel-01/mlops-v3/releases).
 
 ## Unreleased
 
