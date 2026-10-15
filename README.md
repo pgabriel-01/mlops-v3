@@ -19,6 +19,20 @@ A PowerShell module that turns one inputs file into a ready-to-run Azure Machine
 | 3. Run | Push the generated repo and run the CI/CD pipelines (infra, train, deploy) | [run](docs/run.md) |
 | 5. Maintain | Check and bump pins | `Test-MLOpsAcceleratorVersion`, `Update-MLOpsAcceleratorVersion` |
 
+## Required tools
+
+| Tool | Install |
+|---|---|
+| PowerShell 7.4+ | [install](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) |
+| `powershell-yaml` | `Install-PSResource powershell-yaml` |
+| Terraform 1.16.x | [install](https://developer.hashicorp.com/terraform/install) |
+| Azure CLI | [install](https://learn.microsoft.com/cli/azure/install-azure-cli) |
+| Bicep (only for `iac: bicep`) | `az bicep install` |
+| git | [install](https://git-scm.com/downloads) |
+| GitHub CLI (optional) | [install](https://cli.github.com/) |
+
+Full details are in [prerequisites](docs/prerequisites/_index.md).
+
 ## Quick start
 ```powershell
 Install-PSResource -Name MLOpsAccelerator

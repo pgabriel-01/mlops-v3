@@ -13,7 +13,7 @@ git clone <this repo> ; cd mlops-v3
 # ./install-local.ps1 -Uninstall
 ```
 
-Requires PowerShell 7 and `Install-PSResource` (in-box from PowerShell 7.4). Re-run after `git pull` to update.
+Requires PowerShell 7 and `Install-PSResource` (in-box from PowerShell 7.4). The other tools you need (Terraform, Azure CLI, git and so on) are listed with install links in [prerequisites](prerequisites/_index.md). Re-run after `git pull` to update.
 
 ## 2. Create the inputs
 

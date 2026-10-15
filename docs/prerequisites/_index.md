@@ -9,15 +9,15 @@ Work through the three steps, then continue to [Plan and configure](../getting-s
 
 Install these and make sure they are on the PATH of a PowerShell 7 (`pwsh`) terminal:
 
-| Tool | Version | Needed for |
-|---|---|---|
-| PowerShell | 7.4+ | the module |
-| `powershell-yaml` module | 0.4.7+ | reading inputs (`Install-PSResource powershell-yaml`) |
-| Terraform | 1.16.x (tested pin in `versions.lock.json`) | the bootstrap, always (and infra when `iac: terraform`) |
-| Azure CLI | current | sign-in, `az bicep`, ML CLI used by the pipelines |
-| Bicep (`az bicep install`) | current | only when `iac: bicep` |
-| git | current | pushing the generated repository |
-| GitHub CLI (`gh`) | optional | supplies the GitHub token |
+| Tool | Version | Needed for | Where to get it |
+|---|---|---|---|
+| PowerShell | 7.4+ | the module | [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) |
+| `powershell-yaml` module | 0.4.7+ | reading inputs | `Install-PSResource powershell-yaml` ([PowerShell Gallery](https://www.powershellgallery.com/packages/powershell-yaml)) |
+| Terraform | 1.16.x (tested pin in `versions.lock.json`) | the bootstrap, always (and infra when `iac: terraform`) | [Install Terraform](https://developer.hashicorp.com/terraform/install) |
+| Azure CLI | current | sign-in, `az bicep`, ML CLI used by the pipelines | [Install the Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) |
+| Bicep | current | only when `iac: bicep` | `az bicep install` ([Bicep install](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install)) |
+| git | current | pushing the generated repository | [Install Git](https://git-scm.com/downloads) |
+| GitHub CLI (`gh`) | optional | supplies the GitHub token | [Install the GitHub CLI](https://cli.github.com/) |
 
 Internet access is needed to download Terraform providers and AVM modules (`registry.terraform.io`, `mcr.microsoft.com` for Bicep AVM), reach Azure, and reach GitHub or Azure DevOps. If you must use mirrors, configure Terraform provider mirrors yourself; this has not been tested.
 
