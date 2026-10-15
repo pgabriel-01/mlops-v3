@@ -3,10 +3,11 @@ title = "MLOps v3 Accelerator"
 disableKinds = ["taxonomy", "term"]
 publishDir = "../_site"
 
-theme = "relearn"
 locale = "en-us"
 
 [module]
+  [[module.imports]]
+    path = "github.com/McShelby/hugo-theme-relearn"
   [[module.mounts]]
     source = "../docs"
     target = "content"

@@ -60,7 +60,7 @@ Deployment flow: inputs file, then render, then bootstrap (once), then infra per
 | `src/MLOpsAccelerator/` | The module. `New-MLOpsTokenMap` builds tokens; `Deploy-MLOpsAccelerator` runs the generation loop. |
 | `schema/inputs.schema.json` | Validates inputs. Keep `inputs.example.yaml` and `docs/options/` in step. |
 | `templates/` | Everything rendered. `manifest.json` maps sources to destinations (`when` is an equality check, `scope: workload` renders once per workload, `suffix_files` adds `-<name>` to filenames). Tokens are `[[token]]` and `[[#each_env]]`. |
-| `docs/` | Hugo content, theme vendored in `site/themes/relearn`. Section pages are `_index.md`; order comes from front matter `weight`. |
+| `docs/` | Hugo content. The Relearn theme is a Hugo module declared in `site/go.mod`. Section pages are `_index.md`; order comes from front matter `weight`. |
 | `tests/` | Pester tests and the scenario matrix. |
 | `.github/workflows/` | `ci`, `codeql`, `e2e`, `pages`, `pr-title-check`, `release`. |
 | `versions.lock.json` | Pins. Record any hold with its reason. |
