@@ -75,6 +75,8 @@ Deployment flow: inputs file, then render, then bootstrap (once), then infra per
 - Docs use Hugo Relearn shortcodes (`{{% callout %}}`, `{{< tabs >}}`), not MkDocs admonitions, and US English spelling. Update `docs/whats-new.md`, and `docs/release-notes.md` for breaking changes. Hugo warnings fail CI.
 - Be honest about what is verified. Scenarios 1 to 7 are applied live (Terraform and Bicep) through the e2e workflow, and the docs record each pass; other scenarios are verified by render, validate and plan or what-if only.
 - Versioning: SemVer tags `v0.x.y` (matching `ModuleVersion` in the `.psd1`) until the first gold release, which is `v1.0.0` once all 11 scenarios are verified live. Tag only from `main`, after the PR merges.
+- Open every change as a PR first, never push to `main`. Apply the matching labels when creating PRs and issues (`bug`, `enhancement`, `documentation`, `terraform`, `bicep`, `dependencies` and so on).
+- Write in plain prose in replies, PR text and docs. No arrows, emoji or other symbols that read as machine generated.
 
 ## Gotchas
 
