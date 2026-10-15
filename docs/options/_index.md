@@ -58,11 +58,11 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `compute_vm_size` | string | `Standard_DS3_v2` | Training cluster and online endpoint VM size |
 | `compute_max_nodes` | integer | `4` | Training cluster maximum nodes |
 | `workloads` | list | Single workload | Workload names sharing the platform; each gets `workloads/<name>/` and its own pipelines |
-| `use_private_networking` | bool | `false` | GitHub: deploy self-hosted ACI runners in a VNet and make the state storage private-endpoint only |
+| `use_private_networking` | bool | `false` | GitHub only, rejected with Azure DevOps: deploy self-hosted ACI runners in a VNet and make the state storage private-endpoint only |
 | `runners_vnet_address_space` | string | `10.250.0.0/24` | Runner VNet address space |
-| `runner_label` | string | `ubuntu-latest` | GitHub `runs-on` label for generated workflows (self-hosted or private runners) |
+| `runner_label` | string | `ubuntu-latest` | GitHub `runs-on` label for generated workflows. Must be a self-hosted label when `use_private_networking` is true |
 | `approvers` | list | `[]` | GitHub usernames that must approve deployments to non-dev environments |
-| `name_suffix` | string | derived | 4 to 6 lowercase alphanumerics; override to redeploy after a destroy (soft-delete holds names) |
+| `name_suffix` | string | derived | exactly 5 lowercase alphanumerics; override to redeploy after a destroy (soft-delete holds names) |
 | `keyvault_retention_days` | integer | `7` | Key Vault soft-delete retention (7 to 90 days, fixed at creation) |
 | `budget_amount` | number | `500` | Scenarios 9 and 11 |
 | `alert_emails` | list | `[]` | Scenarios 9 and 11 |
@@ -70,3 +70,13 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `adls` | object | | `data_source: adls` |
 
 The authoritative definition is `schema/inputs.schema.json`.
+
+## Validation rules
+
+The inputs are checked against the schema and a set of semantic rules before anything is generated.
+
+- `rag`, `existing_platform` and `adls` are accepted only with `rag-llmops`, `existing-platform` and `data_source: adls`.
+- `use_private_networking: true` is rejected with `cicd: azdo` and needs a self-hosted `runner_label`. Labels that start with `ubuntu-`, `windows-` or `macos-`, or end with `-latest`, are rejected.
+- Environments are sorted into `dev`, `test`, `prod` order whatever order you write. `dev` is optional. Registry promotion scenarios need at least two environments. A warning is printed when `prod` is first, or when a non-dev environment has no `approvers` on GitHub.
+- `vnet_address_space` (scenario 4) must be a network address in private space (`10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16`) with a prefix from `/16` to `/18`. `runners_vnet_address_space` needs a prefix from `/16` to `/27`. The two must not overlap.
+- `name_suffix` is exactly 5 lowercase letters or digits.

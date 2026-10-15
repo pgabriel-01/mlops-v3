@@ -78,8 +78,8 @@ jobs:
         shell: pwsh
         run: |
           Import-Module ./src/MLOpsAccelerator/MLOpsAccelerator.psd1 -Force
-          $suffix = 'e{0:x2}' -f ([int]'${{ github.run_number }}' % 240 + 16)   # unique per run: avoids soft-delete name collisions
-          $suffix = $suffix.Substring(0, [Math]::Min(3, $suffix.Length)) + '${{ matrix.iac }}'.Substring(0, 1)   # iac letter keeps parallel Terraform/Bicep jobs from sharing resource names
+          $suffix = 'e{0:x3}' -f ([int]'${{ github.run_number }}' % 240 + 16)   # unique per run: avoids soft-delete name collisions
+          $suffix = $suffix + '${{ matrix.iac }}'.Substring(0, 1)   # iac letter keeps parallel Terraform/Bicep jobs from sharing resource names
           $null = New-MLOpsInputFile -Scenario ${{ matrix.id }} -Path in.yaml -Iac ${{ matrix.iac }} -Cicd github -Force
           $proj = 'e2e${{ matrix.n }}' + $suffix.Substring(1)   # unique per run and IaC; soft-deleted AML workspaces block name reuse
           "E2E_PROJECT=$proj" >> $env:GITHUB_ENV

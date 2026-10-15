@@ -5,8 +5,8 @@ param environment string
 param location string
 param locationShort string
 param baseName string
-@minLength(4)
-@maxLength(4)
+@minLength(5)
+@maxLength(5)
 param suffix string
 param networkMode string
 param featureStore bool

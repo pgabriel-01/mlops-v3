@@ -11,6 +11,11 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ## Unreleased
 
+### Changed
+
+- Resource name suffix is now exactly 5 characters (was 4, with the schema allowing 4 to 6 while Bicep required 4). The generated default is 5 characters and `name_suffix` must be 5 lowercase letters or digits. Regenerating an existing project changes its derived resource names, so set a stable `name_suffix` only on new deployments and plan to redeploy preview environments.
+- Input validation is stricter: properties that do not apply to the scenario are rejected, `use_private_networking` is rejected with Azure DevOps, private networking requires a self-hosted `runner_label`, environments are sorted into dev, test, prod order, registry scenarios need two environments, and CIDR ranges are checked for private space, host bits, size and overlap.
+
 ### Added
 
 - **[Preview]** Scenario 12, `rag-llmops`: Azure AI Search, a chat and an embedding model deployment, an index of sample documents, and an evaluation step with a groundedness quality gate in the pipeline, on Terraform and Bicep. The new `rag` input section sets the models, capacity, search tier and gate threshold. The new `Test-MLOpsModelQuota` function, which `-Deploy` also runs, checks regional model and search quota first. Not yet applied live.
