@@ -6,7 +6,7 @@ weight: 2
 Newest first. The latest release is `v0.2.0` (2026-10-15); the first was `v0.1.0` (2026-10-14). Releases are tagged `v0.x.y` until the first gold release (`v1.0.0`), which also needs the bootstrap, private runners and Azure DevOps verified live. The module is pre-release and is not on the PowerShell Gallery yet. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Workload applied live, bootstrap not yet" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 11 are also verified live for Terraform and Bicep by the `e2e.yml` workflow; scenario 12 is not yet. The bootstrap apply, private runners and private state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment are not verified live; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 12 are also verified live for Terraform and Bicep by the `e2e.yml` workflow. The bootstrap apply, private runners and private state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment are not verified live; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
 
 ## Unreleased
@@ -21,9 +21,10 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Added
 
+- A non-blocking CI canary job runs the Pester suite on the `ubuntu-26.04` image before `ubuntu-latest` moves to it (GitHub starts the move on October 19, 2026). The cost table and `Get-ScenarioCostEstimates.ps1` now include scenario 12, and scenario 12 is documented as verified live.
 - `data_source: nyc-taxi-open`: a 2,000-row sample of the public Azure Open Datasets yellow taxi parquet with its original column names. `prep.py` cleans and maps it to the model features, so you can see a real parquet schema end to end.
 - A [CSV or parquet](options/13-csv-or-parquet.md) options page that explains why parquet is worth learning and how to convert a CSV.
-- **[Preview]** Scenario 12, `rag-llmops`: Azure AI Search, a chat and an embedding model deployment, an index of sample documents, and an evaluation step with a groundedness quality gate in the pipeline, on Terraform and Bicep. The new `rag` input section sets the models, capacity, search tier and gate threshold. The new `Test-MLOpsModelQuota` function, which `-Deploy` also runs, checks regional model and search quota first. Not yet applied live.
+- Scenario 12, `rag-llmops`: Azure AI Search, a chat and an embedding model deployment, an index of sample documents, and an evaluation step with a groundedness quality gate in the pipeline, on Terraform and Bicep. The new `rag` input section sets the models, capacity, search tier and gate threshold. The new `Test-MLOpsModelQuota` function, which `-Deploy` also runs, checks regional model and search quota first. Not yet applied live.
 - `rag.search_location` input to place Azure AI Search in a different region than the rest of the workload, for when the main region is out of Search capacity. The quota check now reads Search usage for that region and warns that quota does not guarantee capacity.
 - `e2e.yml` workflow: the identity needs a lock-management role for governance, and a final job removes any leftover test resource groups and writes a pass or fail summary. Runs are manual and need a scenario list; the weekly schedule was removed, and Bicep deployments are named per scenario so parallel jobs no longer collide.
 

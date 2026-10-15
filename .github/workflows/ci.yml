@@ -34,6 +34,17 @@ jobs:
             terraform "-chdir=$d" init -backend=false; terraform "-chdir=$d" validate; if ($LASTEXITCODE) { exit 1 }
           }
           az bicep build --file out/bicep-github/infra/main.bicep
+  canary:
+    name: canary (ubuntu-26.04)
+    runs-on: ubuntu-26.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
+      - shell: pwsh
+        run: |
+          Install-PSResource Pester, powershell-yaml -TrustRepository
+          Invoke-Pester ./tests -CI
   matrix:
     name: ${{ matrix.scenario }} - ${{ matrix.id }}
     runs-on: ubuntu-latest
