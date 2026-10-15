@@ -1,6 +1,6 @@
 @{
     RootModule           = 'MLOpsAccelerator.psm1'
-    ModuleVersion        = '0.1.0'
+    ModuleVersion        = '0.2.0'
     GUID                 = '5d0c2f6e-8a49-4b5e-9f0e-3a7e2c1b6d41'
     Author               = 'MLOps v3 contributors'
     Description          = 'Generates a complete, parameter-driven MLOps repository (bootstrap, IaC, CI/CD and workload) for Azure Machine Learning.'
