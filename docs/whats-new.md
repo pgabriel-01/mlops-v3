@@ -6,8 +6,21 @@ weight: 2
 Newest first. The first release is `v0.1.0` (2026-10-14); entries older than that are listed by date. Releases will be tagged `v0.x.y` until the first gold release (`v1.0.0`), which requires all 11 scenarios to be verified live. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Partly applied to live Azure" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 5 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 9 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
+
+## Unreleased
+
+### Fixed
+
+- Terraform and Bicep, feature store: sets `featureStoreSettings`, passes the dependent storage, Key Vault and Application Insights resources, enables the managed network that serverless Spark needs, and drops the container registry because a managed network requires a Premium one.
+- Terraform, governance: the storage account diagnostic setting now sends the `Transaction` metric, so Azure creates it and the apply no longer times out.
+- `e2e` workflow: removes resource locks before deleting the resource group, so the governance scenario can be destroyed.
+
+### Verified
+
+- Scenarios 6 to 9 applied, verified and destroyed live on Terraform and Bicep.
+
 ## v0.1.0 (2026-10-14)
 
 First tagged pre-release. Scenarios 1 to 5 are verified live on Terraform and Bicep; scenarios 6 to 11 are validated offline and by plan or what-if only.
