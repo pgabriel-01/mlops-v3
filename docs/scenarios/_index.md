@@ -71,7 +71,7 @@ Based on [Azure Retail Prices](https://learn.microsoft.com/rest/api/cost-managem
 - Network modes other than `public` disable public access. Run the pipelines on self-hosted agents or runners that can reach the private endpoints.
 - Scenarios 1 and 10 generate no serving workflow (`deploy_mode: none`).
 - The training workload is the tabular taxi pack in every scenario. Scenario 10 (GenAI) provisions the platform only.
-- Scenarios 1 to 12 are applied, verified and destroyed live on Terraform and Bicep by the `e2e.yml` workflow. Not verified live: bootstrap apply, private runners and state storage, Azure DevOps, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature set pack and endpoint deployment.
+- Scenarios 1 to 12 are applied, verified and destroyed live on Terraform and Bicep by the `e2e.yml` workflow. The GitHub bootstrap apply and the Bicep pipeline are also verified live. Not verified live: private runners and state storage, the Azure DevOps bootstrap, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature set pack and endpoint deployment.
 
 ## Alignment with Microsoft guidance
 
