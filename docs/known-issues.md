@@ -76,7 +76,7 @@ Live runs found and fixed: Terraform zone sets that were unknown at plan time, d
 
 - Key Vaults (purge protection) and AML workspaces stay soft-deleted after a destroy, which blocks redeploying the same names. Change the `suffix` (Bicep param or Terraform variable) before redeploying.
 - Managed-network private endpoint outbound rules for storage, Key Vault, ACR and the workspace are created by the service. The templates define only FQDN rules.
-- Scenarios 2 and 3 (managed VNet) are verified live on Terraform and Bicep; other private scenarios are not yet.
+- Every private scenario (2, 3, 4 and 11) is verified live on Terraform and Bicep. The private runners and private state storage from the bootstrap are not.
 
 ## Terraform state storage and runner networking
 
@@ -92,11 +92,11 @@ New GitHub repositories issue ID-based subjects (`repo:owner@ownerId/repo@repoId
 
 ## End-to-end workflow
 
-`.github/workflows/e2e.yml` plans (and optionally applies, verifies and destroys) every scenario for Terraform and Bicep in a dedicated test subscription.
+`.github/workflows/e2e.yml` plans (and optionally applies, verifies and destroys) the scenarios you list, for Terraform and Bicep in a dedicated test subscription.
 
 - PRs: add the `safe-to-test` label to run plan / what-if only.
 - Apply: run it manually with `apply: true` and a scenario list. There is no scheduled or full-matrix run yet.
-- Setup: an `e2e` environment with `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` (OIDC identity with Contributor and RBAC Administrator).
+- Setup: an `e2e` environment with `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` (OIDC identity with Contributor and RBAC Administrator, plus a custom role allowing `Microsoft.Authorization/locks/*` for the governance scenario).
 - Each run uses a unique `name_suffix`, so soft-deleted Key Vaults and workspaces never collide. Purge can be blocked by policy; the vaults then expire on their own.
 - It tests the workload IaC only. The GitHub/Azure DevOps bootstrap is tested with `tests/Invoke-E2E.ps1`.
 
