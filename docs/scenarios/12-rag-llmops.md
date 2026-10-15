@@ -15,7 +15,7 @@ AI Foundry plus Azure AI Search, a chat and an embedding model, a sample documen
 
 Builds on [scenario 10](10-genai-foundry.md). Each environment gets an Azure AI Search service, a chat model and an embedding model deployed on the AI Services account, and an `aisearch` connection on the Foundry project. Local authentication is disabled; access uses managed identities and roles.
 
-The generated `rag/` folder holds a few sample documents, an ingest script that creates a vector index and loads the chunks, and an evaluation script. The `rag-evaluate` pipeline runs the unit tests, builds the index and runs the evaluation questions through retrieval and the chat model. It scores groundedness with the Azure AI evaluation SDK and fails when the average is below `min_groundedness`.
+The generated `rag/` folder holds sample documents (a fictional employee handbook, a benefits program PDF and a company overview from the MIT-licensed Azure-Samples `azure-search-openai-demo` repository, with a `NOTICE.md`), an ingest script that creates a vector index and loads the chunks, and an evaluation script. The `rag-evaluate` pipeline runs the unit tests, builds the index and runs the evaluation questions through retrieval and the chat model. It scores groundedness with the Azure AI evaluation SDK and fails when the average is below `min_groundedness`.
 
 {{% callout style="warning" title="Preview" %}}
 This scenario renders and validates offline but has not been applied live yet, and the sample scripts have not run against real models.

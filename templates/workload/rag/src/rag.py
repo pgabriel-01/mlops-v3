@@ -6,6 +6,7 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizedQuery
 from openai import AzureOpenAI
+from pypdf import PdfReader
 
 INDEX_NAME = os.environ.get("SEARCH_INDEX", "docs")
 EMBEDDING_DIM = 1536
@@ -44,10 +45,17 @@ def chunk_text(text, size=800):
     return chunks
 
 
+def read_document(path):
+    if path.suffix == ".pdf":
+        return "\n\n".join((page.extract_text() or "") for page in PdfReader(path).pages)
+    return path.read_text(encoding="utf-8")
+
+
 def load_chunks(docs_dir):
     out = []
-    for path in sorted(Path(docs_dir).glob("*.md")):
-        for i, chunk in enumerate(chunk_text(path.read_text(encoding="utf-8"))):
+    paths = sorted(p for p in Path(docs_dir).iterdir() if p.suffix in (".md", ".pdf") and p.name != "NOTICE.md")
+    for path in paths:
+        for i, chunk in enumerate(chunk_text(read_document(path))):
             out.append({"id": f"{path.stem}-{i}", "source": path.name, "content": chunk})
     return out
 

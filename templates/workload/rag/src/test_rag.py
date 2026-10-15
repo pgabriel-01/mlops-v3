@@ -8,6 +8,8 @@ def test_chunk_text_respects_size():
     assert all(len(c) <= 700 for c in chunks)
 
 
-def test_load_chunks_reads_sample_docs():
+def test_load_chunks_reads_pdf_and_markdown_samples():
     chunks = load_chunks("docs")
-    assert chunks and all({"id", "source", "content"} <= set(c) for c in chunks)
+    sources = {c["source"] for c in chunks}
+    assert {"employee_handbook.pdf", "PerksPlus.pdf", "Zava_Company_Overview.md"} <= sources
+    assert all({"id", "source", "content"} <= set(c) for c in chunks)
