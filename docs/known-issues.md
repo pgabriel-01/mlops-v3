@@ -62,7 +62,11 @@ The `e2e` workflow applies a scenario, checks the workspace exists, then destroy
 | 3 managed-vnet-approved | Verified | Verified | 38616830510 |
 | 4 byo-vnet | Verified | Verified | 38634380586 |
 | 5 batch-scoring | Verified | Verified | 38638768681 |
-| 6 to 11 | Plan only | Plan only | Not yet applied |
+| 6 online-bluegreen | Verified | Verified | 38643944228 |
+| 7 feature-store | Verified | Verified | 38660126809 |
+| 8 registry-promotion | Verified | Verified | 38668463752 |
+| 9 governance | Verified | Verified | 38691269136 |
+| 10 to 11 | Plan only | Plan only | Not yet applied |
 
 Live runs found and fixed: Terraform zone sets that were unknown at plan time, duplicate storage private endpoint names, compute created before the workspace private endpoint (now explicit `depends_on`), Standard ACR rejecting the default `Deny` network action, storage and Key Vault needing explicit `Allow` ACLs for public scenarios, a Terraform conditional with mismatched object types for the managed network, and the OIDC token expiring during long applies.
 
