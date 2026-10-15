@@ -41,6 +41,6 @@ Deploy-MLOpsAccelerator -InputFile inputs.yaml -OutputPath ./my-mlops
 The requirements check runs first, then the Terraform plan; type `yes` to apply (`-AutoApprove` skips the prompt).
 
 {{% callout style="note" %}}
-Publishing to the PowerShell Gallery is deferred. Until then use `install-local.ps1`, or import `src/MLOpsAccelerator/MLOpsAccelerator.psd1` directly.
+Publishing to the PowerShell Gallery is deferred ([issue 35](https://github.com/pgabriel-01/mlops-v3/issues/35)); each tagged release attaches a zip on the GitHub releases page. Until then use `install-local.ps1`, or import `src/MLOpsAccelerator/MLOpsAccelerator.psd1` directly.
 {{% /callout %}}
 Next: the generated project's README (Phases 2-4).

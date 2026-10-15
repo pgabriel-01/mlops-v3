@@ -1,31 +1,26 @@
 ---
-title: "Gap analysis vs the ALZ PowerShell accelerator"
+title: "Comparison with the ALZ PowerShell accelerator"
 weight: 3
 ---
 
-Compared against `Azure/ALZ-PowerShell-Module` (`Deploy-Accelerator`). ALZ keeps bootstrap and starter modules in separate repos and downloads them by version.
+Compared against `Azure/ALZ-PowerShell-Module` (`Deploy-Accelerator`). ALZ keeps bootstrap and starter modules in separate repos and downloads them by version. This accelerator ships its templates inside the module.
 
-| ALZ capability | Ours | Priority |
+| ALZ capability | Here | Status |
 |---|---|---|
-| Interactive prompts for missing inputs (`Request-AcceleratorConfigurationInput`, menu selection) | Inputs file only | Medium |
-| `Test-AcceleratorRequirement` (PowerShell, az, git, gh/azdo CLI, yaml module, env vars, network) | None; errors surface mid-run | High |
-| `-destroy` and `Remove-*Accelerator` cleanup commands | None | High |
-| `-upgrade`, `-replace_files`, `-clean_bootstrap_folder`, `-clear_cache` | Output is regenerated; no upgrade or merge logic | Medium |
-| `-auto_approve` and a plan/apply split for bootstrap | `-Deploy` applies directly | Medium |
-| Versioned, downloadable bootstrap and starter modules, with overrides | Templates ship inside the module | Low for now |
-| Tfvars to JSON conversion, computed config such as availability zones and region data | Not needed so far | Low |
-| Retry and timeout options for HTTP, terraform version management | None | Low |
-| Grant roles helper (`Grant-SubscriptionCreatorRole`) | Role prerequisites are documented only | Medium |
-| Wiki docs, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, SUPPORT, release packaging | README and `docs/` only | Medium before publishing |
-| End-to-end tests against real Azure | Offline render, validate and Pester only | High |
+| Interactive prompts for missing inputs | `Deploy-MLOpsAccelerator` with no inputs file, or `-Interactive` | Done |
+| Requirements check (PowerShell, az, git, gh, yaml module, tokens, network) | `Test-MLOpsAcceleratorRequirement`, run before `-Deploy` unless skipped | Done |
+| Destroy and cleanup commands | `-Destroy` and `Remove-MLOpsAccelerator` | Done |
+| Upgrade of a generated project | `-Upgrade`, with Git as the merge tool (see the [upgrade guide](../upgrade-guide.md)) | Done |
+| Plan then approve for the bootstrap | `-Deploy` plans first; `-AutoApprove` skips the prompt | Done |
+| Grant roles helper | `Grant-MLOpsStorageAccess`; other role prerequisites are documented in [Azure subscriptions and permissions](../prerequisites/azure.md) | Partly done |
+| Community files and release packaging | README, CONTRIBUTING, SECURITY, SUPPORT, code of conduct and a `release.yml` that builds a zip on each `v*` tag | Done |
+| Pin checks | `Test-MLOpsAcceleratorVersion` and `Update-MLOpsAcceleratorVersion` | Done |
+| Publish to the PowerShell Gallery | Waiting on the `PSGALLERY_API_KEY` secret ([issue 35](https://github.com/pgabriel-01/mlops-v3/issues/35)) | Open |
+| End-to-end tests against real Azure | The `e2e` workflow applies, verifies and destroys all 11 scenarios on Terraform and Bicep. The bootstrap, private runners and Azure DevOps are not yet tested live ([issue 31](https://github.com/pgabriel-01/mlops-v3/issues/31)) | Partly done |
+| Azure DevOps Managed DevOps Pools | Not generated ([issue 33](https://github.com/pgabriel-01/mlops-v3/issues/33)) | Open |
+| Separate plan and apply identities | One deploy identity today ([issue 32](https://github.com/pgabriel-01/mlops-v3/issues/32)) | Open |
+| Wiki | Deferred; `docs/` is the doc set | Not planned |
 
-## Suggested next steps
-1. `Test-MLOpsAcceleratorRequirement` (new public command, called by `Deploy-MLOpsAccelerator` unless skipped).
-2. `-Destroy` and a cleanup command for the bootstrap resources.
-3. Plan-then-approve flow for `-Deploy`.
-4. Community files and release packaging before the first push.
+## Deliberately not done
 
-## Status
-Done locally: requirements check, plan-then-approve and `-AutoApprove`, `-Destroy` / `Remove-MLOpsAccelerator`, `-Upgrade`, `-Interactive`, `Grant-MLOpsStorageAccess`, community files, release workflow, a manual E2E script (`tests/Invoke-E2E.ps1`, not yet run against Azure).
-
-Deliberately not done: versioned downloadable template packs, tfvars-to-JSON conversion, HTTP retry options, Terraform version management (templates ship inside the module, so these add no value yet). A wiki is deferred; `docs/` is the doc set.
+Versioned, downloadable template packs with overrides, tfvars-to-JSON conversion, computed region data, HTTP retry options and Terraform version management. The templates ship inside the module, so these add no value yet. Revisit them if the templates move to their own repository.
