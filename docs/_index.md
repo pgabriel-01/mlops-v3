@@ -70,5 +70,5 @@ To get started, look at the [quick start](getting-started.md) or the [bootstrap 
 Each environment then deploys an Azure ML workspace with storage, key vault, container registry and monitoring. Private scenarios add networking.
 
 {{% callout style="warning" title="Status" %}}
-Generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 5 are also verified live (Terraform and Bicep); see [Known issues](known-issues.md#live-deployment-coverage).
+Generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 7 are also verified live (Terraform and Bicep); see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
