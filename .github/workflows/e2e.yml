@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       scenarios:
-        description: Comma-separated scenario numbers, for example 4 or 4,5
+        description: Comma-separated scenario numbers, for example 4 or 4,5, or all
         required: true
 permissions:
   contents: read
@@ -37,7 +37,7 @@ jobs:
             @{ n = 7; id = 'feature-store' }, @{ n = 8; id = 'registry-promotion' }, @{ n = 9; id = 'governance' },
             @{ n = 10; id = 'genai-foundry' }, @{ n = 11; id = 'existing-platform' }, @{ n = 12; id = 'rag-llmops' })
           $pick = '${{ inputs.scenarios }}'
-          if ($pick) { $set = $pick -split ',' | ForEach-Object { [int]$_.Trim() }; $all = $all | Where-Object { $set -contains $_.n } }
+          if ($pick -and $pick.Trim() -ne 'all') { $set = $pick -split ',' | ForEach-Object { [int]$_.Trim() }; $all = $all | Where-Object { $set -contains $_.n } }
           $rows = foreach ($s in $all) { foreach ($iac in 'terraform', 'bicep') { @{ n = $s.n; id = $s.id; iac = $iac } } }
           $apply = ('${{ inputs.apply }}' -eq 'true')
           "include=$(ConvertTo-Json -InputObject @($rows) -Compress)" >> $env:GITHUB_OUTPUT
