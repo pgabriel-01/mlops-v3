@@ -11,7 +11,7 @@
 
 This repository contains the PowerShell module and documentation for the MLOps v3 Accelerator. It turns one inputs file into a ready-to-run Azure Machine Learning MLOps repository: bootstrap (state, identity and repository wiring), infrastructure, CI/CD and a training workload. It is an opinionated implementation modeled on the [Azure Landing Zones (ALZ) Accelerator](https://github.com/Azure/ALZ-PowerShell-Module), with GitHub or Azure DevOps bootstrapping.
 
-The module is a pre-release (`v0.2.0`). Scenarios 1 to 12 are applied, verified and destroyed live on Terraform and Bicep. The bootstrap apply, private runners and Azure DevOps are not yet verified live. See [Known issues](https://pgabriel-01.github.io/mlops-v3/known-issues/).
+The module is a pre-release (`v0.2.0`). Scenarios 1 to 12 are applied, verified and destroyed live on Terraform and Bicep. The GitHub bootstrap and the Bicep pipeline are verified live; private runners and Azure DevOps are not yet. See [Known issues](https://pgabriel-01.github.io/mlops-v3/known-issues/).
 
 ## Supported options
 
