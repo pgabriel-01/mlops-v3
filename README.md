@@ -3,6 +3,9 @@
 [![CI](https://github.com/pgabriel-01/mlops-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/pgabriel-01/mlops-v3/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/pgabriel-01/mlops-v3?include_prereleases)](https://github.com/pgabriel-01/mlops-v3/releases)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/pgabriel-01/mlops-v3/badge)](https://scorecard.dev/viewer/?uri=github.com/pgabriel-01/mlops-v3)
+[![Pull requests closed](https://img.shields.io/github/issues-pr-closed/pgabriel-01/mlops-v3)](https://github.com/pgabriel-01/mlops-v3/pulls?q=is%3Apr+is%3Aclosed)
+[![Contributors](https://img.shields.io/github/contributors/pgabriel-01/mlops-v3)](https://github.com/pgabriel-01/mlops-v3/graphs/contributors)
 
 ## Introduction
 
