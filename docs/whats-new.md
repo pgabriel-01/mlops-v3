@@ -6,10 +6,12 @@ weight: 2
 Newest first. The first release is `v0.1.0` (2026-10-14); entries older than that are listed by date. Releases will be tagged `v0.x.y` until the first gold release (`v1.0.0`), which requires all 11 scenarios to be verified live. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Partly applied to live Azure" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 9 are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). All 11 scenarios are also verified live for Terraform and Bicep by the `e2e` workflow; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
 
-## Unreleased
+## v0.2.0 (2026-10-15)
+
+All 11 scenarios are now verified live on Terraform and Bicep. The bootstrap, private runners and Azure DevOps are still not applied live.
 
 ### Fixed
 
@@ -19,7 +21,8 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Verified
 
-- Scenarios 6 to 9 applied, verified and destroyed live on Terraform and Bicep.
+- Scenarios 6 to 11 applied, verified and destroyed live on Terraform and Bicep.
+- `e2e` workflow: scenario 11 runs against a stand-in platform (VNet, Log Analytics and private DNS zones) that the job creates and removes.
 
 ## v0.1.0 (2026-10-14)
 
