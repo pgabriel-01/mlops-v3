@@ -296,7 +296,6 @@ module featureStoreWorkspace 'br/public:avm/res/machine-learning-services/worksp
     associatedApplicationInsightsResourceId: appi.outputs.resourceId
     associatedKeyVaultResourceId: vault.outputs.resourceId
     associatedStorageAccountResourceId: storage.outputs.resourceId
-    associatedContainerRegistryResourceId: acr.outputs.resourceId
     publicNetworkAccess: access
     // Serverless Spark needs a managed network, and AllowInternetOutbound is the only mode feature stores support.
     managedNetworkSettings: { isolationMode: 'AllowInternetOutbound' }
