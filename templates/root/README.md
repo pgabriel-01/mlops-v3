@@ -21,7 +21,7 @@ Deploy in order and stop after any phase to review. Each environment ([[environm
 | Phase | What | How | Stop and check |
 |---|---|---|---|
 | 0. Platform prerequisites | Network, DNS and Log Analytics owned by a platform team (scenarios 4 and 11, and private modes) | Outside this repo; see the scenario notes below | Private endpoints reachable from your agents |
-| 1. Bootstrap | Remote state, federated identity, [[cicd_label]] wiring | `cd bootstrap && terraform init && terraform apply -var-file=bootstrap.tfvars` (or the accelerator with `-Deploy`) | Identities and environments exist |
+| 1. Bootstrap | Remote state, federated identity, [[cicd_label]] wiring | `cd bootstrap && terraform init && terraform apply '-var-file=bootstrap.tfvars'` (or the accelerator with `-Deploy`) | Identities and environments exist |
 | 2. Infrastructure | Azure ML workspace and dependencies | Push and merge to `main`. The `infra` pipeline deploys the first environment, then waits for approval before the next | Workspace is healthy in each environment |
 | 3. Workload | Data asset, training, evaluation, registration | Run the `ml-train` pipeline for an environment | Model registered; metrics acceptable |
 | 4. Serve | Endpoint deployment, and promotion across environments for the registry scenario | Run `ml-deploy` and, for the registry scenario, `ml-promote` | Endpoint scores a sample request |

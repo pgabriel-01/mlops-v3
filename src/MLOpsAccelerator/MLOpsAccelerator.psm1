@@ -562,7 +562,7 @@ function Deploy-MLOpsAccelerator {
     Write-Host "Generated MLOps v3 project in $OutputPath"
 
     if ($Deploy) { Invoke-MLOpsBootstrap -ProjectPath $OutputPath -Inputs $inputs -AutoApprove:$AutoApprove -SkipRequirementsCheck:$SkipRequirementsCheck }
-    else { Write-Host "Next: cd '$OutputPath/bootstrap'; terraform init; terraform apply -var-file=bootstrap.tfvars" }
+    else { Write-Host "Next: cd '$OutputPath/bootstrap'; terraform init; terraform apply '-var-file=bootstrap.tfvars'" }
 }
 
 function Invoke-MLOpsBootstrap {

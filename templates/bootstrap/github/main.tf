@@ -125,15 +125,17 @@ module "deploy_identity" {
   resource_group_name = module.rg.name
   tags                = var.tags
   enable_telemetry    = var.enable_telemetry
+}
 
-  federated_identity_credentials = {
-    for env in local.environments : env => {
-      name     = "gh-${env}"
-      audience = ["api://AzureADTokenExchange"]
-      issuer   = "https://token.actions.githubusercontent.com"
-      subject  = "repo:${var.github_org}@${data.github_user.owner.id}/${github_repository.this.name}@${github_repository.this.repo_id}:environment:${env}"
-    }
-  }
+# Declared here rather than through the identity module, whose latest release still uses the
+# deprecated parent_id argument and prints a warning on every plan.
+resource "azurerm_federated_identity_credential" "env" {
+  for_each                  = local.environments
+  name                      = "gh-${each.key}"
+  user_assigned_identity_id = module.deploy_identity.resource_id
+  audience                  = ["api://AzureADTokenExchange"]
+  issuer                    = "https://token.actions.githubusercontent.com"
+  subject                   = "repo:${var.github_org}@${data.github_user.owner.id}/${github_repository.this.name}@${github_repository.this.repo_id}:environment:${each.key}"
 }
 
 # Broad on purpose for the first deployment; scope down to the workload

@@ -13,6 +13,8 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Changed
 
+- The GitHub bootstrap now declares the federated credentials directly instead of through the identity module. The module's latest release still uses the deprecated `parent_id` argument, so every plan printed a deprecation warning. Regenerated bootstrap folders replace the two credentials once on the next apply.
+- The printed next step, the project README and the run guide quote `-var-file` and `-out` so the commands work in PowerShell as well as bash.
 - The `workload` input is renamed `workload_type` to stop it being confused with `workloads`. The old name is still accepted and prints a deprecation warning. Workload names that clash with generated folders (`src`, `data`, `tests`, `mlops`, `infra`, `bootstrap`, `docs`, `rag`, `workloads`) are now rejected.
 - The bundled taxi samples now come from the MIT-licensed `azureml-examples` repository, with the license in `data/NOTICE.md`. The schema and data source docs now agree that `taxi-parquet` is supported.
 
