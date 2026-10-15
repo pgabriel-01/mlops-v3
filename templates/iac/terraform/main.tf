@@ -115,7 +115,7 @@ module "storage" {
     }
   } : {}
 
-  diagnostic_settings_storage_account = local.diag_settings
+  diagnostic_settings_storage_account = local.storage_diag_settings
 }
 
 module "key_vault" {
