@@ -209,7 +209,7 @@ iac: $Iac
 cicd: $Cicd
 scenario: $($sc.id)
 workload_type: tabular
-data_source: taxi-csv        # or: taxi-parquet, adls
+data_source: taxi-csv        # or: taxi-parquet, nyc-taxi-open, adls
 environments: [dev, test, prod]
 tags:
   owner: ml-platform

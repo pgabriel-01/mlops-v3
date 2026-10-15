@@ -25,3 +25,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## nyc-taxi-open
+
+The `nyc-taxi-open` sample is 2,000 randomly selected, cleaned rows (seed 0) from the January 2015 yellow taxi partition of the Azure Open Datasets `nyctlc` data set (`https://azureopendatastorage.blob.core.windows.net/nyctlc/yellow/puYear=2015/puMonth=1/`). The trip records are published by the New York City Taxi and Limousine Commission and made available through Azure Open Datasets, see https://learn.microsoft.com/azure/open-datasets/dataset-taxi-yellow. Only the columns the sample needs were kept, with their original names. Check the data set terms before using it beyond this sample.

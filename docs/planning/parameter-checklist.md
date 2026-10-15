@@ -37,7 +37,7 @@ See [Phase 1 - Prerequisites](../prerequisites/_index.md): tools, Azure permissi
 
 ## Data source
 
-- [ ] `data_source: taxi-csv` (default), `taxi-parquet` (both bundled MLTable samples) or `adls` (your own CSV in ADLS Gen2)
+- [ ] `data_source: taxi-csv` (default), `taxi-parquet` or `nyc-taxi-open` (bundled MLTable samples) or `adls` (your own CSV in ADLS Gen2)
 - [ ] For `adls`: grant the AML workspace identity **Storage Blob Data Reader** on the account (not created by the IaC)
 - [ ] Snowflake or Azure SQL: land the data in ADLS first (ADF or Fabric), then use `adls`. See [External data sources](data-sources.md)
 
