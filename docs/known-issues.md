@@ -95,7 +95,7 @@ New GitHub repositories issue ID-based subjects (`repo:owner@ownerId/repo@repoId
 `.github/workflows/e2e.yml` plans (and optionally applies, verifies and destroys) every scenario for Terraform and Bicep in a dedicated test subscription.
 
 - PRs: add the `safe-to-test` label to run plan / what-if only.
-- Apply: run manually with `apply: true`, or wait for the Monday schedule.
+- Apply: run it manually with `apply: true` and a scenario list. There is no scheduled or full-matrix run yet.
 - Setup: an `e2e` environment with `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` (OIDC identity with Contributor and RBAC Administrator).
 - Each run uses a unique `name_suffix`, so soft-deleted Key Vaults and workspaces never collide. Purge can be blocked by policy; the vaults then expire on their own.
 - It tests the workload IaC only. The GitHub/Azure DevOps bootstrap is tested with `tests/Invoke-E2E.ps1`.
