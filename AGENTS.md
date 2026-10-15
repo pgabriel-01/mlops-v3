@@ -73,8 +73,8 @@ Deployment flow: inputs file, then render, then bootstrap (once), then infra per
 - Policy is built-in Azure Policy only, at resource-group scope, effects `audit` or `deny`. No custom definitions and no DINE.
 - Terraform: private endpoints and DNS zone groups live inside AVM modules, and a module's `resource_id` output does not wait for them. Anything that needs a private path (workspace, compute without public IPs, hubs) must use `depends_on` on the modules that own those endpoints.
 - Docs use Hugo Relearn shortcodes (`{{% callout %}}`, `{{< tabs >}}`), not MkDocs admonitions, and US English spelling. Update `docs/whats-new.md`, and `docs/release-notes.md` for breaking changes. Hugo warnings fail CI.
-- Be honest about what is verified. All 11 scenarios are applied live (Terraform and Bicep) through the e2e workflow, and the docs record each pass; other scenarios are verified by render, validate and plan or what-if only.
-- Versioning: SemVer tags `v0.x.y` (matching `ModuleVersion` in the `.psd1`) until the first gold release, which is `v1.0.0` once all 11 scenarios are verified live. Tag only from `main`, after the PR merges.
+- Be honest about what is verified. All 12 scenarios are applied live (Terraform and Bicep) through the e2e workflow, and the docs record each pass; other scenarios are verified by render, validate and plan or what-if only.
+- Versioning: SemVer tags `v0.x.y` (matching `ModuleVersion` in the `.psd1`) until the first gold release, which is `v1.0.0` once all 12 scenarios are verified live. Tag only from `main`, after the PR merges.
 
 ## Gotchas
 
@@ -83,6 +83,7 @@ Deployment flow: inputs file, then render, then bootstrap (once), then infra per
 - `terraform fmt` is strict: pad `.tfvars` keys to the longest key, except `tags = {`.
 - Soft-deleted Key Vaults and AML workspaces keep names reserved; use `name_suffix` (exactly 5 characters).
 - The `e2e` environment is limited to `main` and needs an approval; it signs in with OIDC, no stored secrets.
+- E2E policy: run only the affected scenarios when a change touches them (`scenarios: 4,5`). Run the full set (`scenarios: all`) before a release tag and after changes to shared IaC modules. Every job uses its own resource group, suffix and deployment name, runs at most 4 at a time, and never fails fast. Never approve the gate without the user's go-ahead, because a full run costs real money.
 
 ## Validate
 
