@@ -13,7 +13,7 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Added
 
-- `e2e` workflow: a final job removes any leftover test resource groups, writes a pass or fail summary, and opens an issue when the weekly scheduled run fails.
+- `e2e` workflow: a final job removes any leftover test resource groups and writes a pass or fail summary. Runs are manual and need a scenario list; the weekly schedule was removed, and Bicep deployments are named per scenario so parallel jobs no longer collide.
 
 ## v0.2.0 (2026-10-15)
 

@@ -1,6 +1,6 @@
 name: e2e
 # Real Azure tests of the generated IaC. Plan runs for PRs labelled "safe-to-test";
-# apply + destroy runs only on manual dispatch (apply=true) or the weekly schedule.
+# apply + destroy runs only on manual dispatch (apply=true), one or a few scenarios at a time.
 # Requires an `e2e` environment with AZURE_CLIENT_ID, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID
 # (a federated identity with Contributor + RBAC Administrator on a dedicated test subscription).
 on:
@@ -13,10 +13,8 @@ on:
         type: boolean
         default: false
       scenarios:
-        description: Comma-separated scenario numbers (default all)
-        default: ''
-  schedule:
-    - cron: '0 3 * * 1'
+        description: Comma-separated scenario numbers, for example 4 or 4,5
+        required: true
 permissions:
   id-token: write
   contents: read
@@ -42,7 +40,7 @@ jobs:
           $pick = '${{ inputs.scenarios }}'
           if ($pick) { $set = $pick -split ',' | ForEach-Object { [int]$_.Trim() }; $all = $all | Where-Object { $set -contains $_.n } }
           $rows = foreach ($s in $all) { foreach ($iac in 'terraform', 'bicep') { @{ n = $s.n; id = $s.id; iac = $iac } } }
-          $apply = ('${{ github.event_name }}' -eq 'schedule') -or ('${{ inputs.apply }}' -eq 'true')
+          $apply = ('${{ inputs.apply }}' -eq 'true')
           "include=$(ConvertTo-Json -InputObject @($rows) -Compress)" >> $env:GITHUB_OUTPUT
           "apply=$($apply.ToString().ToLower())" >> $env:GITHUB_OUTPUT
 
@@ -114,7 +112,7 @@ jobs:
         run: terraform -chdir=out/infra apply -input=false dev.tfplan
       - name: Apply (Bicep)
         if: needs.matrix.outputs.apply == 'true' && matrix.iac == 'bicep'
-        run: az deployment sub create --name e2e-${{ github.run_number }} --location eastus2 --template-file out/infra/main.bicep --parameters out/infra/envs/dev.bicepparam
+        run: az deployment sub create --name e2e-${{ github.run_number }}-${{ matrix.n }} --location eastus2 --template-file out/infra/main.bicep --parameters out/infra/envs/dev.bicepparam
       - name: Re-login (token expires during long deployments)
         if: always() && needs.matrix.outputs.apply == 'true'
         uses: azure/login@v3
@@ -150,7 +148,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      issues: write
     steps:
       - uses: azure/login@v3
         with:
@@ -168,13 +165,8 @@ jobs:
       - name: Report
         env:
           RESULT: ${{ needs.e2e.result }}
-          GH_TOKEN: ${{ github.token }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           echo "Matrix result: $RESULT" >> "$GITHUB_STEP_SUMMARY"
           if [ "$RESULT" != success ]; then
-            if [ "${{ github.event_name }}" = schedule ]; then
-              gh issue create -R "$GITHUB_REPOSITORY" -l bug -t "Scheduled e2e run failed" -b "The weekly live test did not pass: $RUN_URL"
-            fi
             exit 1
           fi
