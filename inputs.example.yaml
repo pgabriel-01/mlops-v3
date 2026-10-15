@@ -16,7 +16,7 @@ workload: tabular
 # runners_vnet_address_space: 10.250.0.0/24
 # runner_label: ubuntu-latest   # or a private self-hosted runner label
 # approvers: [octocat]   # required reviewers for non-dev environments (GitHub)
-# name_suffix: a1b2   # override the generated suffix, for example, to redeploy after a destroy
+# name_suffix: a1b2c  # override the generated suffix, for example, to redeploy after a destroy
 # keyvault_retention_days: 7   # 7 to 90, fixed at creation
 data_source: taxi-csv        # or: adls
 # adls:                      # required when data_source: adls

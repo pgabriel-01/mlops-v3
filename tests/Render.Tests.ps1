@@ -91,13 +91,13 @@ Describe 'Generator' {
         It 'applies compute_vm_size and compute_max_nodes to IaC and the online deployment' {
             $f = Join-Path $TestDrive 'compute.yaml'
             New-MLOpsInputFile -Scenario managed-vnet-internet -Path $f | Out-Null
-            Set-Content $f ((Get-Content -Raw $f) + "compute_vm_size: Standard_E4s_v3`ncompute_max_nodes: 2`nkeyvault_retention_days: 14`nname_suffix: zz99`napprovers: [octocat]`nrunner_label: mlops-private`n")
+            Set-Content $f ((Get-Content -Raw $f) + "compute_vm_size: Standard_E4s_v3`ncompute_max_nodes: 2`nkeyvault_retention_days: 14`nname_suffix: zz999`napprovers: [octocat]`nrunner_label: mlops-private`n")
             $o = Join-Path $TestDrive 'compute-out'
             Deploy-MLOpsAccelerator -InputFile $f -OutputPath $o -SkipVersionCheck *>$null
             Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'compute_vm_size\s+= "Standard_E4s_v3"'
             Get-Content -Raw (Join-Path $o 'mlops/azureml/online-deployment.yml') | Should -Match 'instance_type: Standard_E4s_v3'
             Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'keyvault_retention_days\s+= 14'
-            Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'suffix\s+= "zz99"'
+            Get-Content -Raw (Join-Path $o 'infra/envs/dev.tfvars') | Should -Match 'suffix\s+= "zz999"'
             Get-Content -Raw (Join-Path $o 'bootstrap/bootstrap.tfvars') | Should -Match 'approvers\s+= \["octocat"\]'
             Test-Path (Join-Path $o '.gitignore') | Should -BeTrue
             Get-Content -Raw (Join-Path $o '.github/workflows/infra.yml') | Should -Match 'runs-on: mlops-private'

@@ -161,8 +161,8 @@
     },
     "name_suffix": {
       "type": "string",
-      "pattern": "^[a-z0-9]{4,6}$",
-      "description": "Optional override for the unique 4-character resource name suffix (default: derived from subscription and project). Change it to redeploy after a destroy, because soft-deleted Key Vaults and workspaces keep their names reserved."
+      "pattern": "^[a-z0-9]{5}$",
+      "description": "Optional override for the unique 5-character resource name suffix (default: derived from subscription and project). Change it to redeploy after a destroy, because soft-deleted Key Vaults and workspaces keep their names reserved."
     },
     "keyvault_retention_days": {
       "type": "integer",
@@ -186,7 +186,7 @@
     "use_private_networking": {
       "type": "boolean",
       "default": false,
-      "description": "GitHub only. Deploy self-hosted Azure Container Instances runners in a VNet (AVM cicd-agents-and-runners) and put the Terraform state storage behind a private endpoint with public access disabled. runner_label then defaults to self-hosted."
+      "description": "GitHub only; not allowed with cicd azdo. Deploy self-hosted Azure Container Instances runners in a VNet (AVM cicd-agents-and-runners) and put the Terraform state storage behind a private endpoint with public access disabled. runner_label then defaults to self-hosted and must not be a GitHub-hosted label such as ubuntu-latest."
     },
     "runners_vnet_address_space": {
       "type": "string",
@@ -197,7 +197,7 @@
       "type": "string",
       "pattern": "^[A-Za-z0-9._-]+$",
       "default": "ubuntu-latest",
-      "description": "GitHub runs-on label for the generated workflows. Use a self-hosted label (for example an ARC scale set on a private AKS cluster) when the Terraform state storage or workspace has no public access."
+      "description": "GitHub runs-on label for the generated workflows. With use_private_networking it must be a self-hosted label. Use a self-hosted label (for example an ARC scale set on a private AKS cluster) when the Terraform state storage or workspace has no public access."
     },
     "approvers": {
       "type": "array",
@@ -358,6 +358,14 @@
           "adls"
         ]
       }
+    },
+    { "if": { "properties": { "scenario": { "const": "rag-llmops" } }, "required": ["scenario"] }, "else": { "not": { "required": ["rag"] } } },
+    { "if": { "properties": { "scenario": { "const": "existing-platform" } }, "required": ["scenario"] }, "else": { "not": { "required": ["existing_platform"] } } },
+    { "if": { "properties": { "data_source": { "const": "adls" } }, "required": ["data_source"] }, "else": { "not": { "required": ["adls"] } } },
+    { "if": { "properties": { "cicd": { "const": "azdo" } }, "required": ["cicd"] }, "then": { "properties": { "use_private_networking": { "const": false } } } },
+    {
+      "if": { "properties": { "use_private_networking": { "const": true } }, "required": ["use_private_networking"] },
+      "then": { "properties": { "runner_label": { "not": { "pattern": "^(ubuntu|windows|macos)-|-latest$" } } } }
     }
   ]
 }

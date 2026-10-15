@@ -6,9 +6,9 @@ param projectName string
 param environment string
 param location string
 param locationShort string
-@description('Deterministic 4 character suffix for globally unique names.')
-@minLength(4)
-@maxLength(4)
+@description('Deterministic 5 character suffix for globally unique names.')
+@minLength(5)
+@maxLength(5)
 param suffix string
 @allowed(['public', 'managed_internet', 'managed_approved', 'byo_vnet'])
 param networkMode string = 'public'

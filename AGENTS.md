@@ -81,7 +81,7 @@ Deployment flow: inputs file, then render, then bootstrap (once), then infra per
 - GitHub issues ID-based OIDC subjects (`repo:owner@ownerId/repo@repoId:environment:env`); federated credentials must use them.
 - Public Bicep scenarios need explicit `Allow` network ACLs; the AVM defaults deny, which breaks Standard ACR and the AML storage access.
 - `terraform fmt` is strict: pad `.tfvars` keys to the longest key, except `tags = {`.
-- Soft-deleted Key Vaults and AML workspaces keep names reserved; use `name_suffix` (at most 4 characters for Bicep).
+- Soft-deleted Key Vaults and AML workspaces keep names reserved; use `name_suffix` (exactly 5 characters).
 - The `e2e` environment is limited to `main` and needs an approval; it signs in with OIDC, no stored secrets.
 
 ## Validate

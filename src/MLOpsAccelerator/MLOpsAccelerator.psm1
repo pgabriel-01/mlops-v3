@@ -33,6 +33,60 @@ function Get-FlatVersion {
     $flat
 }
 
+function ConvertTo-MLOpsCidr {
+    param([string] $Cidr)
+    $m = [regex]::Match($Cidr, '^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})$')
+    if (-not $m.Success) { return $null }
+    $o = 1..4 | ForEach-Object { [int]$m.Groups[$_].Value }
+    $prefix = [int]$m.Groups[5].Value
+    if (($o | Where-Object { $_ -gt 255 }) -or $prefix -gt 32) { return $null }
+    $addr = [uint64]((([uint64]$o[0]) -shl 24) + (([uint64]$o[1]) -shl 16) + (([uint64]$o[2]) -shl 8) + [uint64]$o[3])
+    $size = [uint64]1 -shl (32 - $prefix)
+    [pscustomobject]@{ Address = $addr; Prefix = $prefix; Size = $size; Start = $addr; End = $addr + $size - 1; HostBits = ($addr % $size) -ne 0 }
+}
+
+function Assert-MLOpsInputSemantics {
+    param([Parameter(Mandatory)][hashtable] $Data, [string] $Path)
+    $problems = [System.Collections.Generic.List[string]]::new()
+
+    $rank = @{ dev = 0; test = 1; prod = 2 }
+    $Data['environments'] = @($Data['environments'] | Sort-Object { $rank[[string]$_] })
+    $envs = @($Data['environments'])
+
+    $sc = Get-MLOpsScenario -Scenario $Data['scenario']
+    if ($sc.registry -and $envs.Count -lt 2) {
+        $problems.Add("Scenario '$($sc.id)' promotes models through a registry and needs at least two environments, for example [dev, prod]; got [$($envs -join ', ')].")
+    }
+    if ($envs[0] -eq 'prod' -and $envs.Count -eq 1) {
+        Write-Warning "Only the prod environment is configured. Nothing is validated before production; consider adding dev or test."
+    }
+    elseif ($envs[0] -eq 'prod') {
+        Write-Warning "prod is the first environment, so nothing is validated before production."
+    }
+    if (($envs | Where-Object { $_ -ne 'dev' }) -and $Data['cicd'] -eq 'github' -and @($Data['approvers']).Count -eq 0) {
+        Write-Warning "No approvers are set. Deployments to $((@($envs | Where-Object { $_ -ne 'dev' })) -join ' and ') will run without a required review. Set approvers to a list of GitHub users."
+    }
+
+    $check = {
+        param($Name, $Min, $Max)
+        $c = ConvertTo-MLOpsCidr ([string]$Data[$Name])
+        if (-not $c) { $problems.Add("$Name '$($Data[$Name])' is not a valid IPv4 CIDR range."); return $null }
+        if ($c.HostBits) { $problems.Add("$Name '$($Data[$Name])' has host bits set; use the network address of the range.") }
+        $private = ($c.Start -ge 167772160 -and $c.End -le 184549375) -or ($c.Start -ge 2886729728 -and $c.End -le 2887778303) -or ($c.Start -ge 3232235520 -and $c.End -le 3232301055)
+        if (-not $private) { $problems.Add("$Name '$($Data[$Name])' is not inside private address space (10.0.0.0/8, 172.16.0.0/12 or 192.168.0.0/16).") }
+        if ($c.Prefix -lt $Min -or $c.Prefix -gt $Max) { $problems.Add("$Name '$($Data[$Name])' must have a prefix between /$Min and /$Max.") }
+        $c
+    }
+    $vnet = $null; $runners = $null
+    if ($sc.network_mode -eq 'byo_vnet' -and -not $sc.existing_platform) { $vnet = & $check 'vnet_address_space' 16 18 }
+    if ($Data['use_private_networking']) { $runners = & $check 'runners_vnet_address_space' 16 27 }
+    if ($vnet -and $runners -and $vnet.Start -le $runners.End -and $runners.Start -le $vnet.End) {
+        $problems.Add("vnet_address_space '$($Data['vnet_address_space'])' overlaps runners_vnet_address_space '$($Data['runners_vnet_address_space'])'.")
+    }
+
+    if ($problems.Count -gt 0) { throw "Invalid inputs in '$Path': $($problems -join ' ')" }
+}
+
 function Read-MLOpsInput {
     param([Parameter(Mandatory)][string] $Path)
 
@@ -68,6 +122,7 @@ function Read-MLOpsInput {
         $detail = ($errors | ForEach-Object { $_.ToString() }) -join '; '
         throw "Invalid inputs in '$Path': $detail"
     }
+    Assert-MLOpsInputSemantics -Data $data -Path $Path
     $data
 }
 
@@ -176,7 +231,7 @@ function New-MLOpsTokenMap {
     $loc = $Inputs['location']
     $short = if ($script:LocationShort.ContainsKey($loc)) { $script:LocationShort[$loc] } else { $loc.Substring(0, [Math]::Min(4, $loc.Length)) }
     $hash = [System.Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes("$($Inputs['subscription_id'])/$($Inputs['project_name'])"))
-    $suffix = (($hash | Select-Object -First 2 | ForEach-Object { $_.ToString('x2') }) -join '')
+    $suffix = (($hash | Select-Object -First 3 | ForEach-Object { $_.ToString('x2') }) -join '').Substring(0, 5)
     if ($Inputs['name_suffix']) { $suffix = [string]$Inputs['name_suffix'] }
 
     $envs = @($Inputs['environments'])

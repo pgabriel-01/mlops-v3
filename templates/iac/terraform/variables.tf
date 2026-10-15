@@ -20,7 +20,12 @@ variable "location_short" {
 
 variable "suffix" {
   type        = string
-  description = "Deterministic 4 character suffix for globally unique names."
+  description = "Deterministic 5 character suffix for globally unique names."
+
+  validation {
+    condition     = can(regex("^[a-z0-9]{5}$", var.suffix))
+    error_message = "suffix must be exactly 5 lowercase letters or digits."
+  }
 }
 
 variable "network_mode" {
