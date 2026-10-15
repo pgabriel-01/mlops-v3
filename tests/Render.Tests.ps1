@@ -25,6 +25,8 @@ Describe 'Generator' {
         Test-Path (Join-Path $out 'src/train.py') | Should -BeTrue
         $hits = Get-ChildItem -Recurse -File $out | Where-Object { $_.Name -notlike 'taxi-request.json' -and $_.Extension -in '.yml', '.tf', '.bicep', '.md' } | Select-String -Pattern '\[\[' -SimpleMatch
         $hits | Should -BeNullOrEmpty
+        Get-Content -Raw (Join-Path $out 'requirements-dev.txt') | Should -Match 'numpy==\d'
+        Get-ChildItem -Recurse -File $out -Filter '*.tpl' | Should -BeNullOrEmpty
     }
     It 'rejects invalid input' {
         $f = Join-Path $TestDrive 'bad.yaml'; Set-Content $f "project_name: X`n"
