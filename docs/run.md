@@ -42,7 +42,7 @@ Scenarios with private networking (2-4, 11) need self-hosted agents or runners t
 | After | Check |
 |---|---|
 | infra | Resource group per environment, AML workspace reachable in the portal |
-| ml-train | A job in the Jobs page in Azure ML studio and a registered model |
+| ml-train | A job on the Jobs page of Azure ML studio and a registered model |
 | ml-deploy | Endpoint shows *Succeeded*; send a sample request (see the generated README) |
 
 ## Run locally instead
