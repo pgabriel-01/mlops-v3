@@ -5,8 +5,17 @@ weight: 50
 
 ## 1. Prerequisites
 
-See the [parameter checklist](planning/parameter-checklist.md). In short: PowerShell 7.4+, `powershell-yaml`, Terraform, Azure CLI
-(plus Bicep for `iac: bicep`), `az login`, and a GitHub token or Azure DevOps PAT.
+Install these tools, then `az login` and create a GitHub token or Azure DevOps PAT. See the [parameter checklist](planning/parameter-checklist.md) and [prerequisites](prerequisites/_index.md) for details.
+
+| Tool | Install |
+|---|---|
+| PowerShell 7.4+ | [install](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) |
+| `powershell-yaml` | `Install-PSResource powershell-yaml` |
+| Terraform 1.16.x | [install](https://developer.hashicorp.com/terraform/install) |
+| Azure CLI | [install](https://learn.microsoft.com/cli/azure/install-azure-cli) |
+| Bicep (only for `iac: bicep`) | `az bicep install` |
+| git | [install](https://git-scm.com/downloads) |
+| GitHub CLI (optional) | [install](https://cli.github.com/) |
 
 ## 2. Bootstrap
 
