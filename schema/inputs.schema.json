@@ -71,7 +71,7 @@
         "adls"
       ],
       "default": "taxi-csv",
-      "description": "taxi-csv and taxi-parquet use the bundled 2,000-row sample, registered as an MLTable data asset. adls reads a CSV from an ADLS Gen2 container through an identity-based Azure Machine Learning datastore. Parquet and other sources are planned (see docs/data-sources.md)."
+      "description": "taxi-csv and taxi-parquet use the bundled NYC taxi sample (derived from the MIT-licensed azureml-examples repository, see data/NOTICE.md in the generated project), registered as an MLTable data asset. adls reads a CSV from an ADLS Gen2 container through an identity-based Azure Machine Learning datastore. Other sources are not generated; land the data in ADLS first (see docs/planning/data-sources.md)."
     },
     "environments": {
       "type": "array",
@@ -114,13 +114,13 @@
       "type": "string",
       "minLength": 1
     },
-    "workload": {
+    "workload_type": {
       "type": "string",
       "enum": [
         "tabular"
       ],
       "default": "tabular",
-      "description": "Machine learning workload pack. nlp and vision are planned."
+      "description": "The kind of machine learning workload pack to generate. Only tabular exists today. Not to be confused with workloads, the list of workload names that share one platform."
     },
     "vnet_address_space": {
       "type": "string",
@@ -180,7 +180,7 @@
     "workloads": {
       "type": "array",
       "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,14}[a-z0-9]$" },
+      "items": { "type": "string", "pattern": "^(?!(src|data|tests|mlops|infra|bootstrap|docs|rag|workloads)$)[a-z][a-z0-9-]{1,14}[a-z0-9]$" },
       "description": "Optional list of workload names sharing the one platform (one workspace per environment). Each gets workloads/<name>/ (src, mlops, data, tests) and its own ml-train and ml-deploy pipelines. Omit for a single workload at the repo root."
     },
     "use_private_networking": {

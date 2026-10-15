@@ -8,7 +8,7 @@ tenant_id: 00000000-0000-0000-0000-000000000000
 iac: terraform          # terraform or bicep
 cicd: github            # github or azdo
 scenario: basic-public  # see Get-MLOpsScenario (12 AML scenarios)
-workload: tabular
+workload_type: tabular
 # compute_vm_size: Standard_DS3_v2   # training cluster and online endpoint size
 # compute_max_nodes: 4
 # workloads: [taxi, churn]   # several workloads on one platform; the default is a single workload at the repo root

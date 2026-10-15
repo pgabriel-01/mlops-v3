@@ -107,3 +107,7 @@ Set `use_private_networking: true` (GitHub) to deploy self-hosted ACI runners in
 
 - The runner registration uses a GitHub PAT with repo admin rights. `-Deploy` reuses `GITHUB_TOKEN` (or `gh auth token`); set `TF_VAR_github_runners_token` to override.
 - Not yet verified live. Azure DevOps (Managed DevOps Pools) is not generated yet.
+
+## ADLS data is not an MLTable
+
+The bundled `taxi-csv` and `taxi-parquet` samples register as MLTable assets. `data_source: adls` registers a single `uri_file`, because `src/prep.py` parses MLTable by hand and reads only local paths. MLTable for ADLS needs `prep.py` support and a live run.

@@ -51,13 +51,13 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 | `tags` | map | `{}` | |
 | `github_org`, `github_repo` | string | | `cicd: github` |
 | `azdo_org_url`, `azdo_project` | string | | `cicd: azdo` |
-| `workload` | `tabular` | `tabular` | `nlp` and `vision` are planned |
+| `workload_type` | `tabular` | `tabular` | Kind of workload pack. `nlp` and `vision` are planned. The old name `workload` still works and prints a deprecation warning |
 | `vnet_address_space` | CIDR | `10.20.0.0/16` | Scenario 4 |
 | `allowed_outbound_fqdns` | list | PyPI and conda hosts | Scenario 3 |
 | `policy_mode` | `audit`, `deny` or `none` | `audit` (`none` for scenario 11) | [Azure Policy](../policy/_index.md) |
 | `compute_vm_size` | string | `Standard_DS3_v2` | Training cluster and online endpoint VM size |
 | `compute_max_nodes` | integer | `4` | Training cluster maximum nodes |
-| `workloads` | list | Single workload | Workload names sharing the platform; each gets `workloads/<name>/` and its own pipelines |
+| `workloads` | list | Single workload | Workload names (not types) sharing the platform; reserved names such as `src`, `data` and `mlops` are rejected; each gets `workloads/<name>/` and its own pipelines |
 | `use_private_networking` | bool | `false` | GitHub only, rejected with Azure DevOps: deploy self-hosted ACI runners in a VNet and make the state storage private-endpoint only |
 | `runners_vnet_address_space` | string | `10.250.0.0/24` | Runner VNet address space |
 | `runner_label` | string | `ubuntu-latest` | GitHub `runs-on` label for generated workflows. Must be a self-hosted label when `use_private_networking` is true |
