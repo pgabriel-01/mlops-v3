@@ -35,6 +35,7 @@ Regenerating overwrites files. Anything you edited by hand in the generated proj
 10. [Compute sizes](10-compute-sizes.md)
 11. [Switch scenario](11-switch-scenario.md)
 12. [Policy mode](12-policy-mode.md)
+13. [CSV or parquet](13-csv-or-parquet.md)
 
 ## All inputs
 
