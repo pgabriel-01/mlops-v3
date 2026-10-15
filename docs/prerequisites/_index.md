@@ -9,15 +9,17 @@ Work through the three steps, then continue to [Plan and configure](../getting-s
 
 Install these and make sure they are on the PATH of a PowerShell 7 (`pwsh`) terminal:
 
-| Tool | Version | Needed for | Where to get it |
-|---|---|---|---|
-| PowerShell | 7.4+ | the module | [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) |
-| `powershell-yaml` module | 0.4.7+ | reading inputs | `Install-PSResource powershell-yaml` ([PowerShell Gallery](https://www.powershellgallery.com/packages/powershell-yaml)) |
-| Terraform | 1.16.x (tested pin in `versions.lock.json`) | the bootstrap, always (and infra when `iac: terraform`) | [Install Terraform](https://developer.hashicorp.com/terraform/install) |
-| Azure CLI | current | sign-in, `az bicep`, ML CLI used by the pipelines | [Install the Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) |
-| Bicep | current | only when `iac: bicep` | `az bicep install` ([Bicep install](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install)) |
-| git | current | pushing the generated repository | [Install Git](https://git-scm.com/downloads) |
-| GitHub CLI (`gh`) | optional | supplies the GitHub token | [Install the GitHub CLI](https://cli.github.com/) |
+| Tool | Version | Direct download |
+|---|---|---|
+| PowerShell | 7.4 or newer (tested on 7.4.6). Windows PowerShell 5.1 does not work. | [PowerShell 7.4.6 releases](https://github.com/PowerShell/PowerShell/releases/tag/v7.4.6) |
+| `powershell-yaml` module | 0.4.7 or newer | [0.4.7 on the PowerShell Gallery](https://www.powershellgallery.com/packages/powershell-yaml/0.4.7), or `Install-PSResource powershell-yaml -Version 0.4.7` |
+| Terraform | 1.16.0 or newer (tested on 1.16.5) | [Terraform 1.16.5 downloads](https://releases.hashicorp.com/terraform/1.16.5/) |
+| Azure CLI | tested on 2.90.0; newer releases should work | [Windows installer](https://aka.ms/installazurecliwindows), [2.90.0 release](https://github.com/Azure/azure-cli/releases/tag/azure-cli-2.90.0) (macOS and Linux: [install steps](https://learn.microsoft.com/cli/azure/install-azure-cli)) |
+| Bicep | current, only for `iac: bicep` | `az bicep install`, or the [Bicep releases](https://github.com/Azure/bicep/releases/latest) |
+| git | current | [git downloads](https://git-scm.com/downloads) |
+| GitHub CLI (`gh`) | optional, 2.x (tested on 2.102.0) | [GitHub CLI releases](https://github.com/cli/cli/releases/latest) |
+
+The Azure ML CLI extension (`ml` 2.45.1) is installed by the generated pipelines, so you do not install it yourself. Python 3.14 and the package versions are pinned in `versions.lock.json` and are used only by the pipelines.
 
 Internet access is needed to download Terraform providers and AVM modules (`registry.terraform.io`, `mcr.microsoft.com` for Bicep AVM), reach Azure, and reach GitHub or Azure DevOps. If you must use mirrors, configure Terraform provider mirrors yourself; this has not been tested.
 
