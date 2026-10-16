@@ -1,0 +1,34 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+# Trains the fare model and logs it with MLflow.
+name: [[workload_slug]]_train
+display_name: train-model
+description: Train a random forest regressor and log it as an MLflow model.
+code: ../../../src
+environment: azureml:[[workload_name]]-train-env@latest
+inputs:
+  train_data:
+    type: uri_folder
+  n_estimators:
+    type: integer
+    default: 300
+  max_depth:
+    type: integer
+    default: 10
+  min_samples_leaf:
+    type: integer
+    default: 4
+  min_samples_split:
+    type: integer
+    default: 5
+outputs:
+  model_output:
+    type: mlflow_model
+command: >-
+  python train.py
+  --train_data ${{inputs.train_data}}
+  --n_estimators ${{inputs.n_estimators}}
+  --max_depth ${{inputs.max_depth}}
+  --min_samples_leaf ${{inputs.min_samples_leaf}}
+  --min_samples_split ${{inputs.min_samples_split}}
+  --model_output ${{outputs.model_output}}

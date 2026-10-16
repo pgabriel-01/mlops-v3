@@ -62,6 +62,7 @@ Describe 'Generator' {
             Test-MLOpsAcceleratorInput -InputFile $f | Should -BeTrue
             Deploy-MLOpsAccelerator -InputFile $f -OutputPath $out -SkipVersionCheck
             (Get-ChildItem -Recurse -File $out | Where-Object { $_.Extension -in '.yml', '.tf', '.bicep', '.bicepparam', '.tfvars', '.md' } | Select-String '[[' -SimpleMatch) | Should -BeNullOrEmpty
+            foreach ($c in 'prep', 'train', 'evaluate', 'register') { Test-Path (Join-Path $out "mlops/azureml/components/$c.yml") | Should -BeTrue }
             Test-Path (Join-Path $out 'mlops/azureml/online-endpoint.yml') | Should -Be ($endpoint -eq 'online')
             Test-Path (Join-Path $out 'mlops/azureml/batch-endpoint.yml') | Should -Be ($endpoint -eq 'batch')
             Test-Path (Join-Path $out '.github/workflows/ml-deploy.yml') | Should -Be ($endpoint -ne 'none')
@@ -136,6 +137,8 @@ Describe 'Generator' {
                 Test-Path (Join-Path $o "workloads/$w/tests/test_smoke.py") | Should -BeTrue
                 Get-Content -Raw (Join-Path $o ".github/workflows/ml-train-$w.yml") | Should -Match "workloads/$w/mlops/azureml/pipeline.yml"
                 Get-Content -Raw (Join-Path $o "workloads/$w/mlops/azureml/pipeline.yml") | Should -Match "model_name: $w-model"
+                Get-Content -Raw (Join-Path $o "workloads/$w/mlops/azureml/pipeline.yml") | Should -Match "component: azureml:${w}_train@latest"
+                Get-Content -Raw (Join-Path $o "workloads/$w/mlops/azureml/components/train.yml") | Should -Match "name: ${w}_train"
                 Get-Content -Raw (Join-Path $o ".github/workflows/ml-deploy-$w.yml") | Should -Match "workloads/$w/data/taxi-request.json"
             }
             Test-Path (Join-Path $o 'src') | Should -BeFalse

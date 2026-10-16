@@ -13,6 +13,7 @@ All generated output is validated offline (render, `terraform validate`, `az bic
 
 ### Changed
 
+- The training steps are now Azure ML command components in `mlops/azureml/components/` (prep, train, evaluate and register), each with typed inputs and outputs. The pipeline calls them by name (`<name>_prep` and so on, with hyphens in the workload name replaced by underscores, which component names require), and `ml-train` registers them before it submits the job. The generated smoke test checks each component against its script. The components are validated offline with the Azure ML SDK loader but have not run live yet, and registering them in a registry for scenario 8 is not done.
 - The Bicep pipelines scan with PSRule for Azure instead of Checkov, which parsed none of the AVM based Bicep and passed. The step fails if nothing is scanned.
 - The Azure DevOps bootstrap sets the repository default branch to `main` and authorizes pipelines to use its environments and service connections. The Azure DevOps bootstrap and Bicep pipeline were applied live on October 15, 2026.
 - Soft-delete guidance now says workspace names need a new `project_name`, not only a new `suffix`.

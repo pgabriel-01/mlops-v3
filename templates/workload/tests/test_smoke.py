@@ -31,3 +31,33 @@ def test_pipeline_steps(tmp_path, asset):
     metrics = json.loads((dirs["eval"] / "metrics.json").read_text())
     assert metrics["test_r2"] > 0.5
     assert metrics["deploy_flag"] is True
+
+
+COMPONENTS = ROOT / "mlops" / "azureml" / "components"
+
+
+@pytest.mark.parametrize("step", ["prep", "train", "evaluate", "register"])
+def test_component_matches_script(step):
+    """The component command passes exactly the flags the script defines, and every input and output is declared."""
+    import re
+
+    import yaml
+
+    component = yaml.safe_load((COMPONENTS / f"{step}.yml").read_text())
+    command = component["command"]
+    script = (SRC / f"{step}.py").read_text()
+    script_flags = set(re.findall(r'add_argument\("--(\w+)"', script))
+    command_flags = set(re.findall(r"--(\w+) \$\{\{", command))
+    assert command_flags == script_flags
+    for kind in ("inputs", "outputs"):
+        used = set(re.findall(rf"\$\{{\{{{kind}\.(\w+)\}}\}}", command))
+        assert used == set(component.get(kind, {}))
+
+
+def test_pipeline_uses_components():
+    import yaml
+
+    pipeline = yaml.safe_load((ROOT / "mlops" / "azureml" / "pipeline.yml").read_text())
+    names = {yaml.safe_load(p.read_text())["name"] for p in COMPONENTS.glob("*.yml")}
+    used = {job["component"].split(":")[1].split("@")[0] for job in pipeline["jobs"].values()}
+    assert used == names

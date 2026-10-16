@@ -1,0 +1,24 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+# Scores the model on the test set and decides whether it beats the registered version.
+name: [[workload_slug]]_evaluate
+display_name: evaluate-model
+description: Score the model on the test set and set the deploy flag.
+code: ../../../src
+environment: azureml:[[workload_name]]-train-env@latest
+inputs:
+  model_name:
+    type: string
+  model_input:
+    type: mlflow_model
+  test_data:
+    type: uri_folder
+outputs:
+  evaluation_output:
+    type: uri_folder
+command: >-
+  python evaluate.py
+  --model_name ${{inputs.model_name}}
+  --model_input ${{inputs.model_input}}
+  --test_data ${{inputs.test_data}}
+  --evaluation_output ${{outputs.evaluation_output}}
