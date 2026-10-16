@@ -27,7 +27,7 @@ The bootstrap creates one environment per stage (`dev`, `test`, `prod` by defaul
 {{< tabs >}}
 {{% tab title="GitHub" %}}
 1. Open the repository, then **Actions**.
-2. **2 - infra** runs on every push to `main` that touches `infra/`. To run it by hand choose **Run workflow** on `main`. It validates (format check, validate and Checkov), then deploys `dev`, then `test`, then `prod`, each waiting for its environment approval.
+2. **2 - infra** runs on every push to `main` that touches `infra/`. To run it by hand choose **Run workflow** on `main`. It validates (format check, validate and a security scan: Checkov for Terraform, PSRule for Azure for Bicep), then deploys `dev`, then `test`, then `prod`, each waiting for its environment approval.
 3. When infra is green, run **3 - ml-train** (**Run workflow**, pick an environment). It runs unit tests, submits the AML training pipeline and registers the model.
 4. Run **4 - ml-deploy** to create the endpoint (scenarios 2 to 4, 6 to 9 and 11 online; scenario 5 batch). Scenario 6 shifts traffic 10% then 100%. Scenario 8 uses **4 - ml-promote** to copy the model through the shared registry first.
 {{% /tab %}}

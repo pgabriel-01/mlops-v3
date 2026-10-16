@@ -20,7 +20,7 @@ The module exports these commands. Use `Get-Help <command> -Full` for parameters
 
 ## Design
 
-- **Security:** OIDC and workload identity federation with no stored secrets, Key Vault with RBAC and purge protection, Terraform state in Azure Storage with Entra authentication, checkov in CI, and per-environment approvals.
+- **Security:** OIDC and workload identity federation with no stored secrets, Key Vault with RBAC and purge protection, Terraform state in Azure Storage with Entra authentication, a security scan in CI (Checkov for Terraform, PSRule for Azure for Bicep), and per-environment approvals.
 - **Operations:** Log Analytics and Application Insights, promotion from `dev` to `test` to `prod`, and one state file per environment.
 - **MLOps:** a training pipeline (prepare, train, evaluate, register), a model registry and a managed online endpoint with safe rollout.
 - **Azure Verified Modules:** see [Azure Verified Modules](azure-verified-modules.md).
