@@ -6,13 +6,16 @@ weight: 2
 Newest first. The latest release is `v0.2.0` (2026-10-15); the first was `v0.1.0` (2026-10-14). Releases are tagged `v0.x.y` until the first gold release (`v1.0.0`), which also needs the bootstrap, private runners and Azure DevOps verified live. The module is pre-release and is not on the PowerShell Gallery yet. Entries are tagged **[Important]** when you must act, or **[Preview]** for features that are not applied to a live subscription yet.
 
 {{% callout style="warning" title="Workload and GitHub bootstrap applied live" %}}
-All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 12 are also verified live for Terraform and Bicep by the `e2e.yml` workflow. The GitHub bootstrap apply and the Bicep `infra` pipeline (dev and prod) are verified live too. Private runners and private state storage, the Azure DevOps bootstrap, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment are not verified live; see [Known issues](known-issues.md#live-deployment-coverage).
+All generated output is validated offline (render, `terraform validate`, `az bicep build`, pytest). Scenarios 1 to 12 are also verified live for Terraform and Bicep by the `e2e.yml` workflow. The GitHub and Azure DevOps bootstraps and the Bicep `infra` pipeline on both (dev and prod) are verified live too. Private runners and private state storage, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment are not verified live; see [Known issues](known-issues.md#live-deployment-coverage).
 {{% /callout %}}
 
 ## Unreleased
 
 ### Changed
 
+- The Bicep pipelines scan with PSRule for Azure instead of Checkov, which parsed none of the AVM based Bicep and passed. The step fails if nothing is scanned.
+- The Azure DevOps bootstrap sets the repository default branch to `main` and authorizes pipelines to use its environments and service connections. The Azure DevOps bootstrap and Bicep pipeline were applied live on October 15, 2026.
+- Soft-delete guidance now says workspace names need a new `project_name`, not only a new `suffix`.
 - The GitHub bootstrap now declares the federated credentials directly instead of through the identity module. The module's latest release still uses the deprecated `parent_id` argument, so every plan printed a deprecation warning. Regenerated bootstrap folders replace the two credentials once on the next apply.
 - The printed next step, the project README and the run guide quote `-var-file` and `-out` so the commands work in PowerShell as well as bash.
 - The `workload` input is renamed `workload_type` to stop it being confused with `workloads`. The old name is still accepted and prints a deprecation warning. Workload names that clash with generated folders (`src`, `data`, `tests`, `mlops`, `infra`, `bootstrap`, `docs`, `rag`, `workloads`) are now rejected.

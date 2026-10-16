@@ -72,11 +72,21 @@ The `e2e.yml` workflow applies a scenario, checks the workspace exists, then des
 
 Live runs found and fixed these problems: Terraform zone sets that were unknown at plan time, duplicate storage private endpoint names, compute created before the workspace private endpoint (now explicit `depends_on`), Standard ACR rejecting the default `Deny` network action, storage and Key Vault needing explicit `Allow` ACLs for public scenarios, a Terraform conditional with mismatched object types for the managed network, and the OIDC token expiring during long applies.
 
-The GitHub bootstrap (Terraform, 46 resources) was applied live on October 15, 2026, and the generated Bicep project then deployed `basic-public` to the `dev` and `prod` environments through the `infra` pipeline using the bootstrap identity and federated credentials. The same project with Terraform stopped at `terraform init` with the 403 described below, because the test subscription's policy turns state storage public access off. Not verified live: the Azure DevOps bootstrap, the Terraform pipeline against state storage with public access off, private runners and private state storage, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment.
+The GitHub bootstrap (Terraform, 46 resources) was applied live on October 15, 2026, and the generated Bicep project then deployed `basic-public` to the `dev` and `prod` environments through the `infra` pipeline using the bootstrap identity and federated credentials. The same project with Terraform stopped at `terraform init` with the 403 described below, because the test subscription's policy turns state storage public access off. The Azure DevOps bootstrap (43 resources) was also applied live on the same date, and its Bicep `infra` pipeline passed validate, `deploy_dev` and `deploy_prod`. Not verified live: the Azure DevOps Terraform pipeline, the Terraform pipeline against state storage with public access off, private runners and private state storage, separate plan and apply identities, Managed DevOps Pools, the `rai` option, the scenario 7 feature-set pack and endpoint deployment.
+
+## Azure DevOps notes
+
+- The bootstrap sets the Azure Repos default branch to `main` (a new repository defaults to `master`) and authorizes every pipeline to use the generated environments and service connections, so the first run does not wait for a manual Permit.
+- A push to `main` starts the `infra` pipeline. Starting a manual run at the same time collides on the deployment name (`DeploymentActive`); wait for the push run to finish.
+- Hosted agents print a notice that `ubuntu-latest` moves to Ubuntu 26 on October 19, 2026.
+
+## Bicep security scan
+
+The Bicep pipelines scan with PSRule for Azure, not Checkov. Checkov cannot parse the AVM based Bicep (it reported zero checks and a parsing error, then passed) and crashes on the compiled template. PSRule expands each `.bicepparam` file and reports findings as warnings; the step fails only if it cannot scan (no results or an error). Findings such as storage firewall, Key Vault logging and ACR geo-replication are informational for the default scenario. The Terraform pipelines still use Checkov.
 
 ## Soft-deleted names and managed-network rules
 
-- Key Vaults (purge protection) and AML workspaces stay soft-deleted after a destroy, which blocks redeploying the same names. Change the `suffix` (Bicep param or Terraform variable) before redeploying.
+- Key Vaults (purge protection) and AML workspaces stay soft-deleted after a destroy, which blocks redeploying the same names. Key Vault names use the `suffix`, but workspace names use only the project name, so change both `suffix` and `project_name` (or purge the soft-deleted workspace) before redeploying.
 - Managed-network private endpoint outbound rules for storage, Key Vault, ACR and the workspace are created by the service. The templates define only FQDN rules.
 - Every private scenario (2, 3, 4 and 11) is verified live on Terraform and Bicep. The private runners and private state storage from the bootstrap are not.
 

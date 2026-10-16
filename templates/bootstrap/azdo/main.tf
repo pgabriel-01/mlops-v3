@@ -131,8 +131,9 @@ resource "azurerm_role_assignment" "state" {
 }
 
 resource "azuredevops_git_repository" "this" {
-  project_id = data.azuredevops_project.this.id
-  name       = var.project_name
+  project_id     = data.azuredevops_project.this.id
+  name           = var.project_name
+  default_branch = "refs/heads/main"
   initialization {
     init_type = "Clean"
   }
@@ -142,6 +143,22 @@ resource "azuredevops_environment" "env" {
   for_each   = local.environments
   project_id = data.azuredevops_project.this.id
   name       = each.key
+}
+
+# Without these, the first run of each pipeline waits for someone to click Permit on every
+# service connection and environment.
+resource "azuredevops_pipeline_authorization" "endpoint" {
+  for_each    = local.environments
+  project_id  = data.azuredevops_project.this.id
+  resource_id = azuredevops_serviceendpoint_azurerm.env[each.key].id
+  type        = "endpoint"
+}
+
+resource "azuredevops_pipeline_authorization" "environment" {
+  for_each    = local.environments
+  project_id  = data.azuredevops_project.this.id
+  resource_id = azuredevops_environment.env[each.key].id
+  type        = "environment"
 }
 
 resource "azuredevops_variable_group" "env" {

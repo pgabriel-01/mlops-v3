@@ -22,11 +22,22 @@ jobs:
     steps:
       - uses: actions/checkout@[[versions.actions.checkout]]
       - run: az bicep build --file infra/main.bicep --stdout > /dev/null
-      - uses: bridgecrewio/checkov-action@[[versions.actions.checkov]]
-        with:
-          directory: infra
-          framework: bicep
-          soft_fail: false
+      - name: PSRule for Azure
+        shell: pwsh
+        env:
+          PSRULE_CONFIGURATION_AZURE_BICEP_FILE_EXPANSION: 'true'
+          PSRULE_CONFIGURATION_AZURE_BICEP_FILE_EXPANSION_TIMEOUT: '300'
+        run: |
+          Install-PSResource PSRule.Rules.Azure -Scope CurrentUser -TrustRepository
+          $bicep = (Get-Command bicep -ErrorAction SilentlyContinue)?.Source
+          if ($bicep) { $env:PSRULE_AZURE_BICEP_PATH = $bicep }
+          Import-Module PSRule.Rules.Azure
+          $files = Get-ChildItem infra/envs -Filter *.bicepparam
+          $results = Invoke-PSRule -Module PSRule.Rules.Azure -InputPath $files.FullName -Format File
+          $failed = @($results | Where-Object Outcome -eq 'Fail')
+          foreach ($f in $failed) { Write-Host "::warning::$($f.RuleName) on $($f.TargetName)" }
+          Write-Host "PSRule processed $(@($results).Count) results, $($failed.Count) findings."
+          if (@($results).Count -eq 0 -or @($results | Where-Object Outcome -eq 'Error')) { throw 'PSRule did not scan the Bicep templates.' }
 
 [[#each_env]]
   deploy-[[env]]:
