@@ -44,4 +44,7 @@ stages:
                       [ -f [[workload_dir]]mlops/azureml/datastore.yml ] && az ml datastore create -f [[workload_dir]]mlops/azureml/datastore.yml -g $RG -w $WS
                       az ml data create -f [[workload_dir]]mlops/azureml/data.yml -g $RG -w $WS
                       az ml environment create -f [[workload_dir]]mlops/azureml/env.yml -g $RG -w $WS
+                      for c in prep train evaluate register; do
+                        az ml component create -f [[workload_dir]]mlops/azureml/components/$c.yml -g $RG -w $WS
+                      done
                       az ml job create -f [[workload_dir]]mlops/azureml/pipeline.yml -g $RG -w $WS --stream

@@ -1,0 +1,28 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+# Cleans the raw taxi data and splits it into train, validation and test sets.
+name: [[workload_slug]]_prep
+display_name: prep-data
+description: Clean the raw data and split it into train, validation and test sets.
+code: ../../../src
+environment: azureml:[[workload_name]]-train-env@latest
+inputs:
+  raw_data:
+    type: [[data_type]]
+  seed:
+    type: integer
+    default: 0
+outputs:
+  train_data:
+    type: uri_folder
+  val_data:
+    type: uri_folder
+  test_data:
+    type: uri_folder
+command: >-
+  python prep.py
+  --raw_data ${{inputs.raw_data}}
+  --seed ${{inputs.seed}}
+  --train_data ${{outputs.train_data}}
+  --val_data ${{outputs.val_data}}
+  --test_data ${{outputs.test_data}}

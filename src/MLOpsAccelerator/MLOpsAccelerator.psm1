@@ -315,6 +315,7 @@ function New-MLOpsTokenMap {
         environments_csv       = ($envs -join ', ')
         environments_yaml_list = '[' + (($envs | ForEach-Object { '"' + $_ + '"' }) -join ', ') + ']'
         workload_name          = [string]$Inputs['project_name']
+        workload_slug          = ([string]$Inputs['project_name']).Replace('-', '_')
         workload_dir           = ''
         workload_label         = ''
         runner_label           = [string]$Inputs['runner_label']
@@ -528,6 +529,7 @@ function Deploy-MLOpsAccelerator {
             $suffix = ''
             if ($wl) {
                 $base['workload_name'] = $wl
+                $base['workload_slug'] = $wl.Replace('-', '_')
                 $base['workload_dir'] = "workloads/$wl/"
                 $base['workload_label'] = " ($wl)"
                 $base['model_ref'] = ([string]$map['model_ref']).Replace("$project-model", "$wl-model")
